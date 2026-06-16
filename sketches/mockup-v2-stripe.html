@@ -1,0 +1,1339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Backupeer — Stripe Style Mockup</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+/* ══════════════════════════════════════
+   STRIPE-INSPIRED DESIGN SYSTEM
+   Light + Dark Mode · Sidebar Layout
+   ══════════════════════════════════════ */
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --stripe-purple: #635BFF;
+  --stripe-purple-dark: #5850EC;
+  --stripe-purple-light: #7a73ff;
+  --stripe-purple-bg: rgba(99, 91, 255, 0.1);
+  --gradient-btn: linear-gradient(135deg, #635BFF, #5850EC);
+  --gradient-btn-hover: linear-gradient(135deg, #7a73ff, #635BFF);
+  --gradient-logo: linear-gradient(135deg, #635BFF, #ec4899);
+  --gradient-hero: linear-gradient(135deg, #0A2540 0%, #1a1a4e 30%, #3a1a6e 60%, #6a1a4e 100%);
+  --gradient-mesh:
+    radial-gradient(600px at 20% 30%, rgba(99, 91, 255, 0.15), transparent 70%),
+    radial-gradient(500px at 80% 20%, rgba(236, 72, 153, 0.12), transparent 70%),
+    radial-gradient(400px at 50% 80%, rgba(251, 146, 60, 0.08), transparent 70%);
+
+  --font-ui: 'Inter', -apple-system, system-ui, sans-serif;
+  --font-mono: 'SF Mono', 'Monaco', 'Menlo', monospace;
+
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-2xl: 20px;
+  --radius-full: 9999px;
+
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 12px;
+  --space-lg: 16px;
+  --space-xl: 20px;
+  --space-xxl: 24px;
+  --space-3xl: 32px;
+  --space-4xl: 40px;
+  --space-5xl: 48px;
+
+  /* Sidebar width */
+  --sidebar-w: 240px;
+}
+
+/* ══════════════════════════════════════
+   LIGHT THEME
+   ══════════════════════════════════════ */
+:root, [data-theme="light"] {
+  --bg-canvas: #f8fafc;
+  --bg-surface: #ffffff;
+  --bg-elevated: #ffffff;
+  --bg-subtle: rgba(0,0,0,0.03);
+  --bg-muted: #f1f5f9;
+  --bg-sidebar: #ffffff;
+  --bg-sidebar-hover: #f1f5f9;
+  --bg-sidebar-active: rgba(99, 91, 255, 0.08);
+
+  --border-default: #e2e8f0;
+  --border-subtle: #f1f5f9;
+  --border-hover: #cbd5e1;
+
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-tertiary: #94a3b8;
+  --text-quaternary: #cbd5e1;
+  --text-inverse: #ffffff;
+  --text-sidebar: #64748b;
+  --text-sidebar-active: #635BFF;
+  --text-sidebar-hover: #0f172a;
+
+  --gray-50: #f8fafc;
+  --gray-100: #f1f5f9;
+  --gray-200: #e2e8f0;
+  --gray-300: #cbd5e1;
+  --gray-400: #94a3b8;
+  --gray-500: #64748b;
+  --gray-600: #475569;
+  --gray-700: #334155;
+  --gray-800: #1e293b;
+  --gray-900: #0f172a;
+
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.06);
+  --shadow-lg: 0 8px 30px rgba(0,0,0,0.08);
+  --shadow-xl: 0 20px 60px rgba(0,0,0,0.1);
+  --shadow-btn: 0 4px 14px rgba(99, 91, 255, 0.35);
+  --shadow-card-hover: 0 4px 16px rgba(0,0,0,0.08);
+  --shadow-sidebar: 1px 0 0 var(--border-default);
+  --shadow-sidebar-drop: 4px 0 24px rgba(0,0,0,0.06);
+
+  --stat-card-bg: #ffffff;
+  --table-row-hover: #f8fafc;
+  --table-header-bg: #f8fafc;
+  --table-border-left-success: #10b981;
+  --table-border-left-failed: #ef4444;
+  --table-border-left-running: #3b82f6;
+
+  --schedule-toggle-bg: #cbd5e1;
+  --config-item-icon-empty-bg: #f1f5f9;
+  --config-item-icon-empty-color: #94a3b8;
+  --search-bg: #ffffff;
+
+  --hero-gradient: linear-gradient(135deg, #0A2540 0%, #1a1a4e 30%, #3a1a6e 60%, #6a1a4e 100%);
+  --hero-text: #ffffff;
+  --hero-text-secondary: rgba(255,255,255,0.7);
+  --hero-badge-bg: rgba(255,255,255,0.1);
+  --hero-badge-border: rgba(255,255,255,0.15);
+  --hero-btn-primary-bg: #ffffff;
+  --hero-btn-primary-text: #0A2540;
+  --hero-btn-secondary-bg: rgba(255,255,255,0.1);
+  --hero-btn-secondary-text: #ffffff;
+  --hero-btn-secondary-border: rgba(255,255,255,0.2);
+
+  --login-bg: linear-gradient(135deg, #0A2540 0%, #1a1a4e 30%, #3a1a6e 60%, #6a1a4e 100%);
+  --login-card-bg: rgba(255,255,255,0.98);
+  --login-card-border: none;
+  --login-divider-color: #e2e8f0;
+
+  --input-bg: #ffffff;
+  --input-border: #e2e8f0;
+  --input-border-focus: #635BFF;
+  --input-shadow-focus: 0 0 0 3px rgba(99,91,255,0.12);
+  --input-placeholder: #94a3b8;
+
+  --badge-pg-bg: rgba(51,103,145,0.1);
+  --badge-pg-text: #336791;
+  --badge-mysql-bg: rgba(0,117,143,0.1);
+  --badge-mysql-text: #00758f;
+  --badge-maria-bg: rgba(24,137,180,0.1);
+  --badge-maria-text: #1889b4;
+
+  --empty-state-icon-bg: #f8fafc;
+  --empty-state-icon-color: #cbd5e1;
+
+  --bottom-cta-border: #e2e8f0;
+  --demo-scene-label-bg: #0A2540;
+  --demo-scene-label-text: rgba(255,255,255,0.6);
+  --scene-bottom-bg: #f8fafc;
+  --sidebar-separator: #e2e8f0;
+}
+
+/* ══════════════════════════════════════
+   DARK THEME
+   ══════════════════════════════════════ */
+[data-theme="dark"] {
+  --bg-canvas: #0A2540;
+  --bg-surface: #0F2B47;
+  --bg-elevated: #1a3a5c;
+  --bg-subtle: rgba(255,255,255,0.04);
+  --bg-muted: #0d2b46;
+  --bg-sidebar: #0d2340;
+  --bg-sidebar-hover: rgba(255,255,255,0.06);
+  --bg-sidebar-active: rgba(99,91,255,0.15);
+
+  --border-default: rgba(255,255,255,0.08);
+  --border-subtle: rgba(255,255,255,0.04);
+  --border-hover: rgba(255,255,255,0.15);
+
+  --text-primary: rgba(255,255,255,0.95);
+  --text-secondary: rgba(255,255,255,0.65);
+  --text-tertiary: rgba(255,255,255,0.4);
+  --text-quaternary: rgba(255,255,255,0.25);
+  --text-inverse: #0f172a;
+  --text-sidebar: rgba(255,255,255,0.45);
+  --text-sidebar-active: #635BFF;
+  --text-sidebar-hover: rgba(255,255,255,0.9);
+
+  --gray-50: rgba(255,255,255,0.04);
+  --gray-100: rgba(255,255,255,0.08);
+  --gray-200: rgba(255,255,255,0.12);
+  --gray-300: rgba(255,255,255,0.18);
+  --gray-400: rgba(255,255,255,0.4);
+  --gray-500: rgba(255,255,255,0.5);
+  --gray-600: rgba(255,255,255,0.6);
+  --gray-700: rgba(255,255,255,0.7);
+  --gray-800: rgba(255,255,255,0.82);
+  --gray-900: rgba(255,255,255,0.92);
+
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.3);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.35);
+  --shadow-lg: 0 8px 30px rgba(0,0,0,0.4);
+  --shadow-xl: 0 20px 60px rgba(0,0,0,0.5);
+  --shadow-btn: 0 4px 14px rgba(99,91,255,0.5);
+  --shadow-card-hover: 0 4px 16px rgba(0,0,0,0.4);
+  --shadow-sidebar: 1px 0 0 var(--border-default);
+  --shadow-sidebar-drop: 4px 0 24px rgba(0,0,0,0.3);
+
+  --stat-card-bg: #0F2B47;
+  --table-row-hover: rgba(255,255,255,0.04);
+  --table-header-bg: rgba(255,255,255,0.04);
+  --table-border-left-success: #10b981;
+  --table-border-left-failed: #ef4444;
+  --table-border-left-running: #3b82f6;
+  --schedule-toggle-bg: rgba(255,255,255,0.2);
+  --config-item-icon-empty-bg: rgba(255,255,255,0.06);
+  --config-item-icon-empty-color: rgba(255,255,255,0.25);
+  --search-bg: #0F2B47;
+
+  --hero-gradient: linear-gradient(135deg, #000000 0%, #0A2540 40%, #1a1a4e 70%, #2a1a4e 100%);
+  --hero-text: #ffffff;
+  --hero-text-secondary: rgba(255,255,255,0.65);
+  --hero-badge-bg: rgba(99,91,255,0.2);
+  --hero-badge-border: rgba(99,91,255,0.3);
+  --hero-btn-primary-bg: #ffffff;
+  --hero-btn-primary-text: #0A2540;
+  --hero-btn-secondary-bg: rgba(255,255,255,0.08);
+  --hero-btn-secondary-text: #ffffff;
+  --hero-btn-secondary-border: rgba(255,255,255,0.15);
+
+  --login-bg: linear-gradient(135deg, #000000 0%, #0a0a2e 30%, #1a0a3e 60%, #2a0a2e 100%);
+  --login-card-bg: rgba(15,43,71,0.98);
+  --login-card-border: 1px solid rgba(255,255,255,0.1);
+  --login-divider-color: rgba(255,255,255,0.12);
+
+  --input-bg: rgba(255,255,255,0.06);
+  --input-border: rgba(255,255,255,0.12);
+  --input-border-focus: #635BFF;
+  --input-shadow-focus: 0 0 0 3px rgba(99,91,255,0.2);
+  --input-placeholder: rgba(255,255,255,0.3);
+
+  --badge-pg-bg: rgba(51,103,145,0.25);
+  --badge-pg-text: #6db3d9;
+  --badge-mysql-bg: rgba(0,117,143,0.25);
+  --badge-mysql-text: #4db8d4;
+  --badge-maria-bg: rgba(24,137,180,0.25);
+  --badge-maria-text: #5fc9e6;
+
+  --empty-state-icon-bg: rgba(255,255,255,0.06);
+  --empty-state-icon-color: rgba(255,255,255,0.18);
+
+  --bottom-cta-border: rgba(255,255,255,0.1);
+  --demo-scene-label-bg: #000000;
+  --demo-scene-label-text: rgba(255,255,255,0.5);
+  --scene-bottom-bg: #0d2b46;
+  --sidebar-separator: rgba(255,255,255,0.08);
+}
+
+/* ══════════════════════════════════════
+   BASE
+   ══════════════════════════════════════ */
+body {
+  font-family: var(--font-ui);
+  background: var(--bg-canvas);
+  color: var(--text-primary);
+  min-height: 100vh;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  transition: background 0.3s, color 0.3s;
+}
+
+/* ═══ THEME TOGGLE ═══ */
+.theme-toggle {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-full);
+  border: 1.5px solid var(--border-default);
+  background: var(--bg-subtle);
+  color: var(--text-tertiary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+.theme-toggle:hover {
+  border-color: var(--border-hover);
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+}
+
+/* ═══ UTILITY ═══ */
+.flex { display: flex; }
+.items-center { align-items: center; }
+.justify-between { justify-content: space-between; }
+.gap-sm { gap: var(--space-sm); }
+.gap-md { gap: var(--space-md); }
+.gap-lg { gap: var(--space-lg); }
+.gap-xl { gap: var(--space-xl); }
+
+/* ══════════════════════════════════════
+   SCENE 1: LOGIN (unchanged)
+   ══════════════════════════════════════ */
+.scene-login {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--login-bg);
+  position: relative;
+  overflow: hidden;
+  transition: background 0.3s;
+}
+.scene-login::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--gradient-mesh);
+  pointer-events: none;
+}
+
+.login-card {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 440px;
+  background: var(--login-card-bg);
+  border: var(--login-card-border);
+  border-radius: var(--radius-2xl);
+  padding: var(--space-5xl) var(--space-4xl);
+  box-shadow: var(--shadow-xl);
+  transition: background 0.3s, border 0.3s;
+}
+.login-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: var(--space-3xl);
+  justify-content: center;
+}
+.login-logo-icon {
+  width: 36px; height: 36px;
+  border-radius: var(--radius-md);
+  background: var(--gradient-logo);
+  display: flex; align-items: center; justify-content: center;
+  color: white; font-weight: 700; font-size: 16px;
+}
+.login-logo-text {
+  font-size: 20px; font-weight: 700; letter-spacing: -0.5px;
+  background: var(--gradient-logo);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.login-subtitle {
+  text-align: center; color: var(--text-secondary);
+  font-size: 14px; margin-bottom: var(--space-3xl); line-height: 1.6;
+}
+.login-subtitle strong { color: var(--text-primary); -webkit-text-fill-color: var(--text-primary); }
+.form-group { margin-bottom: var(--space-xl); }
+.form-label {
+  display: block; font-size: 13px; font-weight: 600;
+  color: var(--text-secondary); margin-bottom: 6px;
+}
+.form-input {
+  width: 100%; padding: 12px 14px;
+  border: 1.5px solid var(--input-border);
+  border-radius: var(--radius-md);
+  font-family: var(--font-ui); font-size: 14px;
+  color: var(--text-primary); background: var(--input-bg);
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s, background 0.3s, color 0.3s;
+}
+.form-input:focus { border-color: var(--input-border-focus); box-shadow: var(--input-shadow-focus); }
+.form-input::placeholder { color: var(--input-placeholder); }
+.form-hint { font-size: 12px; color: var(--text-tertiary); margin-top: 4px; }
+
+.btn-primary {
+  width: 100%; padding: 12px 20px;
+  background: var(--gradient-btn); color: white;
+  border: none; border-radius: var(--radius-md);
+  font-family: var(--font-ui); font-size: 14px; font-weight: 600;
+  cursor: pointer; transition: all 0.2s;
+  box-shadow: var(--shadow-btn); letter-spacing: 0.3px;
+}
+.btn-primary:hover {
+  background: var(--gradient-btn-hover);
+  box-shadow: 0 6px 20px rgba(99,91,255,0.45);
+  transform: translateY(-1px);
+}
+.btn-primary:active { transform: translateY(0); }
+
+.btn-secondary {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 8px 16px; background: transparent;
+  color: var(--text-secondary);
+  border: 1.5px solid var(--border-default);
+  border-radius: var(--radius-md);
+  font-family: var(--font-ui); font-size: 13px; font-weight: 500;
+  cursor: pointer; transition: all 0.2s;
+}
+.btn-secondary:hover { border-color: var(--border-hover); background: var(--bg-subtle); }
+
+.login-divider {
+  display: flex; align-items: center; gap: var(--space-lg);
+  margin: var(--space-xxl) 0;
+  color: var(--text-tertiary); font-size: 12px;
+}
+.login-divider::before, .login-divider::after {
+  content: ''; flex: 1; height: 1px; background: var(--login-divider-color);
+}
+.btn-google {
+  width: 100%; padding: 11px 20px;
+  background: transparent; color: var(--text-primary);
+  border: 1.5px solid var(--input-border);
+  border-radius: var(--radius-md);
+  font-family: var(--font-ui); font-size: 14px; font-weight: 500;
+  cursor: pointer; transition: all 0.2s;
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+}
+.btn-google:hover { border-color: var(--border-hover); background: var(--bg-subtle); }
+.login-footer { text-align: center; margin-top: var(--space-xxl); font-size: 13px; color: var(--text-tertiary); }
+.login-footer a { color: var(--stripe-purple); text-decoration: none; font-weight: 500; }
+.login-footer a:hover { text-decoration: underline; }
+
+/* ══════════════════════════════════════
+   SCENE 2: DASHBOARD — SIDEBAR LAYOUT
+   ══════════════════════════════════════ */
+.scene-dashboard {
+  display: flex;
+  min-height: 100vh;
+  background: var(--bg-canvas);
+  transition: background 0.3s;
+}
+
+/* ═══ SIDEBAR ═══ */
+.sidebar {
+  width: var(--sidebar-w);
+  flex-shrink: 0;
+  background: var(--bg-sidebar);
+  border-right: 1px solid var(--border-default);
+  display: flex;
+  flex-direction: column;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  transition: background 0.3s, border 0.3s;
+  z-index: 50;
+}
+
+.sidebar-header {
+  padding: var(--space-xl) var(--space-lg);
+  border-bottom: 1px solid var(--border-default);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.sidebar-logo-icon {
+  width: 28px; height: 28px;
+  border-radius: var(--radius-sm);
+  background: var(--gradient-logo);
+  display: flex; align-items: center; justify-content: center;
+  color: white; font-weight: 700; font-size: 13px;
+  flex-shrink: 0;
+}
+
+.sidebar-logo-text {
+  font-size: 16px; font-weight: 700; letter-spacing: -0.3px;
+  background: var(--gradient-logo);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+
+.sidebar-nav {
+  flex: 1;
+  padding: var(--space-md) var(--space-sm);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.sidebar-section-label {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  color: var(--text-tertiary);
+  padding: var(--space-lg) var(--space-lg) var(--space-sm);
+}
+
+.sidebar-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 14px;
+  border-radius: var(--radius-md);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-sidebar);
+  text-decoration: none;
+  transition: all 0.15s;
+  cursor: pointer;
+  position: relative;
+}
+
+.sidebar-link:hover {
+  background: var(--bg-sidebar-hover);
+  color: var(--text-sidebar-hover);
+}
+
+.sidebar-link.active {
+  background: var(--bg-sidebar-active);
+  color: var(--text-sidebar-active);
+  font-weight: 600;
+}
+
+.sidebar-link.active::before {
+  content: '';
+  position: absolute;
+  left: -4px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 20px;
+  background: var(--stripe-purple);
+  border-radius: 0 3px 3px 0;
+}
+
+.sidebar-link-icon {
+  width: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.sidebar-link-badge {
+  margin-left: auto;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 1px 7px;
+  border-radius: var(--radius-full);
+  background: var(--stripe-purple-bg);
+  color: var(--stripe-purple);
+}
+
+.sidebar-footer {
+  padding: var(--space-md) var(--space-sm);
+  border-top: 1px solid var(--sidebar-separator);
+}
+
+.sidebar-user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 14px;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.sidebar-user:hover {
+  background: var(--bg-sidebar-hover);
+}
+
+.sidebar-user-avatar {
+  width: 28px; height: 28px;
+  border-radius: var(--radius-full);
+  background: var(--gradient-logo);
+  display: flex; align-items: center; justify-content: center;
+  color: white; font-weight: 600; font-size: 11px;
+  flex-shrink: 0;
+}
+
+.sidebar-user-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.sidebar-user-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.sidebar-user-plan {
+  font-size: 11px;
+  color: var(--text-tertiary);
+}
+
+/* ═══ MAIN CONTENT ═══ */
+.main-content {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Top bar (above content) */
+.top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-lg) var(--space-3xl);
+  border-bottom: 1px solid var(--border-default);
+  background: var(--bg-surface);
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  transition: background 0.3s, border 0.3s;
+}
+
+.top-bar-left {
+  display: flex;
+  align-items: center;
+  gap: var(--space-lg);
+}
+
+.top-bar-right {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+.page-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--text-tertiary);
+}
+
+.breadcrumb a {
+  color: var(--text-tertiary);
+  text-decoration: none;
+}
+
+.breadcrumb a:hover {
+  color: var(--text-secondary);
+}
+
+.dashboard-content {
+  padding: var(--space-3xl);
+  max-width: 1200px;
+  width: 100%;
+}
+
+/* Hero Banner */
+.dash-hero {
+  background: var(--hero-gradient);
+  border-radius: var(--radius-xl);
+  padding: var(--space-4xl) var(--space-3xl);
+  margin-bottom: var(--space-3xl);
+  position: relative;
+  overflow: hidden;
+  color: var(--hero-text);
+  transition: background 0.3s;
+}
+.dash-hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--gradient-mesh);
+  pointer-events: none;
+}
+.dash-hero-content { position: relative; z-index: 1; }
+.dash-hero-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 4px 12px;
+  background: var(--hero-badge-bg);
+  border: 1px solid var(--hero-badge-border);
+  border-radius: var(--radius-full);
+  font-size: 12px; font-weight: 500;
+  color: var(--hero-text);
+  margin-bottom: var(--space-lg);
+  backdrop-filter: blur(4px);
+}
+.dash-hero h1 { font-size: 28px; font-weight: 700; letter-spacing: -0.5px; margin-bottom: 6px; color: var(--hero-text); }
+.dash-hero p { font-size: 15px; color: var(--hero-text-secondary); max-width: 500px; }
+.dash-hero-actions { display: flex; gap: var(--space-md); margin-top: var(--space-xxl); flex-wrap: wrap; }
+.btn-hero {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 10px 20px;
+  font-family: var(--font-ui); font-size: 13px; font-weight: 600;
+  border-radius: var(--radius-md); cursor: pointer; transition: all 0.2s;
+  border: none;
+}
+.btn-hero-primary {
+  background: var(--hero-btn-primary-bg); color: var(--hero-btn-primary-text);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+.btn-hero-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(0,0,0,0.2); }
+.btn-hero-secondary {
+  background: var(--hero-btn-secondary-bg); color: var(--hero-btn-secondary-text);
+  border: 1px solid var(--hero-btn-secondary-border);
+}
+.btn-hero-secondary:hover { background: rgba(255,255,255,0.15); }
+
+/* Stats Grid */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-lg);
+  margin-bottom: var(--space-3xl);
+}
+.stat-card {
+  background: var(--stat-card-bg);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  padding: var(--space-xxl);
+  transition: all 0.2s;
+}
+.stat-card:hover { box-shadow: var(--shadow-card-hover); border-color: var(--border-hover); }
+.stat-card-icon {
+  width: 36px; height: 36px;
+  border-radius: var(--radius-md);
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: var(--space-lg); color: white;
+}
+.stat-card-icon.blue { background: linear-gradient(135deg, #3b82f6, #2563eb); }
+.stat-card-icon.green { background: linear-gradient(135deg, #10b981, #059669); }
+.stat-card-icon.amber { background: linear-gradient(135deg, #f59e0b, #d97706); }
+.stat-card-icon.purple { background: var(--gradient-btn); }
+.stat-card-value { font-size: 28px; font-weight: 700; letter-spacing: -0.5px; color: var(--text-primary); margin-bottom: 2px; }
+.stat-card-label { font-size: 13px; color: var(--text-tertiary); font-weight: 500; }
+.stat-card-change {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 12px; font-weight: 600; margin-top: var(--space-md);
+  padding: 2px 8px; border-radius: var(--radius-full);
+}
+.stat-card-change.up { color: #059669; background: rgba(16,185,129,0.08); }
+.stat-card-change.down { color: #dc2626; background: rgba(220,38,38,0.08); }
+
+/* Section Header */
+.section-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: var(--space-xl);
+}
+.section-header h2 { font-size: 16px; font-weight: 600; color: var(--text-primary); }
+.section-header-actions { display: flex; align-items: center; gap: var(--space-sm); }
+
+/* Table */
+.table-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  margin-bottom: var(--space-3xl);
+  transition: background 0.3s, border 0.3s;
+}
+.table-filter-bar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: var(--space-lg) var(--space-xl);
+  border-bottom: 1px solid var(--border-default);
+  background: var(--bg-muted);
+  transition: background 0.3s, border 0.3s;
+}
+.filter-left { display: flex; align-items: center; gap: var(--space-md); }
+.filter-right { display: flex; align-items: center; gap: var(--space-sm); }
+.search-box {
+  display: flex; align-items: center; gap: 8px;
+  padding: 7px 12px;
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  background: var(--search-bg);
+  font-size: 13px; color: var(--text-tertiary);
+  min-width: 220px;
+  transition: border 0.3s, background 0.3s;
+}
+.search-box:focus-within { border-color: var(--stripe-purple); box-shadow: 0 0 0 3px rgba(99,91,255,0.1); }
+.search-box input {
+  border: none; outline: none;
+  font-family: var(--font-ui); font-size: 13px;
+  color: var(--text-primary); width: 100%; background: transparent;
+}
+table { width: 100%; border-collapse: collapse; }
+thead th {
+  text-align: left; padding: 12px var(--space-xl);
+  font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px;
+  color: var(--text-tertiary); background: var(--table-header-bg);
+  border-bottom: 1px solid var(--border-default);
+  transition: background 0.3s, border 0.3s;
+}
+tbody td {
+  padding: 14px var(--space-xl); font-size: 13px;
+  color: var(--text-secondary);
+  border-bottom: 1px solid var(--border-default);
+  transition: border 0.3s;
+}
+tbody tr:last-child td { border-bottom: none; }
+tbody tr:hover { background: var(--table-row-hover); }
+tbody tr.status-success td:first-child {
+  border-left: 3px solid var(--table-border-left-success);
+  padding-left: calc(var(--space-xl) - 3px);
+}
+tbody tr.status-failed td:first-child {
+  border-left: 3px solid var(--table-border-left-failed);
+  padding-left: calc(var(--space-xl) - 3px);
+}
+tbody tr.status-running td:first-child {
+  border-left: 3px solid var(--table-border-left-running);
+  padding-left: calc(var(--space-xl) - 3px);
+}
+.db-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 3px 10px; font-size: 11px; font-weight: 600; border-radius: var(--radius-full);
+}
+.db-badge.postgresql { background: var(--badge-pg-bg); color: var(--badge-pg-text); }
+.db-badge.mysql { background: var(--badge-mysql-bg); color: var(--badge-mysql-text); }
+.db-badge.mariadb { background: var(--badge-maria-bg); color: var(--badge-maria-text); }
+
+.status-pill { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 500; }
+.status-pill::before { content: ''; width: 6px; height: 6px; border-radius: 50%; }
+.status-pill.success::before { background: #10b981; }
+.status-pill.success { color: #059669; }
+.status-pill.failed::before { background: #ef4444; }
+.status-pill.failed { color: #dc2626; }
+.status-pill.running::before { background: #3b82f6; animation: pulse 1.5s infinite; }
+.status-pill.running { color: #60a5fa; }
+@keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+.size-text { font-family: var(--font-mono); font-size: 12px; color: var(--text-tertiary); }
+.table-actions { display: flex; gap: 4px; }
+.btn-icon {
+  width: 30px; height: 30px; border-radius: var(--radius-sm);
+  border: none; background: transparent;
+  color: var(--text-tertiary); cursor: pointer;
+  display: flex; align-items: center; justify-content: center; transition: all 0.15s;
+}
+.btn-icon:hover { background: var(--gray-100); color: var(--text-primary); }
+
+/* Bottom Grid */
+.scene-bottom {
+  background: var(--scene-bottom-bg);
+  border-top: 1px solid var(--border-default);
+  margin-top: var(--space-3xl);
+  padding-top: var(--space-3xl);
+  transition: background 0.3s, border 0.3s;
+}
+.bottom-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-3xl); }
+
+.config-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  transition: background 0.3s, border 0.3s;
+}
+.config-card-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: var(--space-xl) var(--space-xxl);
+  border-bottom: 1px solid var(--border-default);
+}
+.config-card-header h3 { font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 8px; color: var(--text-primary); }
+.config-card-header h3 i { color: var(--text-tertiary); }
+.config-card-body { padding: var(--space-xxl); }
+.config-item {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: var(--space-lg) 0;
+  border-bottom: 1px solid var(--border-default);
+}
+.config-item:last-child { border-bottom: none; padding-bottom: 0; }
+.config-item:first-child { padding-top: 0; }
+.config-item-info { display: flex; align-items: center; gap: var(--space-lg); min-width: 0; flex: 1; }
+.config-item-icon {
+  width: 38px; height: 38px; border-radius: var(--radius-md);
+  display: flex; align-items: center; justify-content: center;
+  color: white; font-size: 14px; font-weight: 700; flex-shrink: 0;
+}
+.config-item-icon.pg { background: linear-gradient(135deg, #336791, #2b5d84); }
+.config-item-icon.mysql { background: linear-gradient(135deg, #00758f, #006278); }
+.config-item-icon.maria { background: linear-gradient(135deg, #1889b4, #147699); }
+.config-item-icon.s3 { background: linear-gradient(135deg, #ff9900, #e68a00); }
+.config-item-icon.r2 { background: linear-gradient(135deg, #f38020, #d96e1a); }
+.config-item-name { font-size: 14px; font-weight: 600; color: var(--text-primary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.config-item-detail { font-size: 12px; color: var(--text-tertiary); margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.config-item-status { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 500; white-space: nowrap; flex-shrink: 0; }
+.config-item-status.connected { color: #059669; }
+.config-item-status.connected::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: #10b981; }
+.config-item-status.disconnected { color: var(--text-tertiary); }
+.config-item-status.disconnected::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--border-default); }
+
+/* Schedule Cards */
+.schedule-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  padding: var(--space-xl) var(--space-xxl);
+  margin-bottom: var(--space-md);
+  transition: all 0.2s;
+}
+.schedule-card:hover { box-shadow: var(--shadow-card-hover); border-color: var(--border-hover); }
+.schedule-card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--space-md); }
+.schedule-name { font-size: 14px; font-weight: 600; color: var(--text-primary); display: flex; align-items: center; gap: 8px; }
+.schedule-name .schedule-db { font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: var(--radius-full); }
+.schedule-db.postgresql { background: var(--badge-pg-bg); color: var(--badge-pg-text); }
+.schedule-db.mysql { background: var(--badge-mysql-bg); color: var(--badge-mysql-text); }
+.schedule-db.mariadb { background: var(--badge-maria-bg); color: var(--badge-maria-text); }
+.schedule-toggle {
+  position: relative; width: 36px; height: 20px;
+  background: var(--schedule-toggle-bg);
+  border-radius: 10px; cursor: pointer; transition: background 0.2s;
+}
+.schedule-toggle.active { background: var(--stripe-purple); }
+.schedule-toggle::after {
+  content: ''; position: absolute; top: 2px; left: 2px;
+  width: 16px; height: 16px; background: white;
+  border-radius: 50%; transition: transform 0.2s;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+}
+.schedule-toggle.active::after { transform: translateX(16px); }
+.schedule-details { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-md); }
+.schedule-detail-item { display: flex; flex-direction: column; gap: 4px; }
+.schedule-detail-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.6px; color: var(--text-tertiary); }
+.schedule-detail-value { font-size: 13px; font-weight: 500; color: var(--text-secondary); }
+.schedule-detail-value code { font-family: var(--font-mono); font-size: 12px; color: var(--text-tertiary); background: var(--bg-subtle); padding: 2px 6px; border-radius: 4px; }
+
+/* Bottom CTA */
+.bottom-cta {
+  text-align: center;
+  padding: var(--space-5xl) 0 0;
+  border-top: 1px solid var(--bottom-cta-border);
+  margin-top: var(--space-5xl);
+}
+.bottom-cta h2 { font-size: 20px; font-weight: 700; color: var(--text-primary); margin-bottom: 6px; }
+.bottom-cta p { font-size: 14px; color: var(--text-tertiary); margin-bottom: var(--space-xxl); }
+
+/* Responsive */
+@media (max-width: 900px) {
+  .sidebar { display: none; }
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .bottom-grid { grid-template-columns: 1fr; }
+  .schedule-details { grid-template-columns: repeat(2, 1fr); }
+  .dashboard-content { padding: var(--space-xl); }
+  .top-bar { padding: var(--space-lg) var(--space-xl); }
+}
+
+/* Demo scene labels */
+.demo-scene-label {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  text-align: center;
+  padding: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  background: var(--demo-scene-label-bg);
+  color: var(--demo-scene-label-text);
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+  transition: background 0.3s, color 0.3s;
+}
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════
+     SCENE 1: LOGIN
+     ══════════════════════════════════════ -->
+<div class="demo-scene-label">✦ LOGIN SCENE</div>
+
+<div class="scene-login">
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="login-logo-icon">B</div>
+      <span class="login-logo-text">Backupeer</span>
+    </div>
+    <div class="login-subtitle">Sign in to <strong>manage your backups</strong><br>PostgreSQL · MySQL · MariaDB</div>
+
+    <div class="form-group">
+      <label class="form-label">Email</label>
+      <input class="form-input" type="email" placeholder="you@company.com" value="admin@backupeer.io">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Password</label>
+      <input class="form-input" type="password" placeholder="••••••••" value="••••••••">
+      <div class="form-hint" style="text-align:right;margin-top:6px;">
+        <a href="#" style="color:var(--stripe-purple);text-decoration:none;font-size:12px;font-weight:500;">Forgot password?</a>
+      </div>
+    </div>
+
+    <button class="btn-primary"><span class="flex items-center justify-center gap-sm"><i data-lucide="log-in" size="16"></i> Sign in</span></button>
+
+    <div class="login-divider">or</div>
+
+    <button class="btn-google">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+      Sign in with Google
+    </button>
+
+    <div class="login-footer">Don't have an account? <a href="#">Contact sales</a></div>
+
+    <div style="text-align:center;margin-top:var(--space-xxl);padding-top:var(--space-xxl);border-top:1px solid var(--border-default);">
+      <button class="theme-toggle" id="themeToggleLogin" style="margin:0 auto;" onclick="toggleTheme()">
+        <i data-lucide="moon" id="themeIconLogin" size="15"></i>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     SCENE 2: DASHBOARD
+     ══════════════════════════════════════ -->
+<div class="demo-scene-label">✦ DASHBOARD SCENE</div>
+
+<div class="scene-dashboard">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo-icon">B</div>
+      <span class="sidebar-logo-text">Backupeer</span>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="sidebar-section-label">Main</div>
+
+      <a class="sidebar-link active">
+        <span class="sidebar-link-icon"><i data-lucide="layout-dashboard" size="16"></i></span>
+        Dashboard
+      </a>
+      <a class="sidebar-link">
+        <span class="sidebar-link-icon"><i data-lucide="database" size="16"></i></span>
+        Databases
+        <span class="sidebar-link-badge">3</span>
+      </a>
+      <a class="sidebar-link">
+        <span class="sidebar-link-icon"><i data-lucide="archive" size="16"></i></span>
+        Backups
+        <span class="sidebar-link-badge">14</span>
+      </a>
+      <a class="sidebar-link">
+        <span class="sidebar-link-icon"><i data-lucide="calendar" size="16"></i></span>
+        Schedules
+      </a>
+
+      <div class="sidebar-section-label" style="margin-top:var(--space-md);">Config</div>
+
+      <a class="sidebar-link">
+        <span class="sidebar-link-icon"><i data-lucide="hard-drive" size="16"></i></span>
+        Storage
+      </a>
+      <a class="sidebar-link">
+        <span class="sidebar-link-icon"><i data-lucide="bell" size="16"></i></span>
+        Alerts
+      </a>
+      <a class="sidebar-link">
+        <span class="sidebar-link-icon"><i data-lucide="settings" size="16"></i></span>
+        Settings
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <div class="sidebar-user-avatar">ES</div>
+        <div class="sidebar-user-info">
+          <div class="sidebar-user-name">Endang S.</div>
+          <div class="sidebar-user-plan">Pro plan</div>
+        </div>
+        <button class="theme-toggle" onclick="toggleTheme()" style="flex-shrink:0;">
+          <i data-lucide="moon" id="themeIconSidebar" size="14"></i>
+        </button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <div class="main-content">
+    <!-- Top Bar -->
+    <div class="top-bar">
+      <div class="top-bar-left">
+        <div class="breadcrumb">
+          <a href="#">Backupeer</a>
+          <span>/</span>
+          <span style="color:var(--text-secondary);font-weight:500;">Dashboard</span>
+        </div>
+      </div>
+      <div class="top-bar-right">
+        <button class="btn-secondary" style="padding:6px 14px;">
+          <i data-lucide="bell" size="15"></i>
+        </button>
+        <button class="btn-secondary" style="padding:6px 14px;">
+          <i data-lucide="help-circle" size="15"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Content -->
+    <div class="dashboard-content">
+      <!-- Hero -->
+      <div class="dash-hero">
+        <div class="dash-hero-content">
+          <div class="dash-hero-badge"><i data-lucide="activity" size="12"></i> All systems operational</div>
+          <h1>Good morning, Endang</h1>
+          <p>3 databases connected · 2 active schedules · 14 backups stored</p>
+          <div class="dash-hero-actions">
+            <button class="btn-hero btn-hero-primary"><i data-lucide="database" size="15"></i> Add Database</button>
+            <button class="btn-hero btn-hero-secondary"><i data-lucide="play" size="15"></i> Run Backup Now</button>
+            <button class="btn-hero btn-hero-secondary"><i data-lucide="calendar" size="15"></i> Schedule</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stats -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-card-icon blue"><i data-lucide="database" size="18"></i></div>
+          <div class="stat-card-value">3</div>
+          <div class="stat-card-label">Databases Connected</div>
+          <div class="stat-card-change up">+1 this month</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-icon green"><i data-lucide="shield" size="18"></i></div>
+          <div class="stat-card-value">14</div>
+          <div class="stat-card-label">Total Backups</div>
+          <div class="stat-card-change up">+3 this week</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-icon amber"><i data-lucide="hard-drive" size="18"></i></div>
+          <div class="stat-card-value">2.4 GB</div>
+          <div class="stat-card-label">Storage Used</div>
+          <div class="stat-card-change up">+240 MB</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-icon purple"><i data-lucide="check-circle" size="18"></i></div>
+          <div class="stat-card-value">98.5%</div>
+          <div class="stat-card-label">Backup Success Rate</div>
+          <div class="stat-card-change up">+2.1%</div>
+        </div>
+      </div>
+
+      <!-- Recent Backups -->
+      <div class="section-header">
+        <h2>Recent Backups</h2>
+        <div class="section-header-actions">
+          <button class="btn-secondary">View All</button>
+          <button class="btn-secondary"><i data-lucide="download" size="14"></i> Export</button>
+        </div>
+      </div>
+
+      <div class="table-card">
+        <div class="table-filter-bar">
+          <div class="filter-left">
+            <div class="search-box">
+              <i data-lucide="search" size="14"></i>
+              <input type="text" placeholder="Search backups...">
+            </div>
+            <button class="btn-secondary"><i data-lucide="filter" size="14"></i> Filters</button>
+          </div>
+          <div class="filter-right">
+            <button class="btn-secondary"><i data-lucide="list" size="14"></i></button>
+            <button class="btn-secondary"><i data-lucide="grid" size="14"></i></button>
+          </div>
+        </div>
+
+        <table>
+          <thead>
+            <tr><th>Database</th><th>Type</th><th>Size</th><th>Storage</th><th>Status</th><th>Completed</th><th></th></tr>
+          </thead>
+          <tbody>
+            <tr class="status-success">
+              <td><span class="db-badge postgresql">PostgreSQL</span> production-db</td>
+              <td>Full</td>
+              <td><span class="size-text">1.2 GB</span></td>
+              <td><span style="display:flex;align-items:center;gap:5px;color:var(--text-secondary);"><span style="color:#ff9900;">◆</span> S3</span></td>
+              <td><span class="status-pill success">Completed</span></td>
+              <td style="color:var(--text-tertiary);font-size:12px;">2h ago</td>
+              <td><div class="table-actions"><button class="btn-icon"><i data-lucide="download" size="14"></i></button><button class="btn-icon"><i data-lucide="rotate-ccw" size="14"></i></button><button class="btn-icon"><i data-lucide="more-horizontal" size="14"></i></button></div></td>
+            </tr>
+            <tr class="status-success">
+              <td><span class="db-badge mysql">MySQL</span> analytics-db</td>
+              <td>Incremental</td>
+              <td><span class="size-text">340 MB</span></td>
+              <td><span style="display:flex;align-items:center;gap:5px;color:var(--text-secondary);"><span style="color:#f38020;">◆</span> R2</span></td>
+              <td><span class="status-pill success">Completed</span></td>
+              <td style="color:var(--text-tertiary);font-size:12px;">4h ago</td>
+              <td><div class="table-actions"><button class="btn-icon"><i data-lucide="download" size="14"></i></button><button class="btn-icon"><i data-lucide="rotate-ccw" size="14"></i></button><button class="btn-icon"><i data-lucide="more-horizontal" size="14"></i></button></div></td>
+            </tr>
+            <tr class="status-running">
+              <td><span class="db-badge mariadb">MariaDB</span> staging-db</td>
+              <td>Full</td>
+              <td><span class="size-text">890 MB</span></td>
+              <td><span style="display:flex;align-items:center;gap:5px;color:var(--text-secondary);"><span style="color:#ff9900;">◆</span> S3</span></td>
+              <td><span class="status-pill running">Running</span></td>
+              <td style="color:var(--text-tertiary);font-size:12px;">—</td>
+              <td><div class="table-actions"><button class="btn-icon"><i data-lucide="x" size="14"></i></button><button class="btn-icon"><i data-lucide="more-horizontal" size="14"></i></button></div></td>
+            </tr>
+            <tr class="status-failed">
+              <td><span class="db-badge mysql">MySQL</span> legacy-app</td>
+              <td>Full</td>
+              <td><span class="size-text">2.1 GB</span></td>
+              <td><span style="display:flex;align-items:center;gap:5px;color:var(--text-secondary);"><span style="color:#f38020;">◆</span> R2</span></td>
+              <td><span class="status-pill failed">Failed</span></td>
+              <td style="color:var(--text-tertiary);font-size:12px;">1d ago</td>
+              <td><div class="table-actions"><button class="btn-icon"><i data-lucide="rotate-ccw" size="14"></i></button><button class="btn-icon"><i data-lucide="more-horizontal" size="14"></i></button></div></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Bottom Grid -->
+      <div class="scene-bottom">
+        <div class="bottom-grid">
+          <div class="config-card">
+            <div class="config-card-header">
+              <h3><i data-lucide="cable" size="16"></i> Database Connections</h3>
+              <button class="btn-secondary" style="padding:5px 12px;font-size:12px;"><i data-lucide="plus" size="13"></i> Add</button>
+            </div>
+            <div class="config-card-body">
+              <div class="config-item">
+                <div class="config-item-info"><div class="config-item-icon pg">PG</div><div style="min-width:0;flex:1;"><div class="config-item-name">production-db</div><div class="config-item-detail">postgres://pg-prod-1.aurora.amazonaws.com:5432/proddb</div></div></div>
+                <span class="config-item-status connected">Connected</span>
+              </div>
+              <div class="config-item">
+                <div class="config-item-info"><div class="config-item-icon mysql">MY</div><div style="min-width:0;flex:1;"><div class="config-item-name">analytics-db</div><div class="config-item-detail">mysql://admin@analytics.cluster.internal:3306/analytics</div></div></div>
+                <span class="config-item-status connected">Connected</span>
+              </div>
+              <div class="config-item">
+                <div class="config-item-info"><div class="config-item-icon maria">MA</div><div style="min-width:0;flex:1;"><div class="config-item-name">staging-db</div><div class="config-item-detail">mariadb://deploy@staging.internal:3306/staging</div></div></div>
+                <span class="config-item-status connected">Connected</span>
+              </div>
+              <div class="config-item">
+                <div class="config-item-info"><div class="config-item-icon" style="background:var(--config-item-icon-empty-bg);color:var(--config-item-icon-empty-color);">+</div><div style="min-width:0;flex:1;"><div class="config-item-name" style="color:var(--text-tertiary);">Add new connection</div><div class="config-item-detail">PostgreSQL, MySQL, or MariaDB</div></div></div>
+                <button class="btn-secondary" style="padding:4px 10px;font-size:12px;">Connect</button>
+              </div>
+            </div>
+          </div>
+          <div class="config-card">
+            <div class="config-card-header">
+              <h3><i data-lucide="hard-drive" size="16"></i> Storage Destinations</h3>
+              <button class="btn-secondary" style="padding:5px 12px;font-size:12px;"><i data-lucide="plus" size="13"></i> Add</button>
+            </div>
+            <div class="config-card-body">
+              <div class="config-item">
+                <div class="config-item-info"><div class="config-item-icon s3">S3</div><div style="min-width:0;flex:1;"><div class="config-item-name">Production Backups</div><div class="config-item-detail">s3://backupeer-prod · us-east-1</div></div></div>
+                <span class="config-item-status connected">Active</span>
+              </div>
+              <div class="config-item">
+                <div class="config-item-info"><div class="config-item-icon r2">R2</div><div style="min-width:0;flex:1;"><div class="config-item-name">Archive Storage</div><div class="config-item-detail">r2://backupeer-archive · auto</div></div></div>
+                <span class="config-item-status connected">Active</span>
+              </div>
+              <div class="config-item">
+                <div class="config-item-info"><div class="config-item-icon" style="background:var(--config-item-icon-empty-bg);color:var(--config-item-icon-empty-color);">+</div><div style="min-width:0;flex:1;"><div class="config-item-name" style="color:var(--text-tertiary);">Add S3-compatible storage</div><div class="config-item-detail">AWS S3, Cloudflare R2, MinIO, Backblaze B2</div></div></div>
+                <button class="btn-secondary" style="padding:4px 10px;font-size:12px;">Connect</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Schedules -->
+        <div style="margin-top:var(--space-3xl);">
+          <div class="section-header">
+            <h2>Backup Schedules</h2>
+            <div class="section-header-actions">
+              <button class="btn-secondary"><i data-lucide="plus" size="14"></i> New Schedule</button>
+            </div>
+          </div>
+
+          <div class="schedule-card">
+            <div class="schedule-card-header">
+              <div class="schedule-name">Daily Full Backup — production-db <span class="schedule-db postgresql">PostgreSQL</span></div>
+              <div class="schedule-toggle active"></div>
+            </div>
+            <div class="schedule-details">
+              <div class="schedule-detail-item"><span class="schedule-detail-label">Schedule</span><span class="schedule-detail-value"><code>0 2 * * *</code> — Every day at 02:00</span></div>
+              <div class="schedule-detail-item"><span class="schedule-detail-label">Type</span><span class="schedule-detail-value">Full Backup</span></div>
+              <div class="schedule-detail-item"><span class="schedule-detail-label">Destination</span><span class="schedule-detail-value">s3://backupeer-prod</span></div>
+              <div class="schedule-detail-item"><span class="schedule-detail-label">Retention</span><span class="schedule-detail-value">30 days</span></div>
+              <div class="schedule-detail-item"><span class="schedule-detail-label">Last Run</span><span class="schedule-detail-value">2h ago ✓</span></div>
+              <div class="schedule-detail-item"><span class="schedule-detail-label">Next Run</span><span class="schedule-detail-value">in 22h</span></div>
+            </div>
+          </div>
+
+          <div class="schedule-card">
+            <div class="schedule-card-header">
+              <div class="schedule-name">Hourly Incremental — analytics-db <span class="schedule-db mysql">MySQL</span></div>
+              <div class="schedule-toggle active"></div>
+            </div>
+            <div class="schedule-details">
+              <div class="schedule-detail-item"><span class="schedule-detail-label">Schedule</span><span class="schedule-detail-value"><code>0 * * * *</code> — Every hour</span></div>
+              <div class="schedule-detail-item"><span class="schedule-detail-label">Type</span><span class="schedule-detail-value">Incremental + Weekly Full</span></div>
+              <div class="schedule-detail-item"><span class="schedule-detail-label">Destination</span><span class="schedule-detail-value">r2://backupeer-archive</span></div>
+              <div class="schedule-detail-item"><span class="schedule-detail-label">Retention</span><span class="schedule-detail-value">7 days</span></div>
+              <div class="schedule-detail-item"><span class="schedule-detail-label">Last Run</span><span class="schedule-detail-value">4h ago ✓</span></div>
+              <div class="schedule-detail-item"><span class="schedule-detail-label">Next Run</span><span class="schedule-detail-value">in 52 min</span></div>
+            </div>
+          </div>
+
+          <div class="schedule-card">
+            <div class="schedule-card-header">
+              <div class="schedule-name">Weekend Full — staging-db <span class="schedule-db mariadb">MariaDB</span></div>
+              <div class="schedule-toggle active"></div>
+            </div>
+            <div class="schedule-details">
+              <div class="schedule-detail-item"><span class="schedule-detail-label">Schedule</span><span class="schedule-detail-value"><code>0 3 * * 0</code> — Every Sunday at 03:00</span></div>
+              <div class="schedule-detail-item"><span class="schedule-detail-label">Type</span><span class="schedule-detail-value">Full Backup</span></div>
+              <div class="schedule-detail-item"><span class="schedule-detail-label">Destination</span><span class="schedule-detail-value">s3://backupeer-prod</span></div>
+              <div class="schedule-detail-item"><span class="schedule-detail-label">Retention</span><span class="schedule-detail-value">90 days</span></div>
+              <div class="schedule-detail-item"><span class="schedule-detail-label">Last Run</span><span class="schedule-detail-value">2d ago ✓</span></div>
+              <div class="schedule-detail-item"><span class="schedule-detail-label">Next Run</span><span class="schedule-detail-value">in 5d</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bottom CTA -->
+        <div class="bottom-cta">
+          <h2>Reliable backups for your entire stack</h2>
+          <p>PostgreSQL · MySQL · MariaDB → S3 · Cloudflare R2 · MinIO · Backblaze B2</p>
+          <button class="btn-primary" style="width:auto;padding:12px 28px;">
+            <span class="flex items-center justify-center gap-sm"><i data-lucide="rocket" size="16"></i> Get Started Free</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+lucide.createIcons();
+
+function toggleTheme() {
+  const html = document.documentElement;
+  const current = html.getAttribute('data-theme');
+  const next = current === 'dark' ? 'light' : 'dark';
+  html.setAttribute('data-theme', next);
+  document.querySelectorAll('[id^="themeIcon"]').forEach(icon => {
+    icon.setAttribute('data-lucide', next === 'dark' ? 'sun' : 'moon');
+  });
+  lucide.createIcons();
+  localStorage.setItem('backupeer-theme', next);
+}
+
+(function() {
+  const saved = localStorage.getItem('backupeer-theme');
+  if (saved) {
+    document.documentElement.setAttribute('data-theme', saved);
+    setTimeout(() => {
+      document.querySelectorAll('[id^="themeIcon"]').forEach(icon => {
+        icon.setAttribute('data-lucide', saved === 'dark' ? 'sun' : 'moon');
+      });
+      lucide.createIcons();
+    }, 0);
+  }
+})();
+</script>
+</body>
+</html>

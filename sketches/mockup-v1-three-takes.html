@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Backupeer — Design Mockup</title>
+<style>
+  /* ===== RESET & BASE ===== */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    background: #0a0a0b;
+    color: #f1f1f3;
+    line-height: 1.5;
+  }
+  a { color: inherit; text-decoration: none; }
+  svg { display: block; }
+
+  /* ===== TYPOGRAPHY ===== */
+  .display-xl { font-size: 36px; font-weight: 700; line-height: 1.1; letter-spacing: -0.03em; }
+  .display-lg { font-size: 28px; font-weight: 600; line-height: 1.15; letter-spacing: -0.02em; }
+  .display-md { font-size: 22px; font-weight: 600; line-height: 1.2; letter-spacing: -0.01em; }
+  .heading-lg { font-size: 18px; font-weight: 600; line-height: 1.3; }
+  .heading-md { font-size: 15px; font-weight: 600; line-height: 1.4; }
+  .body-lg { font-size: 15px; font-weight: 400; line-height: 1.6; }
+  .body-md { font-size: 13px; font-weight: 400; line-height: 1.5; }
+  .body-sm { font-size: 11px; font-weight: 400; line-height: 1.5; }
+  .label { font-size: 11px; font-weight: 600; line-height: 1.3; letter-spacing: 0.06em; text-transform: uppercase; }
+  .mono { font-family: 'JetBrains Mono', 'SF Mono', 'Fira Code', monospace; font-size: 12px; }
+
+  /* ===== LUCIDE ICONS ===== */
+  .icon { width: 18px; height: 18px; stroke-width: 1.5; stroke: currentColor; fill: none; flex-shrink: 0; }
+  .icon-sm { width: 14px; height: 14px; stroke-width: 1.5; }
+  .icon-lg { width: 24px; height: 24px; stroke-width: 1.5; }
+  .icon-wrap {
+    width: 34px; height: 34px; border-radius: 6px;
+    background: rgba(13,148,136,0.08);
+    border: 1px solid rgba(13,148,136,0.12);
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .icon-wrap svg { width: 16px; height: 16px; stroke: #0d9488; stroke-width: 1.5; fill: none; }
+
+  /* ===== STATUS DOTS ===== */
+  .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .dot-success { background: #22c55e; }
+  .dot-warning { background: #f59e0b; }
+  .dot-error { background: #ef4444; }
+  .dot-info { background: #3b82f6; }
+
+  /* ===== BUTTONS ===== */
+  .btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 13px; font-weight: 500; line-height: 1;
+    border-radius: 6px; border: none; cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .btn-primary {
+    background: #0d9488; color: #fff; padding: 9px 18px;
+  }
+  .btn-primary:hover { background: #0f766e; }
+  .btn-secondary {
+    background: transparent; color: #0d9488; padding: 9px 18px;
+    border: 1px solid #0d9488;
+  }
+  .btn-secondary:hover { background: rgba(13,148,136,0.08); }
+  .btn-ghost {
+    background: transparent; color: #a1a1aa; padding: 7px 14px;
+  }
+  .btn-ghost:hover { background: rgba(255,255,255,0.04); color: #f1f1f3; }
+  .btn-sm { padding: 5px 10px; font-size: 12px; }
+  .btn-icon { padding: 6px; border-radius: 6px; }
+
+  /* ===== BADGES ===== */
+  .badge {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-size: 11px; font-weight: 600;
+    padding: 2px 9px; border-radius: 9999px;
+  }
+  .badge-teal { background: rgba(13,148,136,0.12); color: #0d9488; }
+  .badge-success { background: rgba(34,197,94,0.12); color: #22c55e; }
+  .badge-error { background: rgba(239,68,68,0.12); color: #ef4444; }
+  .badge-warning { background: rgba(245,158,11,0.12); color: #f59e0b; }
+  .badge-info { background: rgba(59,130,246,0.12); color: #3b82f6; }
+
+  /* ===== TABLES ===== */
+  table { width: 100%; border-collapse: collapse; }
+  th {
+    text-align: left; font-size: 11px; font-weight: 600;
+    letter-spacing: 0.06em; text-transform: uppercase;
+    color: #6b6b76; background: #1a1a1e;
+    padding: 9px 14px; border-bottom: 1px solid #2c2c33;
+  }
+  td {
+    padding: 11px 14px; font-size: 13px; color: #a1a1aa;
+    border-bottom: 1px solid #1e1e23;
+  }
+  tr:hover td { background: rgba(255,255,255,0.02); }
+  td:first-child, th:first-child { padding-left: 18px; }
+  td:last-child, th:last-child { padding-right: 18px; }
+
+  /* ===== CARDS ===== */
+  .card {
+    background: #121214; border: 1px solid #2c2c33;
+    border-radius: 8px; padding: 20px;
+  }
+  .card-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 16px;
+  }
+
+  /* ===== STAT CARDS ===== */
+  .stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+  .stat-card {
+    background: #121214; border: 1px solid #2c2c33;
+    border-radius: 8px; padding: 18px;
+  }
+  .stat-card .stat-label { font-size: 11px; font-weight: 600; color: #6b6b76; margin-bottom: 4px; }
+  .stat-card .stat-value { font-size: 28px; font-weight: 700; color: #f1f1f3; line-height: 1.1; }
+  .stat-card .stat-desc { font-size: 11px; color: #6b6b76; margin-top: 2px; }
+
+  /* ===== SIDEBAR ===== */
+  .sidebar {
+    position: fixed; top: 0; left: 0; width: 230px; height: 100vh;
+    background: #0a0a0b; border-right: 1px solid #2c2c33;
+    display: flex; flex-direction: column; z-index: 10;
+  }
+  .sidebar-logo {
+    display: flex; align-items: center; gap: 10px;
+    padding: 18px 18px 14px;
+    border-bottom: 1px solid #1e1e23;
+  }
+  .sidebar-logo .logo-icon {
+    width: 32px; height: 32px; border-radius: 8px;
+    background: #0d9488; display: flex; align-items: center; justify-content: center;
+  }
+  .sidebar-logo .logo-icon svg { width: 18px; height: 18px; stroke: #fff; stroke-width: 2; fill: none; }
+  .sidebar-logo .logo-text { font-size: 16px; font-weight: 600; color: #f1f1f3; }
+  .sidebar-nav { flex: 1; padding: 10px 10px; }
+  .nav-section { font-size: 10px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: #6b6b76; padding: 12px 10px 6px; }
+  .nav-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 9px 10px; border-radius: 6px;
+    font-size: 13px; color: #a1a1aa; cursor: pointer;
+    transition: all 0.12s ease;
+  }
+  .nav-item:hover { background: rgba(255,255,255,0.03); color: #f1f1f3; }
+  .nav-item.active {
+    background: rgba(13,148,136,0.10); color: #0d9488;
+    border-left: 3px solid #0d9488; margin-left: -1px;
+  }
+  .sidebar-footer {
+    padding: 12px 14px; border-top: 1px solid #1e1e23;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .sidebar-footer .avatar {
+    width: 28px; height: 28px; border-radius: 6px;
+    background: #242429; display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 600; color: #a1a1aa;
+  }
+
+  /* ===== MAIN LAYOUT ===== */
+  .main { margin-left: 230px; min-height: 100vh; }
+  .topbar {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 28px; border-bottom: 1px solid #1e1e23;
+    background: rgba(10,10,11,0.8); backdrop-filter: blur(8px);
+    position: sticky; top: 0; z-index: 9;
+  }
+  .topbar-left { display: flex; align-items: center; gap: 12px; }
+  .topbar-right { display: flex; align-items: center; gap: 10px; }
+  .content { padding: 24px 28px 40px; }
+
+  /* ===== BREADCRUMB ===== */
+  .breadcrumb { display: flex; align-items: center; gap: 6px; font-size: 12px; color: #6b6b76; margin-bottom: 16px; }
+  .breadcrumb span { color: #a1a1aa; }
+
+  /* ===== TOGGLE / THEME SWITCH ===== */
+  .theme-toggle {
+    width: 36px; height: 36px; border-radius: 8px;
+    background: transparent; border: 1px solid #2c2c33;
+    display: flex; align-items: center; justify-content: center; cursor: pointer;
+    color: #a1a1aa; transition: all 0.15s ease;
+  }
+  .theme-toggle:hover { background: rgba(255,255,255,0.04); color: #f1f1f3; }
+
+  /* ===== ACTION BAR ===== */
+  .action-bar {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 20px; gap: 12px; flex-wrap: wrap;
+  }
+  .action-bar-right { display: flex; align-items: center; gap: 8px; }
+
+  /* ===== SEARCH ===== */
+  .search-box {
+    display: flex; align-items: center; gap: 8px;
+    background: #1a1a1e; border: 1px solid #2c2c33;
+    border-radius: 6px; padding: 7px 12px; width: 240px;
+  }
+  .search-box input {
+    border: none; background: none; outline: none;
+    font-size: 13px; color: #f1f1f3; width: 100%;
+  }
+  .search-box input::placeholder { color: #6b6b76; }
+
+  /* ===== TABS (variant switcher) ===== */
+  .variant-bar {
+    display: flex; gap: 0;
+    background: #121214; border: 1px solid #2c2c33;
+    border-radius: 8px; padding: 2px;
+    margin-bottom: 24px; width: fit-content;
+  }
+  .variant-bar button {
+    padding: 6px 16px; border-radius: 6px; border: none;
+    font-size: 12px; font-weight: 500; cursor: pointer;
+    background: transparent; color: #6b6b76;
+    transition: all 0.15s ease;
+  }
+  .variant-bar button.active {
+    background: #1a1a1e; color: #f1f1f3;
+    border: 1px solid #2c2c33;
+  }
+  .variant-bar button:not(.active):hover { color: #a1a1aa; }
+
+  /* ===== VARIANT CONTAINERS ===== */
+  .variant { display: none; }
+  .variant.active { display: block; }
+
+  /* ===== VARIANT A: CALM DASHBOARD ===== */
+  .v-a .welcome-text { margin-bottom: 6px; }
+  .v-a .welcome-sub { font-size: 14px; color: #6b6b76; margin-bottom: 24px; }
+  .v-a .stat-chart { margin-top: 20px; }
+  .v-a .recent-backups { margin-top: 20px; }
+  .v-a .backup-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 12px 0; border-bottom: 1px solid #1e1e23;
+  }
+  .v-a .backup-row:last-child { border-bottom: none; }
+  .v-a .backup-info { display: flex; align-items: center; gap: 12px; }
+  .v-a .backup-detail { text-align: right; }
+  .v-a .backup-name { font-size: 13px; font-weight: 500; color: #f1f1f3; }
+  .v-a .backup-meta { font-size: 11px; color: #6b6b76; }
+
+  /* ===== VARIANT B: DENSE TOOL ===== */
+  .v-b .quick-actions {
+    display: flex; gap: 6px; margin-bottom: 16px;
+  }
+  .v-b .quick-actions .btn { flex: 1; justify-content: center; padding: 14px; font-size: 12px; }
+  .v-b .connections-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px;
+  }
+  .v-b .conn-card {
+    background: #121214; border: 1px solid #2c2c33;
+    border-radius: 8px; padding: 14px; cursor: pointer; transition: all 0.12s ease;
+  }
+  .v-b .conn-card:hover { border-color: #0d9488; }
+  .v-b .conn-card .conn-top { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .v-b .conn-card .conn-name { font-size: 13px; font-weight: 600; color: #f1f1f3; }
+  .v-b .conn-card .conn-type { font-size: 11px; color: #6b6b76; }
+  .v-b .conn-card .conn-meta { font-size: 11px; color: #6b6b76; }
+
+  /* ===== VARIANT C: TERMINAL-INSPIRED ===== */
+  .v-c .status-bar {
+    display: flex; gap: 14px; margin-bottom: 20px;
+    background: #121214; border: 1px solid #2c2c33;
+    border-radius: 8px; padding: 14px 18px;
+  }
+  .v-c .status-item { display: flex; align-items: center; gap: 8px; font-size: 12px; }
+  .v-c .status-item .num { font-family: 'JetBrains Mono', monospace; font-size: 18px; font-weight: 700; color: #f1f1f3; }
+  .v-c .status-item .lbl { color: #6b6b76; }
+  .v-c .terminal-log {
+    background: #0a0a0b; border: 1px solid #2c2c33;
+    border-radius: 8px; padding: 16px; font-family: 'JetBrains Mono', monospace;
+    font-size: 12px; line-height: 1.6; margin-bottom: 16px;
+    max-height: 240px; overflow-y: auto;
+  }
+  .v-c .terminal-log .line { color: #a1a1aa; }
+  .v-c .terminal-log .line .hl { color: #0d9488; }
+  .v-c .terminal-log .line .hl-green { color: #22c55e; }
+  .v-c .terminal-log .line .prompt { color: #6b6b76; }
+  .v-c .filters {
+    display: flex; gap: 6px; margin-bottom: 14px;
+  }
+  .v-c .filter-chip {
+    padding: 4px 12px; border-radius: 9999px; border: 1px solid #2c2c33;
+    font-size: 11px; color: #6b6b76; cursor: pointer; background: transparent;
+  }
+  .v-c .filter-chip.active { border-color: #0d9488; color: #0d9488; background: rgba(13,148,136,0.08); }
+
+  /* ===== TOAST ===== */
+  .toast-container {
+    position: fixed; top: 16px; right: 16px; z-index: 100;
+    display: flex; flex-direction: column; gap: 8px;
+  }
+  .toast {
+    display: flex; align-items: center; gap: 10px;
+    background: #242429; border: 1px solid #2c2c33;
+    border-radius: 10px; padding: 12px 16px;
+    font-size: 13px; color: #f1f1f3; min-width: 280px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+  }
+  .toast svg { flex-shrink: 0; }
+</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<!-- ===== TOAST CONTAINER ===== -->
+<div class="toast-container">
+  <div class="toast">
+    <svg class="icon icon-sm" style="color:#22c55e"><use href="#check-circle"/></svg>
+    <span>Production DB — Backup completed successfully (1.2 GB)</span>
+  </div>
+</div>
+
+<!-- ===== SIDEBAR ===== -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-icon">
+      <svg viewBox="0 0 24 24"><use href="#database"/></svg>
+    </div>
+    <span class="logo-text">Backupeer</span>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-section">Main</div>
+    <div class="nav-item active">
+      <svg class="icon"><use href="#layout-dashboard"/></svg> Dashboard
+    </div>
+    <div class="nav-item">
+      <svg class="icon"><use href="#database"/></svg> Connections
+    </div>
+    <div class="nav-item">
+      <svg class="icon"><use href="#archive"/></svg> Backups
+      <span class="badge badge-teal" style="margin-left:auto;padding:1px 7px">12</span>
+    </div>
+    <div class="nav-item">
+      <svg class="icon"><use href="#calendar"/></svg> Schedules
+    </div>
+    <div class="nav-section">Data</div>
+    <div class="nav-item">
+      <svg class="icon"><use href="#hard-drive"/></svg> Storage
+    </div>
+    <div class="nav-item">
+      <svg class="icon"><use href="#activity"/></svg> Activity Log
+    </div>
+    <div class="nav-section">Settings</div>
+    <div class="nav-item">
+      <svg class="icon"><use href="#settings"/></svg> Settings
+    </div>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="avatar">ES</div>
+    <div>
+      <div style="font-size:13px;font-weight:500;color:#f1f1f3">Endang</div>
+      <div style="font-size:11px;color:#6b6b76">admin</div>
+    </div>
+    <svg class="icon" style="margin-left:auto;color:#6b6b76;cursor:pointer"><use href="#log-out"/></svg>
+  </div>
+</aside>
+
+<!-- ===== MAIN ===== -->
+<div class="main">
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="display-md">Dashboard</div>
+    </div>
+    <div class="topbar-right">
+      <button class="theme-toggle" onclick="toggleTheme()">
+        <svg class="icon"><use href="#moon"/></svg>
+      </button>
+      <button class="btn btn-primary">
+        <svg class="icon-sm"><use href="#plus"/></svg> New Backup
+      </button>
+    </div>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="content">
+
+    <!-- Variant Switcher -->
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;gap:12px;flex-wrap:wrap">
+      <div class="variant-bar" id="variantBar">
+        <button class="active" onclick="switchVariant('a')">Calm Dashboard</button>
+        <button onclick="switchVariant('b')">Dense Tool</button>
+        <button onclick="switchVariant('c')">Terminal Vibe</button>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;font-size:11px;color:#6b6b76">
+        <svg class="icon-sm"><use href="#info"/></svg> Click variant tabs to compare
+      </div>
+    </div>
+
+    <!-- ===== VARIANT A: CALM DASHBOARD ===== -->
+    <div class="variant active v-a" id="varA">
+
+      <!-- Breadcrumb -->
+      <div class="breadcrumb">
+        <svg class="icon-sm"><use href="#home"/></svg>
+        <span>Dashboard</span>
+        <svg class="icon-sm" style="color:#2c2c33"><use href="#chevron-right"/></svg>
+        <span>Overview</span>
+      </div>
+
+      <div class="welcome-text display-lg">Good morning, Endang</div>
+      <div class="welcome-sub">All systems running. 4 databases protected.</div>
+
+      <!-- Stats -->
+      <div class="stat-grid">
+        <div class="stat-card">
+          <div class="stat-label">Connections</div>
+          <div class="stat-value">4</div>
+          <div class="stat-desc">All online</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Backups Today</div>
+          <div class="stat-value">3</div>
+          <div class="stat-desc" style="color:#22c55e">+2 completed</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Storage Used</div>
+          <div class="stat-value">24.6</div>
+          <div class="stat-desc">GB across buckets</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Scheduled</div>
+          <div class="stat-value">5</div>
+          <div class="stat-desc">Next: 02:00 UTC</div>
+        </div>
+      </div>
+
+      <!-- Recent Backups -->
+      <div class="card recent-backups" style="margin-top:22px">
+        <div class="card-header">
+          <div class="heading-lg">Recent Backups</div>
+          <button class="btn btn-ghost btn-sm">
+            View All <svg class="icon-sm" style="margin-left:2px"><use href="#arrow-right"/></svg>
+          </button>
+        </div>
+
+        <div class="backup-row">
+          <div class="backup-info">
+            <span class="dot dot-success"></span>
+            <svg class="icon" style="color:#0d9488"><use href="#database"/></svg>
+            <div>
+              <div class="backup-name">production-pg</div>
+              <div class="backup-meta">Full backup · 1.2 GB</div>
+            </div>
+          </div>
+          <div class="backup-detail">
+            <div class="backup-name" style="font-size:12px;font-weight:400">2 min ago</div>
+            <div class="backup-meta">Duration: 34s</div>
+          </div>
+        </div>
+
+        <div class="backup-row">
+          <div class="backup-info">
+            <span class="dot dot-success"></span>
+            <svg class="icon" style="color:#22c55e"><use href="#database"/></svg>
+            <div>
+              <div class="backup-name">staging-mysql</div>
+              <div class="backup-meta">Incremental backup · 240 MB</div>
+            </div>
+          </div>
+          <div class="backup-detail">
+            <div class="backup-name" style="font-size:12px;font-weight:400">15 min ago</div>
+            <div class="backup-meta">Duration: 12s</div>
+          </div>
+        </div>
+
+        <div class="backup-row">
+          <div class="backup-info">
+            <span class="dot dot-warning"></span>
+            <svg class="icon" style="color:#f59e0b"><use href="#database"/></svg>
+            <div>
+              <div class="backup-name">analytics-mariadb</div>
+              <div class="backup-meta">Full backup · Retrying...</div>
+            </div>
+          </div>
+          <div class="backup-detail">
+            <div class="backup-name" style="font-size:12px;font-weight:400">1 hour ago</div>
+            <div class="backup-meta">Attempt 2/3</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Schedule -->
+      <div class="card" style="margin-top:16px">
+        <div class="card-header">
+          <div class="heading-lg">Upcoming Schedule</div>
+          <button class="btn btn-secondary btn-sm">
+            <svg class="icon-sm"><use href="#plus"/></svg> Add
+          </button>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <div style="background:#1a1a1e;border-radius:6px;padding:12px;display:flex;align-items:center;gap:10px">
+            <svg class="icon" style="color:#0d9488"><use href="#clock"/></svg>
+            <div>
+              <div style="font-size:13px;font-weight:500;color:#f1f1f3">Daily Full · production-pg</div>
+              <div style="font-size:11px;color:#6b6b76">Every day at 02:00 UTC</div>
+            </div>
+          </div>
+          <div style="background:#1a1a1e;border-radius:6px;padding:12px;display:flex;align-items:center;gap:10px">
+            <svg class="icon" style="color:#22c55e"><use href="#clock"/></svg>
+            <div>
+              <div style="font-size:13px;font-weight:500;color:#f1f1f3">Hourly Incr · staging-mysql</div>
+              <div style="font-size:11px;color:#6b6b76">Every 1 hour</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== VARIANT B: DENSE TOOL ===== -->
+    <div class="variant v-b" id="varB">
+
+      <!-- Quick Actions -->
+      <div class="quick-actions">
+        <button class="btn btn-primary">
+          <svg class="icon-sm"><use href="#play"/></svg> Run Backup
+        </button>
+        <button class="btn btn-secondary">
+          <svg class="icon-sm"><use href="#database"/></svg> Add Connection
+        </button>
+        <button class="btn btn-secondary">
+          <svg class="icon-sm"><use href="#calendar"/></svg> Create Schedule
+        </button>
+        <button class="btn btn-ghost">
+          <svg class="icon-sm"><use href="#download"/></svg> Restore
+        </button>
+      </div>
+
+      <!-- Stats Compact -->
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px">
+        <div style="background:#121214;border:1px solid #2c2c33;border-radius:8px;padding:14px;display:flex;align-items:center;gap:12px">
+          <svg class="icon-lg" style="color:#0d9488"><use href="#database"/></svg>
+          <div><div style="font-size:20px;font-weight:700;color:#f1f1f3">4</div><div style="font-size:11px;color:#6b6b76">Connections</div></div>
+        </div>
+        <div style="background:#121214;border:1px solid #2c2c33;border-radius:8px;padding:14px;display:flex;align-items:center;gap:12px">
+          <svg class="icon-lg" style="color:#22c55e"><use href="#check-circle"/></svg>
+          <div><div style="font-size:20px;font-weight:700;color:#f1f1f3">47</div><div style="font-size:11px;color:#6b6b76">Total Backups</div></div>
+        </div>
+        <div style="background:#121214;border:1px solid #2c2c33;border-radius:8px;padding:14px;display:flex;align-items:center;gap:12px">
+          <svg class="icon-lg" style="color:#f59e0b"><use href="#hard-drive"/></svg>
+          <div><div style="font-size:20px;font-weight:700;color:#f1f1f3">24.6</div><div style="font-size:11px;color:#6b6b76">GB Stored</div></div>
+        </div>
+        <div style="background:#121214;border:1px solid #2c2c33;border-radius:8px;padding:14px;display:flex;align-items:center;gap:12px">
+          <svg class="icon-lg" style="color:#3b82f6"><use href="#clock"/></svg>
+          <div><div style="font-size:20px;font-weight:700;color:#f1f1f3">5</div><div style="font-size:11px;color:#6b6b76">Schedules</div></div>
+        </div>
+      </div>
+
+      <!-- Connections Grid -->
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <div class="heading-lg">Connections</div>
+        <div class="search-box">
+          <svg class="icon-sm" style="color:#6b6b76"><use href="#search"/></svg>
+          <input type="text" placeholder="Search connections...">
+        </div>
+      </div>
+
+      <div class="connections-grid">
+        <div class="conn-card">
+          <div class="conn-top">
+            <span class="dot dot-success"></span>
+            <div class="conn-name">production-pg</div>
+            <span class="badge badge-teal" style="margin-left:auto">PostgreSQL</span>
+          </div>
+          <div class="conn-type">pg-prod-01.internal:5432</div>
+          <div class="conn-meta">Last backup: 2 min ago · 1.2 GB</div>
+        </div>
+        <div class="conn-card" style="border-color:#0d9488">
+          <div class="conn-top">
+            <span class="dot dot-success"></span>
+            <div class="conn-name">staging-mysql</div>
+            <span class="badge badge-info" style="margin-left:auto">MySQL 8</span>
+          </div>
+          <div class="conn-type">mysql-staging-01.internal:3306</div>
+          <div class="conn-meta">Last backup: 15 min ago · 240 MB</div>
+        </div>
+        <div class="conn-card">
+          <div class="conn-top">
+            <span class="dot dot-warning"></span>
+            <div class="conn-name">analytics-mariadb</div>
+            <span class="badge badge-info" style="margin-left:auto">MariaDB</span>
+          </div>
+          <div class="conn-type">maria-ana-01.internal:3307</div>
+          <div class="conn-meta">Last backup: 1 hour ago · Retrying</div>
+        </div>
+      </div>
+
+      <!-- Full Backup Table -->
+      <div class="card" style="padding:0;overflow:hidden">
+        <div class="card-header" style="padding:14px 18px;margin-bottom:0;border-bottom:1px solid #2c2c33">
+          <div class="heading-lg">Recent Backups</div>
+          <div style="display:flex;gap:6px">
+            <button class="btn btn-ghost btn-sm">Full</button>
+            <button class="btn btn-ghost btn-sm" style="color:#0d9488">Incremental</button>
+            <button class="btn btn-ghost btn-sm">All</button>
+          </div>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Status</th>
+              <th>Database</th>
+              <th>Type</th>
+              <th>Size</th>
+              <th>Duration</th>
+              <th>Created</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="badge badge-success"><span class="dot dot-success" style="margin-right:4px"></span> Completed</span></td>
+              <td style="color:#f1f1f3;font-weight:500">production-pg</td>
+              <td><span class="badge badge-teal">Full</span></td>
+              <td>1.2 GB</td>
+              <td>34s</td>
+              <td style="color:#6b6b76">2 min ago</td>
+              <td><button class="btn btn-ghost btn-sm">↗</button></td>
+            </tr>
+            <tr>
+              <td><span class="badge badge-success"><span class="dot dot-success" style="margin-right:4px"></span> Completed</span></td>
+              <td style="color:#f1f1f3;font-weight:500">staging-mysql</td>
+              <td><span class="badge badge-teal" style="background:rgba(6,182,212,0.12);color:#06b6d4">Incremental</span></td>
+              <td>240 MB</td>
+              <td>12s</td>
+              <td style="color:#6b6b76">15 min ago</td>
+              <td><button class="btn btn-ghost btn-sm">↗</button></td>
+            </tr>
+            <tr>
+              <td><span class="badge badge-warning"><span class="dot dot-warning" style="margin-right:4px"></span> Retrying</span></td>
+              <td style="color:#f1f1f3;font-weight:500">analytics-mariadb</td>
+              <td><span class="badge badge-teal">Full</span></td>
+              <td>—</td>
+              <td>—</td>
+              <td style="color:#6b6b76">1 hour ago</td>
+              <td><button class="btn btn-ghost btn-sm">↗</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ===== VARIANT C: TERMINAL VIBE ===== -->
+    <div class="variant v-c" id="varC">
+
+      <!-- Status Bar -->
+      <div class="status-bar">
+        <div class="status-item">
+          <span class="dot dot-success"></span>
+          <div><span class="num">4</span> <span class="lbl">connected</span></div>
+        </div>
+        <div class="status-item" style="border-left:1px solid #2c2c33;padding-left:14px">
+          <svg class="icon-sm" style="color:#0d9488"><use href="#activity"/></svg>
+          <div><span class="num">47</span> <span class="lbl">backups</span></div>
+        </div>
+        <div class="status-item" style="border-left:1px solid #2c2c33;padding-left:14px">
+          <svg class="icon-sm" style="color:#22c55e"><use href="#check-circle"/></svg>
+          <div><span class="num">98.2</span> <span class="lbl">% success</span></div>
+        </div>
+        <div class="status-item" style="border-left:1px solid #2c2c33;padding-left:14px">
+          <svg class="icon-sm" style="color:#f59e0b"><use href="#hard-drive"/></svg>
+          <div><span class="num">24.6</span> <span class="lbl">GB</span></div>
+        </div>
+      </div>
+
+      <!-- Terminal Log -->
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <div class="heading-lg" style="font-family:'JetBrains Mono',monospace;font-size:14px">$ tail -f /var/log/backupeer/latest.log</div>
+        <button class="btn btn-ghost btn-sm">
+          <svg class="icon-sm"><use href="#refresh-cw"/></svg> Clear
+        </button>
+      </div>
+      <div class="terminal-log">
+        <div class="line"><span class="prompt">[16:32:01]</span> [<span class="hl">SCHEDULER</span>]  Triggering: daily-full · production-pg</div>
+        <div class="line"><span class="prompt">[16:32:01]</span> [<span class="hl">ENGINE</span>]    Starting pgBackRest full backup...</div>
+        <div class="line"><span class="prompt">[16:32:02]</span> [<span class="hl">STORAGE</span>]  Connecting to r2://backupeer-prod (region: auto)</div>
+        <div class="line"><span class="prompt">[16:32:03]</span> [<span class="hl">STORAGE</span>]  ✅ Connected. Bucket: backupeer-prod</div>
+        <div class="line"><span class="prompt">[16:32:03]</span> [<span class="hl">PG_BACKREST</span>]  --stanza=production-pg --type=full</div>
+        <div class="line"><span class="prompt">[16:32:04]</span> [<span class="hl">PG_BACKREST</span>]  Collecting WAL segments...</div>
+        <div class="line"><span class="prompt">[16:32:18]</span> [<span class="hl">PG_BACKREST</span>]  Compressing data (zstd, level 3)...</div>
+        <div class="line"><span class="prompt">[16:32:34]</span> [<span class="hl">PG_BACKREST</span>]  <span class="hl-green">✅ Full backup completed</span></div>
+        <div class="line"><span class="prompt">[16:32:34]</span> [<span class="hl">STORAGE</span>]  Uploading to r2://backupeer-prod/full/2026-06-16/...</div>
+        <div class="line"><span class="prompt">[16:32:36]</span> [<span class="hl">STORAGE</span>]  <span class="hl-green">✅ Uploaded</span> — 1.2 GB in 2.1s</div>
+        <div class="line"><span class="prompt">[16:32:36]</span> [<span class="hl">SCHEDULER</span>]  <span class="hl-green">✅ production-pg backup complete</span></div>
+        <div class="line" style="color:#22c55e;font-weight:600">→ Backup completed successfully (1.2 GB) — 34s total</div>
+      </div>
+
+      <!-- Filter chips + Mini table -->
+      <div class="filters">
+        <button class="filter-chip active">All</button>
+        <button class="filter-chip">Full</button>
+        <button class="filter-chip">Incremental</button>
+        <button class="filter-chip">Failed</button>
+        <button class="filter-chip" style="margin-left:auto;border-color:transparent;color:#0d9488">
+          <svg class="icon-sm"><use href="#plus"/></svg> Add Filter
+        </button>
+      </div>
+
+      <div class="card" style="padding:0;overflow:hidden">
+        <table>
+          <thead>
+            <tr>
+              <th>DB</th>
+              <th>Type</th>
+              <th>Size</th>
+              <th>Status</th>
+              <th>Time</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style="color:#f1f1f3;font-weight:500;font-family:'JetBrains Mono',monospace;font-size:12px">production-pg</td>
+              <td><span class="badge badge-teal">Full</span></td>
+              <td class="mono">1.2 GB</td>
+              <td><span class="badge badge-success">✅ Done</span></td>
+              <td style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#6b6b76">2m ago</td>
+            </tr>
+            <tr>
+              <td style="color:#f1f1f3;font-weight:500;font-family:'JetBrains Mono',monospace;font-size:12px">staging-mysql</td>
+              <td><span class="badge badge-teal" style="background:rgba(6,182,212,0.12);color:#06b6d4">Incr</span></td>
+              <td class="mono">240 MB</td>
+              <td><span class="badge badge-success">✅ Done</span></td>
+              <td style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#6b6b76">15m ago</td>
+            </tr>
+            <tr>
+              <td style="color:#f1f1f3;font-weight:500;font-family:'JetBrains Mono',monospace;font-size:12px">analytics-mariadb</td>
+              <td><span class="badge badge-teal">Full</span></td>
+              <td class="mono">—</td>
+              <td><span class="badge badge-warning">⏳ Retry 2/3</span></td>
+              <td style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#6b6b76">1h ago</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ===== INLINE SVG ICONS ===== -->
+<svg style="display:none" xmlns="http://www.w3.org/2000/svg">
+  <symbol id="database" viewBox="0 0 24 24"><path d="M12 2C8 2 4 3.5 4 6v12c0 2.5 4 4 8 4s8-1.5 8-4V6c0-2.5-4-4-8-4z"/><path d="M4 6c0 2.5 4 4 8 4s8-1.5 8-4"/><path d="M4 12c0 2.5 4 4 8 4s8-1.5 8-4"/><path d="M4 18c0 2.5 4 4 8 4s8-1.5 8-4"/></symbol>
+  <symbol id="layout-dashboard" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="4" rx="1"/><rect x="14" y="10" width="7" height="11" rx="1"/><rect x="3" y="13" width="7" height="8" rx="1"/></symbol>
+  <symbol id="archive" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="4" rx="1"/><path d="M4 7v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7"/><path d="M10 12h4"/></symbol>
+  <symbol id="calendar" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="16" y1="2" x2="16" y2="6"/></symbol>
+  <symbol id="hard-drive" viewBox="0 0 24 24"><line x1="22" y1="12" x2="2" y2="12"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/><line x1="6" y1="16" x2="6.01" y2="16"/><line x1="10" y1="16" x2="10.01" y2="16"/></symbol>
+  <symbol id="activity" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></symbol>
+  <symbol id="settings" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></symbol>
+  <symbol id="log-out" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></symbol>
+  <symbol id="plus" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></symbol>
+  <symbol id="play" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></symbol>
+  <symbol id="download" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 9 12 14 7 9"/><line x1="12" y1="14" x2="12" y2="3"/></symbol>
+  <symbol id="search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></symbol>
+  <symbol id="moon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></symbol>
+  <symbol id="sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></symbol>
+  <symbol id="check-circle" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></symbol>
+  <symbol id="info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></symbol>
+  <symbol id="chevron-right" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></symbol>
+  <symbol id="home" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></symbol>
+  <symbol id="arrow-right" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></symbol>
+  <symbol id="clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></symbol>
+  <symbol id="refresh-cw" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></symbol>
+</svg>
+
+<!-- ===== JAVASCRIPT ===== -->
+<script>
+function switchVariant(id) {
+  // Hide all
+  document.querySelectorAll('.variant').forEach(v => v.classList.remove('active'));
+  // Show selected
+  document.getElementById('var' + id.toUpperCase()).classList.add('active');
+  // Update tab buttons
+  document.querySelectorAll('#variantBar button').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+}
+
+function toggleTheme() {
+  const html = document.documentElement;
+  const isDark = html.getAttribute('data-theme') === 'dark';
+  const newTheme = isDark ? 'light' : 'dark';
+  html.setAttribute('data-theme', newTheme);
+
+  // Update icon
+  const btn = document.querySelector('.theme-toggle svg use');
+  if (btn) {
+    btn.setAttribute('href', isDark ? '#sun' : '#moon');
+  }
+
+  // Apply light theme overrides
+  if (newTheme === 'light') {
+    html.style.setProperty('--bg', '#fafafa');
+    html.style.setProperty('--text', '#18181b');
+    html.style.setProperty('--text-body', '#3f3f46');
+    html.style.setProperty('--text-muted', '#71717a');
+    html.style.setProperty('--surface1', '#ffffff');
+    html.style.setProperty('--surface2', '#f4f4f5');
+    html.style.setProperty('--surface3', '#e9e9ec');
+    html.style.setProperty('--hairline', '#e4e4e7');
+    html.style.setProperty('--hairline-soft', '#efeff0');
+    html.style.setProperty('--sidebar-bg', '#ffffff');
+    html.style.setProperty('--card-bg', '#ffffff');
+    html.style.setProperty('--topbar-bg', 'rgba(250,250,250,0.85)');
+  } else {
+    html.style.setProperty('--bg', '#0a0a0b');
+    html.style.setProperty('--text', '#f1f1f3');
+    html.style.setProperty('--text-body', '#a1a1aa');
+    html.style.setProperty('--text-muted', '#6b6b76');
+    html.style.setProperty('--surface1', '#121214');
+    html.style.setProperty('--surface2', '#1a1a1e');
+    html.style.setProperty('--surface3', '#242429');
+    html.style.setProperty('--hairline', '#2c2c33');
+    html.style.setProperty('--hairline-soft', '#1e1e23');
+    html.style.setProperty('--sidebar-bg', '#0a0a0b');
+    html.style.setProperty('--card-bg', '#121214');
+    html.style.setProperty('--topbar-bg', 'rgba(10,10,11,0.85)');
+  }
+}
+</script>
+<style>
+  /* CSS variables for theme switching */
+  :root {
+    --bg: #0a0a0b;
+    --text: #f1f1f3;
+    --text-body: #a1a1aa;
+    --text-muted: #6b6b76;
+    --surface1: #121214;
+    --surface2: #1a1a1e;
+    --surface3: #242429;
+    --hairline: #2c2c33;
+    --hairline-soft: #1e1e23;
+    --sidebar-bg: #0a0a0b;
+    --card-bg: #121214;
+    --topbar-bg: rgba(10,10,11,0.85);
+  }
+  body { background: var(--bg); color: var(--text); }
+  .sidebar { background: var(--sidebar-bg); }
+  .card, .stat-card, .v-b .conn-card, .v-c .status-bar, .variant-bar { background: var(--card-bg); }
+  .topbar { background: var(--topbar-bg); }
+  .search-box, th, .v-a .backup-row, .v-b .quick-actions .btn, .v-c .terminal-log { background: var(--surface2); }
+  .nav-item { color: var(--text-body); }
+  .nav-item:hover { background: rgba(255,255,255,0.03); color: var(--text); }
+  .nav-item.active { background: rgba(13,148,136,0.10); color: #0d9488; }
+  .stat-card .stat-value, .v-a .backup-name, .v-b .conn-card .conn-name, .v-c .line .hl-green { color: var(--text); }
+  .stat-card .stat-label, .v-a .backup-meta, .v-b .conn-card .conn-type, .v-c .line { color: var(--text-body); }
+  .breadcrumb span, .stat-card .stat-desc { color: var(--text-muted); }
+  .badge-teal, .variant-bar button.active { background: rgba(13,148,136,0.10); }
+  .sidebar, .topbar, .card, .stat-card, .search-box, .variant-bar, th { border-color: var(--hairline); }
+  th, .sidebar-logo, .sidebar-footer, .card-header { border-color: var(--hairline-soft); }
+  td { border-bottom-color: var(--hairline-soft); }
+  .v-c .terminal-log { background: var(--sidebar-bg); }
+  .toast { background: var(--surface3); border-color: var(--hairline); }
+</style>
+</body>
+</html>

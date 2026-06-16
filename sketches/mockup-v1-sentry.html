@@ -1,0 +1,935 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Backupeer — Sentry Style Mockup</title>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+/* ══════════════════════════════════════
+   SENTRY-INSPIRED DESIGN SYSTEM
+   Tokens from Sentry DESIGN.md
+   ══════════════════════════════════════ */
+
+:root {
+  /* Colors */
+  --canvas: #150f23;
+  --surface: #1f1633;
+  --surface-hover: #261d42;
+  --accent-lime: #c2ef4e;
+  --accent-pink: #fa7faa;
+  --accent-violet: #6a5fc1;
+  --accent-violet-deep: #422082;
+  --accent-violet-mid: #79628c;
+  --hairline: #362d59;
+  --hairline-light: #4a3d6a;
+  --text-primary: #ffffff;
+  --text-muted: #bdb8c0;
+  --text-faint: #3f3849;
+  --success: #22c55e;
+  --warning: #eab308;
+  --error: #ef4444;
+
+  /* Typography */
+  --font-ui: 'Rubik', -apple-system, system-ui, sans-serif;
+  --font-code: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+
+  /* Spacing (8px base) */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 12px;
+  --space-lg: 16px;
+  --space-xl: 24px;
+  --space-xxl: 32px;
+
+  /* Rounded */
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 10px;
+  --radius-xl: 12px;
+  --radius-xxl: 18px;
+
+  /* Shadows */
+  --shadow-sm: rgba(0,0,0,0.2) 0 1px 3px 0;
+  --shadow-md: rgba(0,0,0,0.3) 0 4px 12px 0;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: var(--font-ui);
+  background: var(--canvas);
+  color: var(--text-primary);
+  min-height: 100vh;
+  line-height: 1.5;
+}
+
+/* ═══ Starfield Texture ═══ */
+.starfield {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    radial-gradient(1px 1px at 20% 30%, rgba(255,255,255,0.15), transparent),
+    radial-gradient(1px 1px at 40% 70%, rgba(255,255,255,0.12), transparent),
+    radial-gradient(1.5px 1.5px at 60% 20%, rgba(255,255,255,0.1), transparent),
+    radial-gradient(1px 1px at 80% 50%, rgba(255,255,255,0.08), transparent),
+    radial-gradient(1px 1px at 10% 80%, rgba(255,255,255,0.1), transparent),
+    radial-gradient(1.5px 1.5px at 70% 90%, rgba(255,255,255,0.06), transparent),
+    radial-gradient(1px 1px at 90% 10%, rgba(255,255,255,0.12), transparent),
+    radial-gradient(1px 1px at 50% 50%, rgba(255,255,255,0.05), transparent);
+  z-index: 0;
+}
+
+/* ═══ App Layout ═══ */
+.app-layout {
+  display: flex;
+  min-height: 100vh;
+  position: relative;
+  z-index: 1;
+}
+
+/* ═══ Sidebar ═══ */
+.sidebar {
+  width: 240px;
+  background: var(--canvas);
+  border-right: 1px solid var(--hairline);
+  padding: var(--space-xl) 0;
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+}
+
+.sidebar-brand {
+  padding: 0 var(--space-xl);
+  margin-bottom: var(--space-xxl);
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.sidebar-brand .logo-icon {
+  width: 28px;
+  height: 28px;
+  background: var(--accent-lime);
+  border-radius: var(--radius-xs);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sidebar-brand .logo-icon svg {
+  width: 16px;
+  height: 16px;
+  stroke: var(--canvas);
+  stroke-width: 2.5;
+}
+
+.sidebar-brand span {
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: -0.3px;
+  color: var(--text-primary);
+}
+
+.sidebar-nav {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 0 var(--space-sm);
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-sm) var(--space-lg);
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.1px;
+  transition: all 150ms ease;
+  cursor: pointer;
+  border: none;
+  background: none;
+  width: 100%;
+  text-align: left;
+  font-family: var(--font-ui);
+}
+
+.nav-item svg {
+  width: 18px;
+  height: 18px;
+  stroke-width: 1.8;
+  flex-shrink: 0;
+  color: var(--accent-violet-mid);
+  transition: color 150ms ease;
+}
+
+.nav-item:hover {
+  background: var(--surface);
+  color: var(--text-primary);
+}
+
+.nav-item:hover svg {
+  color: var(--text-muted);
+}
+
+.nav-item.active {
+  background: var(--surface);
+  color: var(--text-primary);
+  border-left: 2px solid var(--accent-lime);
+  padding-left: calc(var(--space-lg) - 2px);
+}
+
+.nav-item.active svg {
+  color: var(--accent-lime);
+}
+
+.sidebar-footer {
+  padding: var(--space-lg) var(--space-xl);
+  border-top: 1px solid var(--hairline);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.sidebar-footer a {
+  color: var(--accent-violet-mid);
+  text-decoration: none;
+  font-weight: 500;
+  letter-spacing: 0.2px;
+  text-transform: uppercase;
+  font-size: 11px;
+}
+
+.sidebar-footer a:hover {
+  color: var(--accent-lime);
+}
+
+/* ═══ Main Content ═══ */
+.main-content {
+  flex: 1;
+  padding: var(--space-xxl);
+  overflow-y: auto;
+  background: radial-gradient(ellipse at 80% 20%, rgba(108, 92, 231, 0.03) 0%, transparent 60%);
+}
+
+.page-header {
+  margin-bottom: var(--space-xl);
+}
+
+.page-header h1 {
+  font-size: 24px;
+  font-weight: 600;
+  letter-spacing: -0.3px;
+  margin-bottom: var(--space-xs);
+}
+
+.page-header p {
+  font-size: 14px;
+  color: var(--text-muted);
+  font-weight: 400;
+}
+
+/* ═══ Stats Grid ═══ */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: var(--space-lg);
+  margin-bottom: var(--space-xl);
+}
+
+.stat-card {
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-lg);
+  padding: var(--space-lg) var(--space-xl);
+  transition: border-color 150ms ease;
+}
+
+.stat-card:hover {
+  border-color: var(--hairline-light);
+}
+
+.stat-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  margin-bottom: var(--space-sm);
+}
+
+.stat-value {
+  font-size: 32px;
+  font-weight: 700;
+  letter-spacing: -1px;
+  color: var(--text-primary);
+  line-height: 1;
+  margin-bottom: var(--space-xs);
+}
+
+.stat-detail {
+  font-size: 12px;
+  color: var(--accent-lime);
+  font-weight: 500;
+}
+
+/* ═══ Card ═══ */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.card-header {
+  padding: var(--space-lg) var(--space-xl);
+  border-bottom: 1px solid var(--hairline);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.card-header h2 {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+/* ═══ Table ═══ */
+.table-container {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+thead th {
+  padding: var(--space-md) var(--space-xl);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  text-align: left;
+  border-bottom: 1px solid var(--hairline);
+  background: rgba(54, 45, 89, 0.2);
+}
+
+tbody td {
+  padding: var(--space-md) var(--space-xl);
+  font-size: 14px;
+  color: var(--text-primary);
+  border-bottom: 1px solid rgba(54, 45, 89, 0.4);
+}
+
+tbody tr:last-child td {
+  border-bottom: none;
+}
+
+tbody tr:hover {
+  background: rgba(54, 45, 89, 0.15);
+}
+
+td.mono {
+  font-family: var(--font-code);
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+/* ═══ Badges ═══ */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: var(--radius-xs);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+  text-transform: uppercase;
+}
+
+.badge-info {
+  background: rgba(106, 95, 193, 0.2);
+  color: var(--accent-violet);
+  border: 1px solid rgba(106, 95, 193, 0.3);
+}
+
+.badge-success {
+  background: rgba(34, 197, 94, 0.1);
+  color: var(--success);
+  border: 1px solid rgba(34, 197, 94, 0.2);
+}
+
+.badge-warning {
+  background: rgba(234, 179, 8, 0.1);
+  color: var(--warning);
+  border: 1px solid rgba(234, 179, 8, 0.2);
+}
+
+.badge-error {
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--error);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+.badge-neutral {
+  background: rgba(189, 184, 192, 0.08);
+  color: var(--text-muted);
+  border: 1px solid var(--hairline);
+}
+
+/* ═══ Buttons ═══ */
+.btn-group {
+  display: flex;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-lg);
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: 8px 14px;
+  border-radius: var(--radius-md);
+  font-family: var(--font-ui);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+  border: none;
+  cursor: pointer;
+  transition: all 120ms ease;
+  text-decoration: none;
+}
+
+.btn svg {
+  width: 16px;
+  height: 16px;
+  stroke-width: 2;
+}
+
+.btn-primary {
+  background: var(--text-primary);
+  color: var(--canvas);
+}
+
+.btn-primary:hover {
+  background: rgba(255,255,255,0.85);
+  box-shadow: rgba(194, 239, 78, 0.2) 0 0 16px 4px;
+}
+
+.btn-secondary {
+  background: rgba(63, 56, 73, 0.5);
+  color: var(--text-primary);
+  border: 1px solid var(--hairline);
+}
+
+.btn-secondary:hover {
+  background: rgba(63, 56, 73, 0.8);
+  border-color: var(--hairline-light);
+}
+
+.btn-sm {
+  padding: 4px 10px;
+  font-size: 11px;
+  font-weight: 600;
+  border-radius: var(--radius-xs);
+}
+
+.btn-sm svg {
+  width: 14px;
+  height: 14px;
+}
+
+.btn-lime {
+  background: var(--accent-lime);
+  color: var(--canvas);
+}
+
+.btn-lime:hover {
+  box-shadow: rgba(194, 239, 78, 0.3) 0 0 20px 6px;
+}
+
+.btn-icon {
+  padding: 6px;
+  background: transparent;
+  color: var(--text-muted);
+  border: 1px solid transparent;
+  border-radius: var(--radius-xs);
+}
+
+.btn-icon:hover {
+  background: var(--surface-hover);
+  border-color: var(--hairline);
+  color: var(--text-primary);
+}
+
+/* ═══ Login Page ═══ */
+.login-page {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: var(--space-xl);
+  position: relative;
+}
+
+.login-card {
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-xl);
+  padding: var(--space-xxl);
+  width: 100%;
+  max-width: 380px;
+  position: relative;
+}
+
+.login-card h1 {
+  font-size: 22px;
+  font-weight: 600;
+  margin-bottom: var(--space-xs);
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.login-card h1 .lime-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  background: var(--accent-lime);
+  border-radius: 2px;
+}
+
+.login-card > p {
+  font-size: 14px;
+  color: var(--text-muted);
+  margin-bottom: var(--space-xl);
+}
+
+.form-group {
+  margin-bottom: var(--space-lg);
+}
+
+.form-group label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  margin-bottom: var(--space-sm);
+}
+
+.form-input {
+  width: 100%;
+  padding: 10px 14px;
+  background: var(--canvas);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-family: var(--font-ui);
+  font-size: 14px;
+  font-weight: 400;
+  outline: none;
+  transition: border-color 150ms ease;
+}
+
+.form-input:focus {
+  border-color: var(--accent-lime);
+  box-shadow: rgba(194, 239, 78, 0.08) 0 0 0 3px;
+}
+
+.form-input::placeholder {
+  color: var(--text-faint);
+}
+
+.login-card .btn {
+  width: 100%;
+  justify-content: center;
+  margin-top: var(--space-sm);
+}
+
+.login-error {
+  color: var(--error);
+  font-size: 13px;
+  margin-top: var(--space-md);
+  display: none;
+}
+
+/* ═══ Empty State ═══ */
+.empty-state {
+  text-align: center;
+  padding: var(--space-xxl) var(--space-xl);
+  color: var(--text-muted);
+}
+
+.empty-state svg {
+  width: 40px;
+  height: 40px;
+  stroke: var(--accent-violet-mid);
+  stroke-width: 1.5;
+  margin-bottom: var(--space-md);
+  opacity: 0.5;
+}
+
+.empty-state p {
+  font-size: 14px;
+}
+
+/* ═══ Loading ═══ */
+.loading-screen {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  flex-direction: column;
+  gap: var(--space-lg);
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
+.loading-spinner {
+  width: 24px;
+  height: 24px;
+  border: 2px solid var(--hairline);
+  border-top-color: var(--accent-lime);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ═══ Lime Squiggle Divider ═══ */
+.squiggle {
+  width: 100%;
+  height: 12px;
+  margin: var(--space-xl) 0;
+  opacity: 0.3;
+}
+
+/* ═══ Responsive ═══ */
+@media (max-width: 992px) {
+  .stats-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+@media (max-width: 768px) {
+  .sidebar { width: 200px; }
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .main-content { padding: var(--space-lg); }
+}
+</style>
+</head>
+<body>
+
+<div class="starfield"></div>
+
+<!-- ═══ DEMO 1: LOGIN PAGE ═══ -->
+<section id="demo-login" style="padding: var(--space-xxl); position: relative; z-index: 1;">
+  <div style="margin-bottom: var(--space-lg);">
+    <span style="font-size: 12px; font-weight: 600; color: var(--accent-lime); text-transform: uppercase; letter-spacing: 0.5px;">DEMO 1 — LOGIN</span>
+  </div>
+  <div class="login-page" style="min-height: 50vh; padding: 0;">
+    <div class="login-card">
+      <h1><span class="lime-dot"></span> Backupeer</h1>
+      <p>Database backup manager</p>
+      <div class="form-group">
+        <label>Username</label>
+        <input class="form-input" placeholder="admin" value="admin">
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input class="form-input" type="password" placeholder="••••••••">
+      </div>
+      <button class="btn btn-primary">Sign In</button>
+      <p class="login-error">Invalid credentials</p>
+    </div>
+  </div>
+</section>
+
+<!-- lime divider -->
+<svg class="squiggle" viewBox="0 0 1200 12" preserveAspectRatio="none" style="display:block; z-index: 1; position: relative;">
+  <path d="M0,6 Q30,0 60,6 T120,6 T180,6 T240,6 T300,6 T360,6 T420,6 T480,6 T540,6 T600,6 T660,6 T720,6 T780,6 T840,6 T900,6 T960,6 T1020,6 T1080,6 T1140,6 T1200,6" stroke="#c2ef4e" stroke-width="3" fill="none" opacity="0.5"/>
+</svg>
+
+<!-- ═══ DEMO 2: DASHBOARD ═══ -->
+<section id="demo-dashboard" style="padding: var(--space-xxl); position: relative; z-index: 1;">
+  <div style="margin-bottom: var(--space-lg);">
+    <span style="font-size: 12px; font-weight: 600; color: var(--accent-lime); text-transform: uppercase; letter-spacing: 0.5px;">DEMO 2 — DASHBOARD</span>
+  </div>
+
+  <div class="app-layout" style="min-height: auto; border: 1px solid var(--hairline); border-radius: var(--radius-lg); overflow: hidden;">
+
+    <!-- Sidebar -->
+    <nav class="sidebar" style="position: relative;">
+      <div class="sidebar-brand">
+        <div class="logo-icon">
+          <i data-lucide="database" style="width:16px;height:16px;stroke:var(--canvas);stroke-width:3"></i>
+        </div>
+        <span>Backupeer</span>
+      </div>
+      <div class="sidebar-nav">
+        <a class="nav-item active">
+          <i data-lucide="layout-dashboard"></i>
+          Dashboard
+        </a>
+        <a class="nav-item">
+          <i data-lucide="database"></i>
+          Connections
+        </a>
+        <a class="nav-item">
+          <i data-lucide="hard-drive"></i>
+          Backups
+        </a>
+        <a class="nav-item">
+          <i data-lucide="calendar"></i>
+          Schedules
+        </a>
+        <a class="nav-item">
+          <i data-lucide="cloud"></i>
+          Storage
+        </a>
+        <a class="nav-item">
+          <i data-lucide="sliders-horizontal"></i>
+          Settings
+        </a>
+      </div>
+      <div class="sidebar-footer">
+        <span>v0.2.0</span>
+        <a href="#">Sign Out</a>
+      </div>
+    </nav>
+
+    <!-- Main -->
+    <div class="main-content">
+      <div class="page-header">
+        <h1>Dashboard</h1>
+        <p>Overview of your backup infrastructure</p>
+      </div>
+
+      <!-- Stats -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-label">Connections</div>
+          <div class="stat-value">3</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Databases</div>
+          <div class="stat-value">12</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Schedules</div>
+          <div class="stat-value">5</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Storage</div>
+          <div class="stat-value">2</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Backups (24h)</div>
+          <div class="stat-value">18</div>
+          <div class="stat-detail">16 successful</div>
+        </div>
+      </div>
+
+      <!-- Recent Backups -->
+      <div class="card">
+        <div class="card-header">
+          <h2>Recent Backups</h2>
+          <button class="btn btn-lime btn-sm">
+            <i data-lucide="play"></i>
+            Run Backup
+          </button>
+        </div>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Database</th>
+                <th>Type</th>
+                <th>Status</th>
+                <th>Size</th>
+                <th>Duration</th>
+                <th>Created</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="mono">a1b2c3d4</td>
+                <td><span class="badge badge-info">Full</span></td>
+                <td><span class="badge badge-success">Success</span></td>
+                <td class="mono">2.4 GB</td>
+                <td class="mono">34.2s</td>
+                <td style="color:var(--text-muted);font-size:13px;">Jun 16, 14:30</td>
+                <td>
+                  <button class="btn btn-icon btn-sm"><i data-lucide="scroll-text"></i></button>
+                  <button class="btn btn-icon btn-sm"><i data-lucide="undo-2"></i></button>
+                </td>
+              </tr>
+              <tr>
+                <td class="mono">e5f6g7h8</td>
+                <td><span class="badge badge-info">Incr</span></td>
+                <td><span class="badge badge-success">Success</span></td>
+                <td class="mono">342 MB</td>
+                <td class="mono">12.1s</td>
+                <td style="color:var(--text-muted);font-size:13px;">Jun 16, 13:15</td>
+                <td>
+                  <button class="btn btn-icon btn-sm"><i data-lucide="scroll-text"></i></button>
+                  <button class="btn btn-icon btn-sm"><i data-lucide="undo-2"></i></button>
+                </td>
+              </tr>
+              <tr>
+                <td class="mono">i9j0k1l2</td>
+                <td><span class="badge badge-info">Full</span></td>
+                <td><span class="badge badge-error">Failed</span></td>
+                <td class="mono">—</td>
+                <td class="mono">5.3s</td>
+                <td style="color:var(--text-muted);font-size:13px;">Jun 16, 11:00</td>
+                <td>
+                  <button class="btn btn-icon btn-sm"><i data-lucide="scroll-text"></i></button>
+                  <button class="btn btn-icon btn-sm"><i data-lucide="undo-2"></i></button>
+                </td>
+              </tr>
+              <tr>
+                <td class="mono">m3n4o5p6</td>
+                <td><span class="badge badge-info">Incr</span></td>
+                <td><span class="badge badge-success">Success</span></td>
+                <td class="mono">128 MB</td>
+                <td class="mono">8.7s</td>
+                <td style="color:var(--text-muted);font-size:13px;">Jun 16, 10:45</td>
+                <td>
+                  <button class="btn btn-icon btn-sm"><i data-lucide="scroll-text"></i></button>
+                  <button class="btn btn-icon btn-sm"><i data-lucide="undo-2"></i></button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ DEMO 3: CONNECTIONS PAGE ═══ -->
+<svg class="squiggle" viewBox="0 0 1200 12" preserveAspectRatio="none" style="display:block; z-index: 1; position: relative;">
+  <path d="M0,6 Q30,0 60,6 T120,6 T180,6 T240,6 T300,6 T360,6 T420,6 T480,6 T540,6 T600,6 T660,6 T720,6 T780,6 T840,6 T900,6 T960,6 T1020,6 T1080,6 T1140,6 T1200,6" stroke="#c2ef4e" stroke-width="3" fill="none" opacity="0.5"/>
+</svg>
+
+<section id="demo-connections" style="padding: var(--space-xxl); position: relative; z-index: 1;">
+  <div style="margin-bottom: var(--space-lg);">
+    <span style="font-size: 12px; font-weight: 600; color: var(--accent-lime); text-transform: uppercase; letter-spacing: 0.5px;">DEMO 3 — CONNECTIONS + STORAGE</span>
+  </div>
+
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-xl);">
+    <!-- Connections card -->
+    <div class="card">
+      <div class="card-header">
+        <h2>Connections</h2>
+        <button class="btn btn-primary btn-sm">
+          <i data-lucide="plus"></i>
+          Add
+        </button>
+      </div>
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Type</th>
+              <th>Host</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong style="font-weight:600;">Production PG</strong></td>
+              <td><span class="badge badge-info">PG</span></td>
+              <td class="mono">pg-prod-1:5432</td>
+              <td>
+                <button class="btn btn-icon btn-sm"><i data-lucide="search"></i></button>
+                <button class="btn btn-icon btn-sm"><i data-lucide="trash-2"></i></button>
+              </td>
+            </tr>
+            <tr>
+              <td><strong style="font-weight:600;">Staging MySQL</strong></td>
+              <td><span class="badge badge-info">MySQL</span></td>
+              <td class="mono">mysql-staging:3306</td>
+              <td>
+                <button class="btn btn-icon btn-sm"><i data-lucide="search"></i></button>
+                <button class="btn btn-icon btn-sm"><i data-lucide="trash-2"></i></button>
+              </td>
+            </tr>
+            <tr>
+              <td><strong style="font-weight:600;">Legacy Maria</strong></td>
+              <td><span class="badge badge-info">Maria</span></td>
+              <td class="mono">maria-01:3306</td>
+              <td>
+                <button class="btn btn-icon btn-sm"><i data-lucide="search"></i></button>
+                <button class="btn btn-icon btn-sm"><i data-lucide="trash-2"></i></button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Storage card -->
+    <div class="card">
+      <div class="card-header">
+        <h2>Storage Providers</h2>
+        <button class="btn btn-primary btn-sm">
+          <i data-lucide="plus"></i>
+          Add
+        </button>
+      </div>
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Type</th>
+              <th>Bucket</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong style="font-weight:600;">Primary S3</strong></td>
+              <td><span class="badge badge-neutral">S3</span></td>
+              <td class="mono">backups-prod</td>
+              <td><span class="badge badge-success">Connected</span></td>
+            </tr>
+            <tr>
+              <td><strong style="font-weight:600;">DR R2</strong></td>
+              <td><span class="badge badge-neutral">R2</span></td>
+              <td class="mono">backups-dr</td>
+              <td><span class="badge badge-success">Connected</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+lucide.createIcons();
+</script>
+</body>
+</html>
