@@ -86,6 +86,23 @@ func main() {
 		backupSvc.SetEncryptionService(encSvc)
 	}
 
+	// Initialize incremental backup engines (pgBackRest, XtraBackup, Mariabackup)
+	incrRegistry := backupsvc.NewIncrementalEngineRegistry()
+	if pgbr := backupsvc.NewPGBackRestEngine(provSvc); pgbr != nil {
+		incrRegistry.Register(pgbr)
+		slog.Info("incremental engine registered", "db_type", "postgresql", "tool", "pgbackrest")
+	}
+	if xtra := backupsvc.NewXtraBackupEngine(provSvc); xtra != nil {
+		incrRegistry.Register(xtra)
+		slog.Info("incremental engine registered", "db_type", "mysql", "tool", "xtrabackup")
+	}
+	if maria := backupsvc.NewMariabackupEngine(provSvc); maria != nil {
+		incrRegistry.Register(maria)
+		slog.Info("incremental engine registered", "db_type", "mariadb", "tool", "mariabackup")
+	}
+	backupSvc.SetIncrementalEngineRegistry(incrRegistry)
+	slog.Info("incremental engines configured", "supported", incrRegistry.List())
+
 	connSvc := connsvc.NewService(connRepo)
 	scheduleSvc := schsvc.NewService(scheduleRepo, connRepo)
 	restoreSvc := restsvc.NewService(restoreRepo, backupRepo, connRepo, provSvc)
@@ -194,6 +211,9 @@ func checkRequiredTools() {
 		{"PostgreSQL", []string{"pg_dump", "pg_restore"}},
 		{"MySQL", []string{"mysqldump", "mysql"}},
 		{"MariaDB", []string{"mariadb-dump", "mariadb", "mysqldump", "mysql"}},
+		{"pgBackRest (incremental PG)", []string{"pgbackrest"}},
+		{"XtraBackup (incremental MySQL)", []string{"xtrabackup"}},
+		{"Mariabackup (incremental MariaDB)", []string{"mariabackup", "xtrabackup"}},
 	}
 
 	for _, t := range tools {
