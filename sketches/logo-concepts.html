@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Backupeer — Logo Concepts</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: #0a0a0b;
+    color: #f1f1f3;
+    padding: 60px 40px;
+    -webkit-font-smoothing: antialiased;
+  }
+  h1 { font-size: 28px; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 8px; }
+  .subtitle { color: #6b6b76; font-size: 15px; margin-bottom: 48px; }
+  
+  .concepts { display: flex; flex-direction: column; gap: 56px; max-width: 900px; margin: 0 auto; }
+  .concept { 
+    background: #121213; 
+    border: 1px solid #1f1f23; 
+    border-radius: 16px; 
+    padding: 40px;
+  }
+  .concept h2 { font-size: 18px; font-weight: 600; letter-spacing: -0.01em; }
+  .concept-desc { color: #8a8a95; font-size: 13px; margin-top: 6px; margin-bottom: 24px; }
+  
+  .logo-showcase { 
+    display: flex; 
+    align-items: center; 
+    gap: 40px;
+    padding: 32px;
+    background: #0e0e10;
+    border-radius: 12px;
+    border: 1px solid #1a1a1e;
+  }
+  .logo-preview svg { display: block; }
+  .logo-text-side { display: flex; flex-direction: column; gap: 2px; }
+  .logo-text-side .brand { font-size: 24px; font-weight: 700; letter-spacing: -0.02em; }
+  .logo-text-side .tagline { font-size: 12px; color: #6b6b76; font-weight: 500; }
+  
+  .variants { display: flex; gap: 24px; margin-top: 20px; flex-wrap: wrap; }
+  .variant { 
+    display: flex; 
+    flex-direction: column; 
+    align-items: center; 
+    gap: 8px; 
+    padding: 20px 28px;
+    background: #0e0e10;
+    border-radius: 10px;
+    border: 1px solid #1a1a1e;
+  }
+  .variant-label { font-size: 11px; font-weight: 600; color: #6b6b76; letter-spacing: 0.04em; text-transform: uppercase; }
+
+  .gradient-1 { background: linear-gradient(135deg, #635BFF, #7c3aed); }
+  .gradient-2 { background: linear-gradient(135deg, #06b6d4, #3b82f6); }
+  .gradient-3 { background: linear-gradient(135deg, #f59e0b, #ef4444); }
+  .badge { 
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 100px;
+    background: rgba(99, 91, 255, 0.15);
+    color: #8b83ff;
+    margin-left: 12px;
+    vertical-align: middle;
+  }
+  .divider { 
+    height: 1px; 
+    background: #1f1f23; 
+    margin: 48px 0; 
+  }
+  .recommendation {
+    background: linear-gradient(135deg, rgba(99,91,255,0.08), rgba(124,58,237,0.08));
+    border: 1px solid rgba(99,91,255,0.2);
+    border-radius: 12px;
+    padding: 20px 28px;
+  }
+  .recommendation h3 { font-size: 14px; font-weight: 600; margin-bottom: 8px; color: #8b83ff; }
+  .recommendation ul { list-style: none; display: flex; flex-direction: column; gap: 6px; }
+  .recommendation li { font-size: 13px; color: #a0a0ab; padding-left: 16px; position: relative; }
+  .recommendation li::before { content: "→"; position: absolute; left: 0; color: #635BFF; }
+</style>
+</head>
+<body>
+
+<h1>Backupeer — Logo Concepts</h1>
+<p class="subtitle">3 konsep logo yang lebih proper dari icon database standar</p>
+
+<div class="concepts">
+
+  <!-- CONCEPT 1: Shield + Database -->
+  <div class="concept">
+    <h2>① Shield + Database <span class="badge">RECOMMENDED</span></h2>
+    <p class="concept-desc">Perisai melambangkan proteksi data, database cylinder di dalamnya. Paling representatif buat backup tool.</p>
+    
+    <div class="logo-showcase">
+      <div class="logo-preview">
+        <svg width="56" height="56" viewBox="0 0 56 56" fill="none">
+          <!-- Shield -->
+          <path d="M28 4L50 14V26C50 38.5 40.5 48 28 52C15.5 48 6 38.5 6 26V14L28 4Z" fill="url(#s1-shield)" stroke="url(#s1-stroke)" stroke-width="1.5"/>
+          <!-- Database cylinder top -->
+          <ellipse cx="28" cy="24" rx="12" ry="5" fill="#0a0a0b" stroke="#635BFF" stroke-width="1.2"/>
+          <!-- Database cylinder body -->
+          <path d="M16 24V32C16 34.76 17.79 37.14 20.5 38.43" stroke="#8b83ff" stroke-width="1.5" stroke-linecap="round"/>
+          <path d="M40 24V32C40 34.76 38.21 37.14 35.5 38.43" stroke="#8b83ff" stroke-width="1.5" stroke-linecap="round"/>
+          <!-- Database lines -->
+          <line x1="18" y1="28" x2="38" y2="28" stroke="#8b83ff" stroke-width="1.2" stroke-linecap="round"/>
+          <line x1="18" y1="32" x2="38" y2="32" stroke="#8b83ff" stroke-width="1.2" stroke-linecap="round"/>
+          <line x1="18" y1="36" x2="25" y2="36" stroke="#8b83ff" stroke-width="1.2" stroke-linecap="round"/>
+          <!-- Backup arrow subtle -->
+          <path d="M32 44L34 42L36 44" stroke="#22c55e" stroke-width="1.5" stroke-linecap="round"/>
+          <path d="M34 42V38" stroke="#22c55e" stroke-width="1.5" stroke-linecap="round"/>
+          <defs>
+            <linearGradient id="s1-shield" x1="28" y1="4" x2="28" y2="52" gradientUnits="userSpaceOnUse">
+              <stop stop-color="#1a1a2e"/>
+              <stop offset="1" stop-color="#0f0f1a"/>
+            </linearGradient>
+            <linearGradient id="s1-stroke" x1="28" y1="4" x2="28" y2="52" gradientUnits="userSpaceOnUse">
+              <stop stop-color="#635BFF"/>
+              <stop offset="1" stop-color="#7c3aed"/>
+            </linearGradient>
+          </defs>
+        </svg>
+      </div>
+      <div class="logo-text-side">
+        <span class="brand" style="background:linear-gradient(135deg,#635BFF,#7c3aed);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">Backupeer</span>
+        <span class="tagline">Database Backup Manager</span>
+      </div>
+    </div>
+    
+    <div class="variants">
+      <div class="variant">
+        <svg width="32" height="32" viewBox="0 0 56 56" fill="none">
+          <path d="M28 4L50 14V26C50 38.5 40.5 48 28 52C15.5 48 6 38.5 6 26V14L28 4Z" fill="#635BFF"/>
+          <text x="28" y="32" text-anchor="middle" fill="white" font-size="18" font-weight="700" font-family="Inter">B</text>
+        </svg>
+        <span class="variant-label">Favicon</span>
+      </div>
+      <div class="variant">
+        <svg width="32" height="32" viewBox="0 0 56 56" fill="none">
+          <circle cx="28" cy="28" r="24" fill="#635BFF" opacity="0.15"/>
+          <path d="M28 10L44 17V25C44 33.5 37.5 40 28 42.5C18.5 40 12 33.5 12 25V17L28 10Z" fill="#635BFF" opacity="0.9"/>
+          <text x="28" y="32" text-anchor="middle" fill="white" font-size="16" font-weight="700" font-family="Inter">B</text>
+        </svg>
+        <span class="variant-label">Icon Only</span>
+      </div>
+    </div>
+    
+    <p style="font-size:12px;color:#6b6b76;margin-top:16px;">
+      ✅ Strongest concept — perisai bikin kesan "aman", database cylinder jelas fungsinya. Warna purple/indigo kaya Stripe.
+    </p>
+  </div>
+
+  <!-- CONCEPT 2: Circular Arrows / Backup Cycle -->
+  <div class="concept">
+    <h2>② Backup Cycle (Circular Arrows)</h2>
+    <p class="concept-desc">Panah melingkar + database — visualisasi siklus backup/restore. Lebih teknis, cocok buat DevOps.</p>
+    
+    <div class="logo-showcase">
+      <div class="logo-preview">
+        <svg width="56" height="56" viewBox="0 0 56 56" fill="none">
+          <!-- Outer ring - circular arrows -->
+          <circle cx="28" cy="28" r="22" stroke="#06b6d4" stroke-width="1.5" stroke-dasharray="4 3" opacity="0.4"/>
+          <!-- Arrow arc top-right -->
+          <path d="M44 22C46 25 47 28.5 47 32" stroke="#06b6d4" stroke-width="2.5" stroke-linecap="round"/>
+          <path d="M44 18L47 22L44 26" stroke="#06b6d4" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <!-- Arrow arc bottom-left -->
+          <path d="M12 34C10 31 9 27.5 9 24" stroke="#06b6d4" stroke-width="2.5" stroke-linecap="round"/>
+          <path d="M12 38L9 34L12 30" stroke="#06b6d4" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <!-- Database cylinder -->
+          <ellipse cx="28" cy="25" rx="10" ry="4" fill="#0a0a0b" stroke="#22d3ee" stroke-width="1.2"/>
+          <rect x="18" y="25" width="20" height="8" fill="#0a0a0b" stroke="#22d3ee" stroke-width="1.2"/>
+          <ellipse cx="28" cy="33" rx="10" ry="4" fill="#0a0a0b" stroke="#22d3ee" stroke-width="1.2"/>
+          <line x1="20" y1="29" x2="36" y2="29" stroke="#22d3ee" stroke-width="1" stroke-linecap="round" opacity="0.6"/>
+          <line x1="20" y1="31" x2="30" y2="31" stroke="#22d3ee" stroke-width="1" stroke-linecap="round" opacity="0.6"/>
+          <defs>
+            <linearGradient id="s2-grad" x1="9" y1="18" x2="47" y2="38" gradientUnits="userSpaceOnUse">
+              <stop stop-color="#06b6d4"/>
+              <stop offset="1" stop-color="#3b82f6"/>
+            </linearGradient>
+          </defs>
+        </svg>
+      </div>
+      <div class="logo-text-side">
+        <span class="brand" style="background:linear-gradient(135deg,#06b6d4,#3b82f6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">Backupeer</span>
+        <span class="tagline">Database Backup Manager</span>
+      </div>
+    </div>
+    
+    <p style="font-size:12px;color:#6b6b76;margin-top:16px;">
+      🔵 Cyan-blue theme. Bagus buat technical audience — langsung keliatan "backup cycle". Tapi agak kompleks buat ukuran kecil (favicon).
+    </p>
+  </div>
+
+  <!-- CONCEPT 3: Minimalist "B" Monogram -->
+  <div class="concept">
+    <h2>③ Minimalist "B" Monogram</h2>
+    <p class="concept-desc">Huruf B didesain dengan elemen database (3 baris horizontal kaya cylinder). Style Vercel/Linear — clean & modern.</p>
+    
+    <div class="logo-showcase">
+      <div class="logo-preview">
+        <svg width="56" height="56" viewBox="0 0 56 56" fill="none">
+          <!-- Circle background -->
+          <circle cx="28" cy="28" r="24" fill="#1a1a2e" stroke="#2a2a3e" stroke-width="1"/>
+          <!-- Stylized B with database lines -->
+          <rect x="16" y="18" width="14" height="8" rx="4" stroke="#f59e0b" stroke-width="2.2" fill="none"/>
+          <rect x="16" y="27" width="24" height="8" rx="4" stroke="#f59e0b" stroke-width="2.2" fill="none"/>
+          <rect x="16" y="36" width="14" height="8" rx="4" stroke="#f59e0b" stroke-width="2.2" fill="none" opacity="0.6"/>
+          <!-- B curve connecting them -->
+          <path d="M30 18C34 18 38 20 38 24C38 28 34 30 30 30" stroke="#f59e0b" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+          <path d="M30 36C34 36 38 38 38 42C38 46 34 48 30 48" stroke="#f59e0b" stroke-width="2.2" fill="none" stroke-linecap="round" opacity="0.6"/>
+          <!-- Actually let me simplify this - proper B -->
+        </svg>
+      </div>
+      <div class="logo-text-side">
+        <span class="brand" style="background:linear-gradient(135deg,#f59e0b,#ef4444);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">Backupeer</span>
+        <span class="tagline">Database Backup Manager</span>
+      </div>
+    </div>
+    
+    <div class="variants">
+      <div class="variant">
+        <svg width="32" height="32" viewBox="0 0 56 56" fill="none">
+          <circle cx="28" cy="28" r="24" fill="#f59e0b" opacity="0.12"/>
+          <text x="28" y="36" text-anchor="middle" fill="#f59e0b" font-size="28" font-weight="700" font-family="Inter">B</text>
+        </svg>
+        <span class="variant-label">Favicon</span>
+      </div>
+    </div>
+    
+    <p style="font-size:12px;color:#6b6b76;margin-top:16px;">
+      🟡 Amber-orange theme. Paling modern & minimalis — kaya Linear/Vercel. Tapi butuh brand recognition, B aja kurang jelas "backup tool".
+    </p>
+  </div>
+
+</div>
+
+<div class="divider"></div>
+
+<div class="recommendation" style="max-width:900px;margin:0 auto;">
+  <h3>🎯 Rekomendasi Gue</h3>
+  <ul>
+    <li><strong>Concept 1 (Shield + Database)</strong> — paling aman & representatif. Bisa dipakai di semua ukuran, warna purple/indigo keren, langsung kebaca "database protection"</li>
+    <li>Kombinasi shield purple + database cylinder + teks Backupeer</li>
+    <li>Favicon bisa shield dengan huruf B di dalem</li>
+    <li>Warna <strong style="color:#635BFF;">#635BFF</strong> (indigo) dominant — cocok sama UI Stripe-style yang udah lu bikin</li>
+  </ul>
+</div>
+
+</body>
+</html>

@@ -104,7 +104,23 @@ function renderLogin() {
     <div class="login-page">
       <div class="login-card">
         <div class="login-logo">
-          <div class="login-logo-icon">B</div>
+          <svg class="login-logo-svg" viewBox="0 0 32 32" fill="none">
+            <defs>
+              <linearGradient id="lg-grad" x1="4" y1="2" x2="28" y2="32" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#c4b5fd"/><stop offset="1" stop-color="#818cf8"/>
+              </linearGradient>
+            </defs>
+            <circle cx="16" cy="16" r="14.5" fill="rgba(196,181,253,0.06)" stroke="rgba(196,181,253,0.10)" stroke-width="0.8"/>
+            <path d="M16 3L29 9V21Q29 29 16 32Q3 29 3 21V9L16 3Z" fill="rgba(196,181,253,0.10)"/>
+            <path d="M16 3L29 9V21Q29 29 16 32Q3 29 3 21V9L16 3Z" stroke="url(#lg-grad)" stroke-width="1.5"/>
+            <ellipse cx="16" cy="14" rx="7" ry="3" fill="rgba(196,181,253,0.12)" stroke="url(#lg-grad)" stroke-width="1.2"/>
+            <rect x="9" y="14" width="14" height="6" fill="rgba(196,181,253,0.06)"/>
+            <line x1="9" y1="14" x2="9" y2="20" stroke="url(#lg-grad)" stroke-width="1.2"/>
+            <line x1="23" y1="14" x2="23" y2="20" stroke="url(#lg-grad)" stroke-width="1.2"/>
+            <ellipse cx="16" cy="20" rx="7" ry="3" fill="rgba(196,181,253,0.12)" stroke="url(#lg-grad)" stroke-width="1.2"/>
+            <line x1="10" y1="16" x2="22" y2="16" stroke="url(#lg-grad)" stroke-width="0.8" stroke-linecap="round"/>
+            <line x1="10" y1="18" x2="22" y2="18" stroke="url(#lg-grad)" stroke-width="0.8" stroke-linecap="round"/>
+          </svg>
           <span class="login-logo-text">Backupeer</span>
         </div>
         <div class="login-subtitle">
@@ -163,7 +179,23 @@ function renderApp() {
       <!-- Sidebar -->
       <aside class="sidebar">
         <div class="sidebar-header">
-          <div class="sidebar-logo-icon">B</div>
+          <svg class="sidebar-logo-svg" viewBox="0 0 32 32" fill="none">
+            <defs>
+              <linearGradient id="sd-grad" x1="4" y1="2" x2="28" y2="32" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#c4b5fd"/><stop offset="1" stop-color="#818cf8"/>
+              </linearGradient>
+            </defs>
+            <circle cx="16" cy="16" r="14.5" fill="rgba(196,181,253,0.06)" stroke="rgba(196,181,253,0.10)" stroke-width="0.8"/>
+            <path d="M16 3L29 9V21Q29 29 16 32Q3 29 3 21V9L16 3Z" fill="rgba(196,181,253,0.10)"/>
+            <path d="M16 3L29 9V21Q29 29 16 32Q3 29 3 21V9L16 3Z" stroke="url(#sd-grad)" stroke-width="1.5"/>
+            <ellipse cx="16" cy="14" rx="7" ry="3" fill="rgba(196,181,253,0.12)" stroke="url(#sd-grad)" stroke-width="1.2"/>
+            <rect x="9" y="14" width="14" height="6" fill="rgba(196,181,253,0.06)"/>
+            <line x1="9" y1="14" x2="9" y2="20" stroke="url(#sd-grad)" stroke-width="1.2"/>
+            <line x1="23" y1="14" x2="23" y2="20" stroke="url(#sd-grad)" stroke-width="1.2"/>
+            <ellipse cx="16" cy="20" rx="7" ry="3" fill="rgba(196,181,253,0.12)" stroke="url(#sd-grad)" stroke-width="1.2"/>
+            <line x1="10" y1="16" x2="22" y2="16" stroke="url(#sd-grad)" stroke-width="0.8" stroke-linecap="round"/>
+            <line x1="10" y1="18" x2="22" y2="18" stroke="url(#sd-grad)" stroke-width="0.8" stroke-linecap="round"/>
+          </svg>
           <span class="sidebar-logo-text">Backupeer</span>
         </div>
 
@@ -202,6 +234,10 @@ function renderApp() {
           <a class="sidebar-link ${page === 'notifications' ? 'active' : ''}" data-page="notifications" onclick="navigate('notifications')">
             <span class="icon"><i data-lucide="bell" size="16"></i></span>
             Notifications
+          </a>
+          <a class="sidebar-link ${page === 'activity' ? 'active' : ''}" data-page="activity" onclick="navigate('activity')">
+            <span class="icon"><i data-lucide="activity" size="16"></i></span>
+            Activity
           </a>
           <a class="sidebar-link ${page === 'settings' ? 'active' : ''}" data-page="settings" onclick="navigate('settings')">
             <span class="icon"><i data-lucide="settings" size="16"></i></span>
@@ -287,7 +323,7 @@ function renderPage(page) {
   const el = document.getElementById('page-content');
   if (!el) return;
 
-  const titles = { dashboard: 'Dashboard', connections: 'Connections', backups: 'Backups', schedules: 'Schedules', restores: 'Restores', storage: 'Storage', notifications: 'Notifications', settings: 'Settings' };
+  const titles = { dashboard: 'Dashboard', connections: 'Connections', backups: 'Backups', schedules: 'Schedules', restores: 'Restores', storage: 'Storage', notifications: 'Notifications', activity: 'Activity', settings: 'Settings' };
   const titleEl = document.getElementById('page-title-breadcrumb');
   if (titleEl) titleEl.textContent = titles[page] || 'Dashboard';
 
@@ -300,6 +336,7 @@ function renderPage(page) {
     case 'notifications': renderNotifications(el); break;
     case 'restores': renderRestores(el); break;
     case 'settings': renderSettings(el); break;
+    case 'activity': renderActivity(el); break;
     default: el.innerHTML = '<div class="empty-state"><div class="empty-state-icon"><i data-lucide="file-x" size="24"></i></div><h3>Page not found</h3></div>'; lucide.createIcons();
   }
 }
@@ -309,60 +346,159 @@ function renderPage(page) {
 // ══════════════════════════════════════
 async function renderDashboard(el) {
   el.innerHTML = `
-    <!-- Hero -->
-    <div class="dash-hero">
-      <div class="dash-hero-content">
-        <div class="dash-hero-badge"><i data-lucide="activity" size="12"></i> All systems operational</div>
-        <h1>Good ${getGreeting()}, ${state.user || 'Admin'}</h1>
-        <p id="hero-summary">Loading your infrastructure...</p>
-        <div class="dash-hero-actions">
-          <button class="btn-hero btn-hero-primary" onclick="navigate('connections')"><i data-lucide="database" size="15"></i> Add Database</button>
-          <button class="btn-hero btn-hero-secondary" onclick="showRunBackupModal()"><i data-lucide="play" size="15"></i> Run Backup Now</button>
-          <button class="btn-hero btn-hero-secondary" onclick="navigate('schedules')"><i data-lucide="calendar" size="15"></i> Schedule</button>
+    <!-- Compact Hero -->
+    <div class="dash-hero-compact">
+      <div>
+        <h1>Good ${getGreeting()}, <span>${state.user || 'Admin'}</span></h1>
+        <div class="dash-hero-sub">
+          <span class="operational-badge"><i data-lucide="activity" size="12"></i> All systems operational</span>
+          <span id="hero-summary">Loading your infrastructure...</span>
+        </div>
+      </div>
+      <div class="dash-hero-actions">
+        <button class="btn btn-primary" onclick="navigate('connections')"><i data-lucide="database" size="14"></i> Add Database</button>
+        <button class="btn btn-secondary" onclick="showRunBackupModal()"><i data-lucide="play" size="14"></i> Run Backup</button>
+        <button class="btn btn-secondary" onclick="navigate('schedules')"><i data-lucide="calendar" size="14"></i> Schedule</button>
+      </div>
+    </div>
+
+    <!-- Stats Row (5 cards with sparklines) -->
+    <div class="stats-row" id="stats-row">
+      <div class="stat-card-v2">
+        <div class="stat-top">
+          <span class="stat-label">Databases</span>
+          <i data-lucide="database" size="14" class="stat-icon"></i>
+        </div>
+        <div class="stat-value blue" id="stat-conns-v2">—</div>
+        <span class="stat-change up" id="stat-conns-change"><i data-lucide="trending-up" size="11"></i> connected</span>
+        <div class="sparkline" id="spark-conns"></div>
+      </div>
+      <div class="stat-card-v2">
+        <div class="stat-top">
+          <span class="stat-label">Total Backups</span>
+          <i data-lucide="shield" size="14" class="stat-icon"></i>
+        </div>
+        <div class="stat-value purple" id="stat-backups-v2">—</div>
+        <span class="stat-change up" id="stat-backups-change">—</span>
+        <div class="sparkline" id="spark-backups"></div>
+      </div>
+      <div class="stat-card-v2">
+        <div class="stat-top">
+          <span class="stat-label">Schedules</span>
+          <i data-lucide="calendar" size="14" class="stat-icon"></i>
+        </div>
+        <div class="stat-value green" id="stat-scheds-v2">—</div>
+        <span class="stat-change up" id="stat-scheds-change">active</span>
+        <div class="sparkline" id="spark-scheds"></div>
+      </div>
+      <div class="stat-card-v2">
+        <div class="stat-top">
+          <span class="stat-label">Storage Used</span>
+          <i data-lucide="hard-drive" size="14" class="stat-icon"></i>
+        </div>
+        <div class="stat-value amber" id="stat-storage-v2">—</div>
+        <span class="stat-change" id="stat-storage-change">—</span>
+        <div class="sparkline" id="spark-storage"></div>
+      </div>
+      <div class="stat-card-v2">
+        <div class="stat-top">
+          <span class="stat-label">Success Rate</span>
+          <i data-lucide="check-circle" size="14" class="stat-icon"></i>
+        </div>
+        <div class="stat-value green" id="stat-success-v2">—</div>
+        <span class="stat-change up" id="stat-success-change">—</span>
+        <div class="sparkline" id="spark-success"></div>
+      </div>
+    </div>
+
+    <!-- Two-column: Activity + Quick Stats -->
+    <div class="dash-grid">
+      <!-- LEFT: Recent Activity -->
+      <div>
+        <div class="section-header-v2">
+          <h3>Recent Activity</h3>
+          <a onclick="navigate('backups')">View all →</a>
+        </div>
+        <div class="activity-card" id="activity-list">
+          <div class="empty-state-v2">
+            <div class="icon"><i data-lucide="activity" size="32"></i></div>
+            <p>No recent activity</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT: Quick Stats -->
+      <div>
+        <div class="quick-stats-card">
+          <h5><i data-lucide="bar-chart-3" size="12" style="margin-right:4px;"></i> Today</h5>
+          <div class="qs-row">
+            <span class="qs-label"><i data-lucide="upload" size="12" style="margin-right:4px;color:var(--text-quaternary);"></i>Backups</span>
+            <span class="qs-value blue" id="today-total">—</span>
+          </div>
+          <div class="qs-row">
+            <span class="qs-label"><i data-lucide="check" size="12" style="margin-right:4px;color:var(--accent-green);"></i>Successful</span>
+            <span class="qs-value green" id="today-success">—</span>
+          </div>
+          <div class="qs-row">
+            <span class="qs-label"><i data-lucide="x" size="12" style="margin-right:4px;color:var(--accent-red);"></i>Failed</span>
+            <span class="qs-value red" id="today-failed">—</span>
+          </div>
+          <div class="qs-row">
+            <span class="qs-label"><i data-lucide="rotate-ccw" size="12" style="margin-right:4px;color:var(--text-quaternary);"></i>Restores</span>
+            <span class="qs-value blue" id="today-restores">—</span>
+          </div>
+          <div class="qs-row" style="border-bottom:1px solid var(--border-subtle);padding-bottom:var(--space-md);margin-bottom:var(--space-sm);">
+            <span class="qs-label"><i data-lucide="hard-drive" size="12" style="margin-right:4px;color:var(--text-quaternary);"></i>Data stored</span>
+            <span class="qs-value" id="today-data">—</span>
+          </div>
+          <div class="mini-donut-wrap" id="donut-wrap">
+            <div class="mini-donut">
+              <svg width="48" height="48" viewBox="0 0 48 48">
+                <circle class="bg-circle" cx="24" cy="24" r="20"></circle>
+                <circle class="fg-circle" cx="24" cy="24" r="20" id="donut-circle"></circle>
+              </svg>
+              <div class="center-text" id="donut-pct">—</div>
+            </div>
+            <div class="donut-legend">
+              <div class="donut-legend-item">
+                <span class="donut-legend-dot" style="background:var(--accent-green);"></span>
+                <span>Successful</span>
+              </div>
+              <div class="donut-legend-item">
+                <span class="donut-legend-dot" style="background:var(--accent-red);"></span>
+                <span>Failed</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div id="running-badge-container"></div>
+      </div>
+    </div>
+
+    <!-- Storage Usage -->
+    <div class="storage-card" id="storage-card">
+      <div class="storage-header">
+        <h3><i data-lucide="hard-drive" size="14" style="margin-right:6px;"></i> Storage Usage</h3>
+        <span class="storage-total" id="storage-total">No storage providers</span>
+      </div>
+      <div class="storage-list" id="storage-list">
+        <div class="empty-state-v2" style="padding:var(--space-xxl) var(--space-xl);">
+          <p>No storage providers configured</p>
+          <div class="sub" style="margin-top:4px;">Add a storage provider to store backups</div>
         </div>
       </div>
     </div>
 
-    <!-- Stats -->
-    <div class="stats-grid" id="stats-grid">
-      <div class="stat-card">
-        <div class="stat-icon" style="background:linear-gradient(135deg,#3b82f6,#2563eb);"><i data-lucide="database" size="18"></i></div>
-        <div class="stat-value" id="stat-conns">—</div>
-        <div class="stat-label">Databases Connected</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-icon" style="background:linear-gradient(135deg,#10b981,#059669);"><i data-lucide="shield" size="18"></i></div>
-        <div class="stat-value" id="stat-backups">—</div>
-        <div class="stat-label">Total Backups</div>
-        <div class="stat-detail" id="stat-backup-detail"></div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-icon" style="background:linear-gradient(135deg,#f59e0b,#d97706);"><i data-lucide="hard-drive" size="18"></i></div>
-        <div class="stat-value" id="stat-scheds">—</div>
-        <div class="stat-label">Active Schedules</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-icon" style="background:var(--gradient-btn);"><i data-lucide="check-circle" size="18"></i></div>
-        <div class="stat-value" id="stat-storage">—</div>
-        <div class="stat-label">Storage Providers</div>
-      </div>
-    </div>
-
     <!-- Recent Backups -->
-    <div class="section-header">
-      <h2>Recent Backups</h2>
-      <div class="section-header-actions">
-        <button class="btn" onclick="navigate('backups')">View All</button>
-      </div>
+    <div class="section-header-v2">
+      <h3>Recent Backups</h3>
+      <a onclick="navigate('backups')">View All →</a>
     </div>
-
-    <div class="card">
-      <div class="table-container">
-        <table>
-          <thead><tr><th>Database</th><th>Type</th><th>Status</th><th>Size</th><th>Duration</th><th>Created</th></tr></thead>
-          <tbody id="recent-backups"></tbody>
-        </table>
-      </div>
+    <div class="table-card">
+      <table>
+        <thead><tr><th>Database</th><th>Type</th><th>Status</th><th>Size</th><th>Duration</th><th>Created</th></tr></thead>
+        <tbody id="recent-backups"></tbody>
+      </table>
     </div>
   `;
   lucide.createIcons();
@@ -379,57 +515,229 @@ async function renderDashboard(el) {
     state.connections = conns;
     state.storageProviders = storageProvs;
 
-    document.getElementById('stat-conns').textContent = conns.length;
-    document.getElementById('stat-scheds').textContent = scheds.filter(s => s.enabled !== false).length;
-    document.getElementById('stat-storage').textContent = storageProvs.length;
+    // ── Stats Row ──
+    const connCount = conns.length;
+    document.getElementById('stat-conns-v2').textContent = connCount;
+    document.getElementById('stat-conns-change').innerHTML = `<i data-lucide="trending-up" size="11"></i> ${connCount > 0 ? connCount + ' connected' : 'No connections'}`;
 
     const recent = backups || [];
+    const totalBackups = stats ? stats.total_backups : recent.length;
+    document.getElementById('stat-backups-v2').textContent = totalBackups;
 
-    if (stats) {
-      document.getElementById('stat-backups').textContent = stats.total_backups || 0;
-      const successRate = stats.success_rate ? Math.round(stats.success_rate) : 0;
-      document.getElementById('stat-backup-detail').innerHTML =
-        `<span class="stat-change ${successRate >= 80 ? 'up' : 'down'}">${successRate}% success rate</span>`;
-    } else {
-      document.getElementById('stat-backups').textContent = recent.length;
-      const successCount = recent.filter(b => b.status === 'success').length;
-      if (recent.length > 0) {
-        const percent = Math.round((successCount / recent.length) * 100);
-        document.getElementById('stat-backup-detail').innerHTML = `<span class="stat-change up">${percent}% success rate</span>`;
-      }
-    }
-
-    const totalSize = stats && stats.total_size_bytes ? formatBytes(stats.total_size_bytes) : '—';
     const activeScheds = scheds.filter(s => s.enabled !== false).length;
-    document.getElementById('hero-summary').textContent =
-      `${conns.length} databases · ${activeScheds} active schedules · ${totalSize} total`;
+    document.getElementById('stat-scheds-v2').textContent = activeScheds;
+
+    const storageCount = storageProvs.length;
+    document.getElementById('stat-storage-v2').textContent = storageCount > 0 ? storageCount : '—';
+
+    // Success rate
+    let successRate = 0;
+    if (stats && stats.success_rate) {
+      successRate = Math.round(stats.success_rate);
+    } else if (recent.length > 0) {
+      const sc = recent.filter(b => b.status === 'success').length;
+      successRate = Math.round((sc / recent.length) * 100);
+    }
+    document.getElementById('stat-success-v2').textContent = successRate + '%';
+    document.getElementById('stat-success-change').innerHTML = `<i data-lucide="trending-up" size="11"></i> ${successRate}% success rate`;
+
+    // Sparlines (decorative — 7 bars for weekly trend)
+    const sparkConfigs = [
+      { id: 'spark-conns', heights: [8, 12, 14, 10, 16, 18, connCount * 4], filled: true },
+      { id: 'spark-backups', heights: [16, 20, 14, 22, 18, 24, Math.min(totalBackups * 1.2, 28)], filled: false },
+      { id: 'spark-scheds', heights: [6, 10, 8, 14, 12, 16, activeScheds * 5], filled: false },
+      { id: 'spark-storage', heights: [10, 14, 18, 16, 20, 22, Math.min(storageCount * 8, 24)], filled: true },
+      { id: 'spark-success', heights: [20, 22, 18, 24, 20, 26, Math.min(successRate / 4, 26)], filled: false },
+    ];
+    sparkConfigs.forEach(cfg => {
+      const el2 = document.getElementById(cfg.id);
+      if (!el2) return;
+      el2.innerHTML = cfg.heights.map((h, i) => {
+        const cls = i === cfg.heights.length - 1
+          ? (cfg.filled ? 'bar filled' : 'bar green')
+          : (cfg.filled ? 'bar' : 'bar green-bg');
+        return `<div class="${cls}" style="height:${Math.max(h, 4)}px"></div>`;
+      }).join('');
+    });
 
     // Sidebar counts
     const connBadge = document.getElementById('sidebar-conn-count');
-    if (connBadge) connBadge.textContent = conns.length;
+    if (connBadge) connBadge.textContent = connCount;
     const backupBadge = document.getElementById('sidebar-backup-count');
     if (backupBadge) backupBadge.textContent = recent.length;
 
+    // Hero summary
+    const totalSize = stats && stats.total_size_bytes ? formatBytes(stats.total_size_bytes) : '—';
+    document.getElementById('hero-summary').textContent =
+      `${connCount} databases · ${activeScheds} active schedules · ${totalSize} total`;
+
+    // ── Activity Feed ──
+    const activityEl = document.getElementById('activity-list');
+    if (recent.length === 0 && scheds.length === 0 && conns.length === 0) {
+      activityEl.innerHTML = `<div class="empty-state-v2"><div class="icon"><i data-lucide="activity" size="32"></i></div><p>No recent activity</p><div class="sub">Add a connection and run your first backup</div></div>`;
+    } else {
+      const items = [];
+      // Add backup activities
+      recent.slice(0, 4).forEach((b, i) => {
+        const status = b.status === 'success' ? 'success' : b.status === 'failed' ? 'failed' : 'running';
+        const dbLabel = b.database_label || b.database_id || 'Unknown';
+        const dbType = b.db_type || '';
+        const badge = dbType ? `<span class="badge badge-${getDbBadgeClass(dbType)}">${dbType.toUpperCase().slice(0,2)}</span>` : '';
+        const sizeStr = b.size_bytes ? formatBytes(b.size_bytes) : '—';
+        const durStr = b.duration_ms ? (b.duration_ms / 1000).toFixed(1) + 's' : '';
+        const timeStr = b.created_at ? timeAgo(b.created_at) : '';
+        const statusIcon = status === 'success' ? '✓' : status === 'failed' ? '✗' : '';
+        const title = status === 'running'
+          ? `Full backup — <strong>${escHtml(dbLabel)}</strong>`
+          : `${statusIcon} ${status === 'success' ? 'Full backup completed' : 'Backup failed'} — <strong>${escHtml(dbLabel)}</strong>`;
+        const meta = status === 'running'
+          ? `${badge} <span style="font-size:11px;color:var(--text-tertiary);">${sizeStr} — ${durStr}</span>`
+          : `${badge} ${sizeStr ? `<span class="badge badge-success">${sizeStr}</span>` : ''} ${durStr ? '<span style="font-size:11px;color:var(--text-tertiary);">' + durStr + '</span>' : ''}`;
+        items.push({ status, title, meta, time: timeStr });
+      });
+      // Add schedule created items
+      const recentScheds = scheds.slice(0, 2);
+      recentScheds.forEach(s => {
+        items.push({
+          status: 'info',
+          title: `📅 Schedule created — <strong>${escHtml(s.name || s.cron_expr || 'Schedule')}</strong>`,
+          meta: `<span class="badge badge-info">${(s.backup_type || 'FULL').toUpperCase()}</span> <span style="font-size:11px;color:var(--text-tertiary);">${s.cron_expr || ''}</span>`,
+          time: s.created_at ? timeAgo(s.created_at) : '',
+        });
+      });
+      // Add connection items
+      const recentConns = conns.slice(0, 2);
+      recentConns.forEach(c => {
+        const ct = c.db_type || '';
+        const badge = ct ? `<span class="badge badge-${getDbBadgeClass(ct)}">${ct.toUpperCase().slice(0,2)}</span>` : '';
+        items.push({
+          status: 'info',
+          title: `🔌 New connection — <strong>${escHtml(c.name || c.host || 'Connection')}</strong>`,
+          meta: `${badge} <span style="font-size:11px;color:var(--text-tertiary);">${c.host || ''}${c.port ? ':' + c.port : ''}</span>`,
+          time: c.created_at ? timeAgo(c.created_at) : '',
+        });
+      });
+      // Sort all items by time (approximate — put running first)
+      items.sort((a, b) => {
+        if (a.status === 'running') return -1;
+        if (b.status === 'running') return 1;
+        return 0;
+      });
+      const maxItems = Math.min(items.length, 6);
+      activityEl.innerHTML = items.slice(0, maxItems).map(item => `
+        <div class="activity-item ${item.status}">
+          <div class="activity-dot ${item.status}"></div>
+          <div class="activity-content">
+            <div class="activity-title">${item.title}</div>
+            <div class="activity-meta">${item.meta}${item.time ? '<span class="activity-time">' + item.time + '</span>' : ''}</div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // ── Today Stats ──
+    const todayBackups = recent.length;
+    const todaySuccess = recent.filter(b => b.status === 'success').length;
+    const todayFailed = recent.filter(b => b.status === 'failed').length;
+    const todayRestores = 0; // TODO: when restore API available
+    document.getElementById('today-total').textContent = todayBackups;
+    document.getElementById('today-success').textContent = todaySuccess;
+    document.getElementById('today-failed').textContent = todayFailed;
+    document.getElementById('today-restores').textContent = todayRestores;
+    document.getElementById('today-data').textContent = totalSize;
+
+    // Donut chart
+    const donutCircle = document.getElementById('donut-circle');
+    const donutPct = document.getElementById('donut-pct');
+    if (todayBackups > 0) {
+      const pct = Math.round((todaySuccess / todayBackups) * 100);
+      const circ = 2 * Math.PI * 20; // r=20 => 125.66
+      const offset = circ - (pct / 100) * circ;
+      donutCircle.style.strokeDasharray = circ;
+      donutCircle.style.strokeDashoffset = offset;
+      donutCircle.style.stroke = pct >= 80 ? 'var(--accent-green)' : pct >= 50 ? 'var(--accent-amber)' : 'var(--accent-red)';
+      donutPct.textContent = pct + '%';
+    } else {
+      donutCircle.style.strokeDasharray = '125.6';
+      donutCircle.style.strokeDashoffset = '125.6';
+      donutPct.textContent = '—';
+    }
+
+    // Running backup badge
+    const runningContainer = document.getElementById('running-badge-container');
+    const runningBackup = recent.find(b => b.status === 'running');
+    if (runningBackup) {
+      const dbLabel = runningBackup.database_label || runningBackup.database_id || 'Unknown';
+      const sizeStr = runningBackup.size_bytes ? formatBytes(runningBackup.size_bytes) : '—';
+      runningContainer.innerHTML = `
+        <div class="running-badge">
+          <span class="running-dot"></span>
+          <span>${escHtml(dbLabel)} is running (${sizeStr})</span>
+        </div>
+      `;
+    } else {
+      runningContainer.innerHTML = '';
+    }
+
+    // ── Storage Usage ──
+    const storageList = document.getElementById('storage-list');
+    const storageTotal = document.getElementById('storage-total');
+    if (storageProvs.length === 0) {
+      storageList.innerHTML = `<div class="empty-state-v2" style="padding:var(--space-xxl) var(--space-xl);"><p>No storage providers configured</p><div class="sub" style="margin-top:4px;">Add a storage provider to store backups</div></div>`;
+      storageTotal.textContent = 'No storage providers';
+    } else {
+      storageList.innerHTML = storageProvs.map(p => {
+        const provType = (p.provider_type || 's3').toLowerCase();
+        const iconLabel = provType === 'r2' ? 'R2' : provType === 'gcs' ? 'GCS' : provType === 'minio' ? 'MI' : 'S3';
+        const usedStr = '—'; // Backend doesn't have usage stats yet
+        const bucketStr = p.bucket || '—';
+        const regionStr = p.region || p.endpoint || '';
+        return `
+          <div class="storage-item">
+            <div class="storage-provider-icon ${provType}">${iconLabel}</div>
+            <div class="storage-info">
+              <div class="storage-name">${escHtml(p.name || iconLabel)}${regionStr ? ' — ' + escHtml(regionStr) : ''}</div>
+              <div class="storage-meta">Bucket: ${escHtml(bucketStr)}</div>
+              <div class="storage-bar-wrapper">
+                <div class="storage-bar-fill ${provType}" style="width:${p.is_default ? '60' : '30'}%"></div>
+              </div>
+            </div>
+            <div class="storage-numbers">
+              <div class="storage-used">${usedStr}</div>
+              <div class="storage-total-size">${escHtml(bucketStr)}</div>
+            </div>
+          </div>
+        `;
+      }).join('');
+      storageTotal.textContent = `${storageProvs.length} provider${storageProvs.length > 1 ? 's' : ''}`;
+    }
+
+    // ── Recent Backups Table ──
     const tbody = document.getElementById('recent-backups');
     if (recent.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state"><p>No backups yet</p></div></td></tr>';
+      tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state-v2"><p>No backups yet</p><div class="sub">Run your first backup to see it here</div></div></td></tr>';
     } else {
       tbody.innerHTML = recent.map(b => {
         const dbLabel = b.database_label || (b.database_id ? b.database_id.slice(0,8) : '—');
         const dbType = b.db_type || '';
-        const badge = dbType ? `<span class="db-badge ${getDbBadgeClass(dbType)}">${dbType.toUpperCase()}</span>` : '';
-        return `<tr class="status-${b.status === 'success' ? 'success' : b.status === 'failed' ? 'failed' : 'running'}">
+        const badge = dbType ? `<span class="badge badge-${getDbBadgeClass(dbType)}">${(dbType === 'postgresql' ? 'PG' : dbType === 'mysql' ? 'MY' : dbType === 'mariadb' ? 'MA' : dbType.toUpperCase()).slice(0,2)}</span>` : '';
+        const statusClass = b.status === 'success' ? 'success' : b.status === 'failed' ? 'failed' : b.status === 'running' ? 'running' : 'pending';
+        const statusDot = statusClass === 'success' ? 'green' : statusClass === 'failed' ? 'red' : statusClass === 'running' ? 'blue' : 'amber';
+        const typeLabel = (b.backup_type || '—').toUpperCase();
+        return `<tr>
           <td>${badge} ${escHtml(dbLabel)}</td>
-          <td><span class="badge badge-info">${(b.backup_type || '—').toUpperCase()}</span></td>
-          <td><span class="status-pill ${statusPill(b.status)}">${b.status || '—'}</span></td>
+          <td><span class="badge badge-info">${typeLabel}</span></td>
+          <td><span class="status-pill ${statusClass}"><span class="status-dot ${statusDot}"></span> ${b.status || '—'}</span></td>
           <td class="mono">${b.size_bytes ? formatBytes(b.size_bytes) : '—'}</td>
           <td class="mono">${b.duration_ms ? (b.duration_ms/1000).toFixed(1)+'s' : '—'}</td>
-          <td style="color:var(--text-tertiary);font-size:12px;">${b.created_at ? timeAgo(b.created_at) : '—'}</td>
+          <td style="color:var(--text-tertiary);font-size:11px;">${b.created_at ? timeAgo(b.created_at) : '—'}</td>
         </tr>`;
       }).join('');
     }
+
+    lucide.createIcons();
   } catch (err) {
-    document.getElementById('stats-grid').innerHTML += `<p style="color:var(--error);margin-top:12px">Error loading: ${escHtml(err.message)}</p>`;
+    document.getElementById('stats-row').innerHTML += `<p style="color:var(--error);margin-top:12px;grid-column:1/-1;">Error loading: ${escHtml(err.message)}</p>`;
   }
 }
 
@@ -515,6 +823,12 @@ function showAddConnectionModal() {
       <label class="form-label">Password</label>
       <input class="form-input" type="password" id="modal-conn-pass" placeholder="••••••">
     </div>
+    <div style="display:flex;gap:var(--space-md);margin-bottom:var(--space-lg);">
+      <button class="btn btn-primary test-conn-btn" onclick="testConnectionFromModal(event)">
+        <i data-lucide="zap" size="14"></i> Test Connection
+      </button>
+      <div class="test-conn-result" id="test-conn-result"></div>
+    </div>
   `, async () => {
     const name = document.getElementById('modal-conn-name').value;
     const host = document.getElementById('modal-conn-host').value;
@@ -528,6 +842,45 @@ function showAddConnectionModal() {
       renderConnections(document.getElementById('page-content'));
     } catch (err) { alert('Error: ' + err.message); return false; }
   });
+  lucide.createIcons();
+}
+
+async function testConnectionFromModal(event) {
+  const btn = event.target.closest('button');
+  const host = document.getElementById('modal-conn-host').value;
+  const port = parseInt(document.getElementById('modal-conn-port').value) || 5432;
+  const dbType = document.getElementById('modal-conn-type').value;
+  const user = document.getElementById('modal-conn-user').value;
+  const pass = document.getElementById('modal-conn-pass').value;
+
+  if (!host || !user) { alert('Host and Username are required to test'); return; }
+
+  const resultEl = document.getElementById('test-conn-result');
+  resultEl.className = 'test-conn-result visible loading';
+  resultEl.innerHTML = '<div class="loading-spinner" style="width:16px;height:16px;border-width:2px;"></div> Testing connection...';
+  btn.disabled = true;
+
+  try {
+    const res = await API.post('/api/connections/_new/test', {
+      host, port, db_type: dbType, username: user, password: pass
+    });
+    if (res.success) {
+      resultEl.className = 'test-conn-result visible success';
+      resultEl.innerHTML = '<i data-lucide="check-circle" size="16"></i> ✅ Connection successful';
+      resultEl.innerHTML += `<div class="test-conn-detail">${user}@${host}:${port} (${dbType})</div>`;
+    } else {
+      resultEl.className = 'test-conn-result visible failed';
+      resultEl.innerHTML = '<i data-lucide="x-circle" size="16"></i> ❌ Connection failed';
+      resultEl.innerHTML += `<div class="test-conn-detail">${escHtml(res.error || 'Unknown error')}</div>`;
+    }
+  } catch (err) {
+    resultEl.className = 'test-conn-result visible failed';
+    resultEl.innerHTML = '<i data-lucide="x-circle" size="16"></i> ❌ Connection error';
+    resultEl.innerHTML += `<div class="test-conn-detail">${escHtml(err.message)}</div>`;
+  }
+
+  btn.disabled = false;
+  lucide.createIcons();
 }
 
 async function showBackupConn(connId) {
@@ -639,6 +992,25 @@ async function renderBackups(el) {
       <h1>Backups</h1>
       <p>Backup history and management</p>
     </div>
+
+    <!-- Backup Progress Card (live) -->
+    <div class="backup-progress-card" id="backup-progress-card">
+      <div class="bp-header">
+        <div class="bp-title">
+          <span class="running-dot"></span>
+          <span id="bp-db-name">—</span>
+        </div>
+        <span class="bp-status" id="bp-status-text">Running...</span>
+      </div>
+      <div class="bp-bar-wrap">
+        <div class="bp-bar-fill" id="bp-bar" style="width:5%"></div>
+      </div>
+      <div class="bp-meta">
+        <span>Size: <strong id="bp-size">—</strong></span>
+        <span>Duration: <strong id="bp-dur">—</strong></span>
+      </div>
+    </div>
+
     <div style="margin-bottom:var(--space-lg);">
       <button class="btn btn-primary" onclick="showRunBackupModal()">+ Run Backup</button>
     </div>
@@ -651,6 +1023,10 @@ async function renderBackups(el) {
       </div>
     </div>
   `;
+  lucide.createIcons();
+
+  // Start progress polling
+  startBackupPolling();
 
   try {
     const backups = await API.get('/api/backups');
@@ -660,18 +1036,26 @@ async function renderBackups(el) {
     } else {
       tbody.innerHTML = backups.map(b => {
         const statusClass = b.status === 'success' ? 'success' : b.status === 'failed' ? 'failed' : 'running';
+        // Enhanced verify badge
+        const vStatus = b.verify_status || '—';
+        let verifyBadge = '—';
+        if (vStatus !== '—') {
+          const vClass = vStatus;
+          const vLabel = vStatus.charAt(0).toUpperCase() + vStatus.slice(1);
+          verifyBadge = `<span class="verify-badge ${vClass}" onclick="showVerifyDetails('${b.id}')" title="Click for details">${vLabel}</span>`;
+        }
         return `<tr class="status-${statusClass}">
           <td class="mono" title="${b.id}">${b.id.slice(0,8)}</td>
           <td><span class="badge badge-info">${(b.backup_type || '').toUpperCase()}</span></td>
-          <td><span class="status-pill ${statusPill(b.status)}">${b.status || '—'}</span></td>
+          <td><span class="status-pill ${statusPill(b.status)}"><span class="status-dot ${b.status === 'success' ? 'green' : b.status === 'failed' ? 'red' : 'blue'}"></span> ${b.status || '—'}</span></td>
           <td class="mono">${b.size_bytes ? formatBytes(b.size_bytes) : '—'}</td>
           <td class="mono">${b.duration_ms ? (b.duration_ms/1000).toFixed(1)+'s' : '—'}</td>
-          <td><span class="badge ${b.verify_status === 'passed' ? 'badge-success' : 'badge-neutral'}">${b.verify_status || '—'}</span></td>
+          <td>${verifyBadge}</td>
           <td style="color:var(--text-tertiary);font-size:12px;">${b.created_at ? new Date(b.created_at).toLocaleString() : '—'}</td>
           <td>
             <button class="btn btn-sm" onclick="showBackupLog('${b.id}')" title="View logs"><i data-lucide="file-text" size="13"></i></button>
             <button class="btn btn-sm" onclick="downloadBackup('${b.id}')" title="Download"><i data-lucide="download" size="13"></i></button>
-            <button class="btn btn-sm" onclick="verifyBackup('${b.id}')" title="Verify integrity"><i data-lucide="check-circle" size="13"></i></button>
+            <button class="btn btn-sm" onclick="triggerVerify('${b.id}')" title="Verify integrity"><i data-lucide="check-circle" size="13"></i></button>
             <button class="btn btn-sm" onclick="showRestoreModal('${b.id}')" title="Restore"><i data-lucide="rotate-ccw" size="13"></i></button>
             <button class="btn btn-sm btn-danger" onclick="deleteBackup('${b.id}')" title="Delete"><i data-lucide="trash-2" size="13"></i></button>
           </td>
@@ -786,24 +1170,174 @@ async function showRunBackupModal() {
 }
 
 async function showRestoreModal(backupId) {
-  showModal('Restore Backup', `
-    <p style="margin-bottom:12px;color:var(--text-secondary);">Restore backup <code>${backupId.slice(0,8)}</code></p>
-    <div class="form-group">
-      <label class="form-label">Target Connection (optional)</label>
-      <select class="form-select" id="modal-restore-conn">
-        <option value="">Original connection</option>
-        ${state.connections.map(c => `<option value="${c.id}">${escHtml(c.name)} (${c.db_type})</option>`).join('')}
-      </select>
+  // Load backup details first
+  let backupData = null;
+  try {
+    backupData = await API.get(`/api/backups/${backupId}`);
+  } catch (e) { /* ok */ }
+
+  const backupType = backupData ? (backupData.backup_type || 'full').toUpperCase() : 'FULL';
+  const backupSize = backupData && backupData.size_bytes ? formatBytes(backupData.size_bytes) : '—';
+  const backupDb = backupData && backupData.database_label ? backupData.database_label : (backupData ? backupData.database_id || '' : '');
+
+  // Three-step wizard state
+  let step = 1;
+  let restoreType = 'full'; // full | data-only | schema-only
+  let targetConn = '';
+
+  function renderWizard() {
+    const overlay = document.querySelector('.restore-wizard-overlay');
+    if (!overlay) return;
+    const body = overlay.querySelector('.wizard-body-inner');
+    const footer = overlay.querySelector('.wizard-footer-inner');
+
+    // Step indicators
+    const stepsHtml = [1,2,3].map(s => {
+      const cls = s === step ? 'active' : (s < step ? 'completed' : '');
+      const labels = ['Select Backup', 'Configure', 'Restore'];
+      return `<div class="wizard-step ${cls}"><span class="step-num">${s < step ? '✓' : s}</span> ${labels[s-1]}</div>`;
+    }).join('');
+
+    // Step content
+    let bodyHtml = '';
+    let backBtn = '';
+    let nextBtn = '';
+
+    if (step === 1) {
+      bodyHtml = `
+        <div style="margin-bottom:var(--space-lg);">
+          <p style="font-size:13px;color:var(--text-secondary);margin-bottom:var(--space-lg);">Choose what to restore from backup <code>${backupId.slice(0,8)}</code></p>
+          <table class="restore-review-table" style="margin-bottom:var(--space-lg);">
+            <tr><td>Backup ID</td><td><code>${backupId.slice(0,8)}</code></td></tr>
+            <tr><td>Database</td><td>${escHtml(backupDb) || '—'}</td></tr>
+            <tr><td>Type</td><td>${backupType}</td></tr>
+            <tr><td>Size</td><td>${backupSize}</td></tr>
+            <tr><td>Created</td><td>${backupData && backupData.created_at ? new Date(backupData.created_at).toLocaleString() : '—'}</td></tr>
+          </table>
+        </div>
+        <div class="restore-types">
+          <div class="restore-type-card ${restoreType === 'full' ? 'selected' : ''}" onclick="selectRestoreType('full')">
+            <div class="icon">💾</div>
+            <h5>Full Restore</h5>
+            <p>Complete database including all schemas and data</p>
+          </div>
+          <div class="restore-type-card ${restoreType === 'data-only' ? 'selected' : ''}" onclick="selectRestoreType('data-only')">
+            <div class="icon">📊</div>
+            <h5>Data Only</h5>
+            <p>Restore table data without schema definitions</p>
+          </div>
+        </div>
+      `;
+      nextBtn = `<button class="btn btn-primary" onclick="restoreWizardNext()"><i data-lucide="arrow-right" size="14"></i> Continue</button>`;
+    } else if (step === 2) {
+      const connOptions = state.connections.length > 0
+        ? state.connections.map(c => `<option value="${c.id}">${escHtml(c.name)} (${c.db_type})</option>`).join('')
+        : '<option value="">No connections available</option>';
+      bodyHtml = `
+        <div>
+          <p style="font-size:13px;color:var(--text-secondary);margin-bottom:var(--space-lg);">Configure restore destination</p>
+          <div class="form-group">
+            <label class="form-label">Target Connection</label>
+            <select class="form-select" id="restore-target-conn" onchange="updateRestoreTargetConn(this.value)">
+              <option value="">Original connection (same as backup source)</option>
+              ${connOptions}
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Database Name (optional)</label>
+            <input class="form-input" id="restore-target-db" placeholder="Leave empty to restore to original database">
+          </div>
+          <div style="background:var(--accent-amber-bg);border:1px solid rgba(245,158,11,0.2);border-radius:var(--radius-md);padding:var(--space-md) var(--space-lg);margin-top:var(--space-lg);display:flex;align-items:flex-start;gap:8px;">
+            <span style="color:var(--accent-amber);flex-shrink:0;">⚠️</span>
+            <span style="font-size:12px;color:var(--text-secondary);">Restore will <strong>overwrite</strong> the target database. Make sure you have a recent backup before proceeding.</span>
+          </div>
+        </div>
+      `;
+      backBtn = `<button class="btn" onclick="restoreWizardBack()"><i data-lucide="arrow-left" size="14"></i> Back</button>`;
+      nextBtn = `<button class="btn btn-primary" onclick="restoreWizardNext()"><i data-lucide="arrow-right" size="14"></i> Review</button>`;
+    } else if (step === 3) {
+      const targetLabel = targetConn ? (state.connections.find(c => c.id === targetConn)?.name || 'Custom') : 'Original connection';
+      const restoreLabel = restoreType === 'full' ? 'Full database' : 'Data only (no schema)';
+      bodyHtml = `
+        <div>
+          <p style="font-size:13px;color:var(--text-secondary);margin-bottom:var(--space-lg);">Review your restore options before proceeding</p>
+          <table class="restore-review-table">
+            <tr><td>Backup</td><td><code>${backupId.slice(0,8)}...</code></td></tr>
+            <tr><td>Type</td><td>${restoreLabel}</td></tr>
+            <tr><td>Target</td><td>${escHtml(targetLabel)}</td></tr>
+            <tr><td>Overwrite</td><td><span style="color:var(--accent-red);">⚠️ Yes — will overwrite target database</span></td></tr>
+          </table>
+        </div>
+      `;
+      backBtn = `<button class="btn" onclick="restoreWizardBack()"><i data-lucide="arrow-left" size="14"></i> Back</button>`;
+      nextBtn = `<button class="btn btn-primary" onclick="executeRestore('${backupId}')" style="background:linear-gradient(135deg,#ef4444,#dc2626);box-shadow:0 4px 14px rgba(239,68,68,0.35);"><i data-lucide="rotate-ccw" size="14"></i> Start Restore</button>`;
+    }
+
+    body.innerHTML = bodyHtml;
+    footer.innerHTML = `
+      <div>${backBtn}</div>
+      <div style="display:flex;gap:var(--space-sm);">
+        <button class="btn" onclick="this.closest('.restore-wizard-overlay').remove()">Cancel</button>
+        ${nextBtn}
+      </div>
+    `;
+    // Update steps
+    overlay.querySelector('.wizard-steps-inner').innerHTML = stepsHtml;
+    lucide.createIcons();
+  }
+
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay restore-wizard-overlay';
+  overlay.style.zIndex = '1001';
+  overlay.innerHTML = `
+    <div class="modal" style="max-width:600px;">
+      <div class="modal-header">
+        <h3>Restore Backup</h3>
+        <button class="modal-close" onclick="this.closest('.restore-wizard-overlay').remove()">&times;</button>
+      </div>
+      <div class="modal-body" style="padding:0;">
+        <div class="wizard-steps wizard-steps-inner"></div>
+        <div style="padding:var(--space-xxl);">
+          <div class="wizard-body-inner"></div>
+          <div class="wizard-footer-inner"></div>
+        </div>
+      </div>
     </div>
-    <p style="color:var(--warning, #d97706);font-size:13px;display:flex;align-items:center;gap:6px;margin-top:12px;"><i data-lucide="alert-triangle" size="14"></i> This will overwrite the target database!</p>
-  `, async () => {
-    const targetConn = document.getElementById('modal-restore-conn').value;
-    try {
-      await API.post(`/api/backups/${backupId}/restore`, { target_connection: targetConn || undefined });
-      alert('Restore started!');
-    } catch (err) { alert('Error: ' + err.message); return false; }
-  });
+  `;
+  document.body.appendChild(overlay);
+  renderWizard();
   lucide.createIcons();
+
+  // Expose helpers to window scope for onclick handlers
+  window.selectRestoreType = function(type) {
+    restoreType = type;
+    renderWizard();
+  };
+  window.updateRestoreTargetConn = function(val) {
+    targetConn = val;
+  };
+  window.restoreWizardNext = function() {
+    if (step < 3) { step++; renderWizard(); }
+  };
+  window.restoreWizardBack = function() {
+    if (step > 1) { step--; renderWizard(); }
+  };
+  window.executeRestore = async function(id) {
+    try {
+      const targetDb = document.getElementById('restore-target-db')?.value || '';
+      const payload = {
+        restore_type: restoreType,
+        target_connection: targetConn || undefined,
+        target_database: targetDb || undefined,
+      };
+      await API.post(`/api/backups/${id}/restore`, payload);
+      alert('✅ Restore started! Check the Restores page for progress.');
+      overlay.remove();
+      navigate('restores');
+    } catch (err) {
+      alert('❌ Error: ' + err.message);
+    }
+  };
 }
 
 async function deleteBackup(id) {
@@ -974,7 +1508,11 @@ async function showAddScheduleModal() {
       </div>
       <div class="form-group" style="flex:1">
         <label class="form-label">Cron Expression</label>
-        <input class="form-input" id="modal-sched-cron" value="0 1 * * *" placeholder="0 1 * * *">
+        <input class="form-input" id="modal-sched-cron" value="0 1 * * *" placeholder="0 1 * * *" oninput="updateCronPreview()">
+        <div class="cron-preview-wrap" id="cron-preview-wrap">
+          <div class="cron-preview-header">Next <span class="count" id="cron-preview-count">5</span> Executions</div>
+          <div id="cron-preview-list"></div>
+        </div>
       </div>
     </div>
     <div class="form-group">
@@ -1055,6 +1593,36 @@ async function deleteSchedule(id) {
     await API.del(`/api/schedules/${id}`);
     renderSchedules(document.getElementById('page-content'));
   } catch (err) { alert('Error: ' + err.message); }
+}
+
+function updateCronPreview() {
+  const input = document.getElementById('modal-sched-cron');
+  const wrap = document.getElementById('cron-preview-wrap');
+  const list = document.getElementById('cron-preview-list');
+  if (!input || !wrap || !list) return;
+
+  const expr = input.value.trim();
+  if (!expr || expr.split(/\s+/).length !== 5) {
+    wrap.classList.remove('visible');
+    return;
+  }
+
+  const runs = cronNextRuns(expr, 5);
+  if (runs.length === 0) {
+    wrap.classList.remove('visible');
+    return;
+  }
+
+  wrap.classList.add('visible');
+  document.getElementById('cron-preview-count').textContent = runs.length;
+  list.innerHTML = runs.map((r, i) => `
+    <div class="cron-preview-item ${r.isSoon ? 'soon' : ''}">
+      <span class="num">${i + 1}</span>
+      <span class="date">${r.date}</span>
+      <span class="time">${r.time}</span>
+      <span class="from-now">${r.fromNow}</span>
+    </div>
+  `).join('');
 }
 
 // ══════════════════════════════════════
@@ -1589,6 +2157,186 @@ async function showRestoreLog(restoreId) {
 }
 
 // ══════════════════════════════════════
+// ACTIVITY FEED
+// ══════════════════════════════════════
+async function renderActivity(el) {
+  let currentFilter = 'all';
+
+  function renderActivityContent(filter) {
+    const container = document.getElementById('activity-main-content');
+    if (!container) return;
+    currentFilter = filter || currentFilter;
+
+    container.innerHTML = '<div class="activity-loading"><div class="loading-spinner"></div><p>Loading activity...</p></div>';
+    lucide.createIcons();
+
+    Promise.all([
+      API.get('/api/backups?limit=50'),
+      API.get('/api/schedules'),
+      API.get('/api/connections'),
+      API.get('/api/restores').catch(() => []),
+    ]).then(([backups, scheds, conns, restores]) => {
+      const items = [];
+
+      // Backup events
+      (backups || []).forEach(b => {
+        const status = b.status === 'success' ? 'success' : b.status === 'failed' ? 'failed' : 'running';
+        const dbLabel = b.database_label || b.database_id || 'Unknown';
+        const dbType = b.db_type || '';
+        const badge = dbType ? `<span class="badge badge-${getDbBadgeClass(dbType)}">${dbType.toUpperCase().slice(0,2)}</span>` : '';
+        const sizeStr = b.size_bytes ? formatBytes(b.size_bytes) : '—';
+        const durStr = b.duration_ms ? (b.duration_ms/1000).toFixed(1)+'s' : '';
+        const timeStr = b.created_at ? timeAgo(b.created_at) : '';
+        const icons = { success: '✓', failed: '✗', running: '🔄' };
+        const labels = { success: 'Backup completed', failed: 'Backup failed', running: 'Backup running' };
+        items.push({
+          status, badge,
+          title: `${icons[status] || ''} ${labels[status] || 'Backup'} — <strong>${escHtml(dbLabel)}</strong>`,
+          meta: `${badge} ${sizeStr} ${durStr}`,
+          detail: `Type: ${(b.backup_type || 'full').toUpperCase()} · Size: ${sizeStr} · Duration: ${durStr}`,
+          time: timeStr,
+          ts: b.created_at ? new Date(b.created_at).getTime() : 0,
+          type: 'backup',
+          subType: status,
+        });
+      });
+
+      // Connect events
+      (conns || []).slice(0, 5).forEach(c => {
+        const ct = c.db_type || '';
+        const badge = ct ? `<span class="badge badge-${getDbBadgeClass(ct)}">${ct.toUpperCase().slice(0,2)}</span>` : '';
+        items.push({
+          status: 'info',
+          badge,
+          title: `🔌 Connection added — <strong>${escHtml(c.name || c.host)}</strong>`,
+          meta: `${badge} ${c.host || ''}${c.port ? ':' + c.port : ''}`,
+          detail: escHtml(c.name || '') + ' — ' + (c.db_type || '').toUpperCase(),
+          time: c.created_at ? timeAgo(c.created_at) : '',
+          ts: c.created_at ? new Date(c.created_at).getTime() : 0,
+          type: 'connection',
+          subType: 'info',
+        });
+      });
+
+      // Restore events
+      (restores || []).forEach(r => {
+        const status = r.status === 'success' ? 'success' : r.status === 'failed' ? 'failed' : 'running';
+        const icons = { success: '✅', failed: '❌', running: '🔄' };
+        items.push({
+          status,
+          title: `${icons[status] || ''} Restore ${status}`,
+          meta: `Backup: ${(r.backup_id || '').slice(0,8)}`,
+          detail: r.duration_ms ? `Duration: ${(r.duration_ms/1000).toFixed(1)}s` : '',
+          time: r.created_at ? timeAgo(r.created_at) : '',
+          ts: r.created_at ? new Date(r.created_at).getTime() : 0,
+          type: 'restore',
+          subType: status,
+        });
+      });
+
+      // Sort by timestamp desc
+      items.sort((a, b) => b.ts - a.ts);
+
+      // Apply filter
+      const filtered = currentFilter === 'all' ? items : items.filter(i => i.subType === currentFilter || i.type === currentFilter);
+
+      if (filtered.length === 0) {
+        container.innerHTML = `<div class="empty-state-v2"><div class="icon"><i data-lucide="activity" size="32"></i></div><p>No activity found</p><div class="sub">No matching activity for this filter</div></div>`;
+        lucide.createIcons();
+        return;
+      }
+
+      // Count stats
+      const total = items.length;
+      const successes = items.filter(i => i.subType === 'success').length;
+      const failures = items.filter(i => i.subType === 'failed').length;
+      const runningCount = items.filter(i => i.subType === 'running').length;
+
+      // Update sidebar stats
+      document.getElementById('as-total').textContent = total;
+      document.getElementById('as-success').textContent = successes;
+      document.getElementById('as-failed').textContent = failures;
+      document.getElementById('as-running').textContent = runningCount;
+
+      // Update recent items sidebar
+      const recentItems = items.slice(0, 5).map(i => {
+        const dotColor = i.subType === 'success' ? 'green' : i.subType === 'failed' ? 'red' : i.subType === 'running' ? 'blue' : 'amber';
+        const text = i.title.replace(/<[^>]+>/g, '').substring(0, 40);
+        return `<div class="ar-item"><span class="ar-dot ${dotColor}"></span><span class="ar-text">${escHtml(text)}</span><span class="ar-time">${i.time}</span></div>`;
+      }).join('');
+      document.getElementById('as-recent-list').innerHTML = recentItems;
+
+      // Render timeline
+      container.innerHTML = filtered.map(i => {
+        const dotIcons = { success: '✓', failed: '✗', running: '🔄', info: '●' };
+        return `
+          <div class="activity-tl-item">
+            <div class="activity-tl-dot ${i.subType === 'success' ? 'success' : i.subType === 'failed' ? 'failed' : i.subType === 'running' ? 'running' : 'info'}">${dotIcons[i.subType] || '●'}</div>
+            <div class="activity-tl-content">
+              <div class="activity-tl-title">${i.title}</div>
+              <div class="activity-tl-meta">${i.meta || ''}${i.time ? '<span class="activity-tl-time">' + i.time + '</span>' : ''}</div>
+              ${i.detail ? '<div class="activity-tl-detail">' + i.detail + '</div>' : ''}
+            </div>
+          </div>
+        `;
+      }).join('');
+      lucide.createIcons();
+    }).catch(err => {
+      container.innerHTML = `<div class="empty-state-v2" style="color:var(--accent-red);"><p>Error loading activity: ${escHtml(err.message)}</p></div>`;
+    });
+  }
+
+  el.innerHTML = `
+    <div class="activity-page">
+      <div class="activity-page-header">
+        <h2><i data-lucide="activity" size="16" style="margin-right:6px;"></i> Activity Feed</h2>
+        <div class="activity-filters">
+          <button class="activity-filter-btn active" data-filter="all" onclick="applyActivityFilter('all', this)">All</button>
+          <button class="activity-filter-btn" data-filter="success" onclick="applyActivityFilter('success', this)">Success</button>
+          <button class="activity-filter-btn" data-filter="failed" onclick="applyActivityFilter('failed', this)">Failed</button>
+          <button class="activity-filter-btn" data-filter="running" onclick="applyActivityFilter('running', this)">Running</button>
+          <button class="activity-filter-btn" data-filter="backup" onclick="applyActivityFilter('backup', this)">Backups</button>
+          <button class="activity-filter-btn" data-filter="restore" onclick="applyActivityFilter('restore', this)">Restores</button>
+        </div>
+      </div>
+
+      <div class="activity-layout">
+        <div class="activity-timeline" id="activity-main-content">
+          <div class="activity-loading"><div class="loading-spinner"></div><p>Loading activity...</p></div>
+        </div>
+
+        <div class="activity-sidebar">
+          <div class="activity-sidebar-card">
+            <h5><i data-lucide="bar-chart-3" size="12"></i> Summary</h5>
+            <div class="as-stat-row"><span class="as-stat-label">Total Events</span><span class="as-stat-value blue" id="as-total">—</span></div>
+            <div class="as-stat-row"><span class="as-stat-label">Successful</span><span class="as-stat-value green" id="as-success">—</span></div>
+            <div class="as-stat-row"><span class="as-stat-label">Failed</span><span class="as-stat-value red" id="as-failed">—</span></div>
+            <div class="as-stat-row"><span class="as-stat-label">Running</span><span class="as-stat-value amber" id="as-running">—</span></div>
+          </div>
+          <div class="activity-sidebar-card">
+            <h5><i data-lucide="clock" size="12"></i> Recent</h5>
+            <div id="as-recent-list">
+              <div style="font-size:12px;color:var(--text-tertiary);padding:8px 0;">Loading...</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+  lucide.createIcons();
+
+  // Expose filter function
+  window.applyActivityFilter = function(filter, btn) {
+    document.querySelectorAll('.activity-filter-btn').forEach(b => b.classList.remove('active'));
+    if (btn) btn.classList.add('active');
+    renderActivityContent(filter);
+  };
+
+  // Load data
+  renderActivityContent('all');
+}
+
+// ══════════════════════════════════════
 // UTILITIES
 // ══════════════════════════════════════
 function getGreeting() {
@@ -1865,6 +2613,186 @@ async function deleteNotif(id) {
     await API.del('/api/notifications/' + id);
     renderNotifications(document.getElementById('page-content'));
   } catch (err) { alert('Error: ' + err.message); }
+}
+
+// ══════════════════════════════════════════
+// FEATURE: CRON Next Runs (computed in JS)
+// ══════════════════════════════════════════
+function cronNextRuns(expr, count) {
+  if (!expr || typeof expr !== 'string') return [];
+  count = count || 5;
+  const parts = expr.trim().split(/\s+/);
+  if (parts.length !== 5) return [];
+
+  const [sMin, sHour, sDom, sMonth, sDow] = parts;
+  const results = [];
+  const now = new Date();
+  let cur = new Date(now);
+  cur.setSeconds(0, 0);
+
+  let found = 0;
+  let maxIter = 2000;
+  while (found < count && maxIter-- > 0) {
+    // Increment
+    cur.setMinutes(cur.getMinutes() + 1);
+    if (cur.getFullYear() > 2099) break;
+
+    const m = cur.getMinutes();
+    const h = cur.getHours();
+    const d = cur.getDate();
+    const mo = cur.getMonth() + 1;
+    const dw = cur.getDay();
+
+    if (!cronFieldMatch(sMin, m)) continue;
+    if (!cronFieldMatch(sHour, h)) continue;
+    if (!cronFieldMatch(sDom, d)) continue;
+    if (!cronFieldMatch(sMonth, mo)) continue;
+    if (!cronFieldMatch(sDow, dw)) continue;
+
+    found++;
+    results.push({
+      date: cur.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }),
+      time: cur.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
+      fromNow: timeAgoFromNow(cur),
+      isSoon: (cur - now < 3600000),
+    });
+  }
+  return results;
+}
+
+function cronFieldMatch(pattern, value) {
+  if (pattern === '*' || pattern === '?') return true;
+  if (pattern.includes('/')) {
+    const [_, step] = pattern.split('/');
+    return value % parseInt(step) === 0;
+  }
+  if (pattern.includes(',')) {
+    return pattern.split(',').some(p => cronFieldMatch(p.trim(), value));
+  }
+  if (pattern.includes('-')) {
+    const [l, r] = pattern.split('-').map(Number);
+    return value >= l && value <= r;
+  }
+  return parseInt(pattern) === value;
+}
+
+function timeAgoFromNow(date) {
+  const diff = date - new Date();
+  if (diff < 0) return 'now';
+  if (diff < 60000) return 'in <1m';
+  if (diff < 3600000) return 'in ' + Math.floor(diff / 60000) + 'm';
+  if (diff < 86400000) return 'in ' + Math.floor(diff / 3600000) + 'h';
+  return 'in ' + Math.floor(diff / 86400000) + 'd';
+}
+
+// ══════════════════════════════════════════
+// FEATURE: Backup Progress Tracker
+// ══════════════════════════════════════════
+let backupProgressInterval = null;
+
+function startBackupPolling() {
+  stopBackupPolling();
+  backupProgressInterval = setInterval(pollRunningBackups, 5000);
+  pollRunningBackups();
+}
+
+function stopBackupPolling() {
+  if (backupProgressInterval) {
+    clearInterval(backupProgressInterval);
+    backupProgressInterval = null;
+  }
+}
+
+async function pollRunningBackups() {
+  try {
+    const backups = await API.get('/api/backups?limit=50');
+    const running = backups.filter(b => b.status === 'running');
+
+    // Update any visible progress cards
+    const progressEl = document.getElementById('backup-progress-card');
+    if (!progressEl) return;
+
+    if (running.length === 0) {
+      progressEl.classList.remove('visible');
+      return;
+    }
+
+    progressEl.classList.add('visible');
+    const bp = running[0];
+    const dbLabel = bp.database_label || bp.database_id || 'Unknown';
+
+    // Simulate progress based on duration — not perfect but gives feedback
+    const elapsed = bp.duration_ms || 0;
+    // Scale: most backups complete in 30-120s, assume ~120s = 90%
+    const simulated = Math.min(Math.round((elapsed / 120000) * 90), 90);
+    const bar = document.getElementById('bp-bar');
+    const statusEl = document.getElementById('bp-status-text');
+    const sizeEl = document.getElementById('bp-size');
+    const durEl = document.getElementById('bp-dur');
+
+    if (bar) bar.style.width = Math.max(simulated, 5) + '%';
+    if (statusEl) statusEl.textContent = 'Running...';
+    if (sizeEl) sizeEl.textContent = bp.size_bytes ? formatBytes(bp.size_bytes) : '—';
+    if (durEl) durEl.textContent = elapsed ? (elapsed/1000).toFixed(1)+'s' : '0s';
+    document.getElementById('bp-db-name').textContent = escHtml(dbLabel);
+  } catch (e) {
+    // Silently retry
+  }
+}
+
+// ══════════════════════════════════════════
+// FEATURE: Verify Detail Modal
+// ══════════════════════════════════════════
+async function showVerifyDetails(backupId) {
+  try {
+    const data = await API.get(`/api/backups/${backupId}`);
+    const vStatus = data.verify_status || 'pending';
+    const vTime = data.verified_at ? new Date(data.verified_at).toLocaleString() : '—';
+    const vSize = data.size_bytes ? formatBytes(data.size_bytes) : '—';
+    const vChecksum = data.checksum || data.md5 || '—';
+    const vLog = data.verify_log || 'No verification details';
+
+    const statusIcons = { passed: '✅', failed: '❌', verifying: '⏳', pending: '⏸️' };
+    const statusColors = { passed: 'green', failed: 'red', verifying: 'amber', pending: '' };
+
+    showModal('Backup Verification', `
+      <div style="margin-bottom:var(--space-lg);">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:var(--space-lg);">
+          <div style="font-size:32px;">${statusIcons[vStatus] || '⏸️'}</div>
+          <div>
+            <div style="font-size:16px;font-weight:600;color:var(--text-primary);text-transform:capitalize;">${vStatus}</div>
+            <div style="font-size:12px;color:var(--text-tertiary);">Backup ${backupId.slice(0,8)}</div>
+          </div>
+        </div>
+        <table class="restore-review-table" style="width:100%;">
+          <tr><td>Status</td><td class="${statusColors[vStatus]}">${vStatus}</td></tr>
+          <tr><td>Verified At</td><td>${vTime}</td></tr>
+          <tr><td>Size</td><td>${vSize}</td></tr>
+          <tr><td>Checksum</td><td class="mono" style="font-size:10px;word-break:break-all;">${vChecksum}</td></tr>
+        </table>
+      </div>
+      <div style="border-top:1px solid var(--border-default);padding-top:var(--space-lg);">
+        <label class="form-label">Verification Log</label>
+        <pre class="log-viewer" style="max-height:200px;font-size:11px;">${escHtml(vLog)}</pre>
+      </div>
+    `);
+  } catch (err) {
+    alert('Error loading verification details: ' + err.message);
+  }
+}
+
+async function triggerVerify(backupId) {
+  try {
+    const res = await API.post(`/api/backups/${backupId}/verify`);
+    alert('✅ Verification started!');
+    // Re-render current page
+    const page = location.hash.slice(1) || 'dashboard';
+    if (page === 'backups') {
+      renderBackups(document.getElementById('page-content'));
+    }
+  } catch (err) {
+    alert('Error: ' + err.message);
+  }
 }
 
 function setTheme(theme) {

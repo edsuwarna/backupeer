@@ -1,14 +1,12 @@
 package backup
 
 import (
-	"archive/tar"
 	"bytes"
 	"compress/gzip"
 	"context"
 	"fmt"
-	"os"
+	"io"
 	"os/exec"
-	"path/filepath"
 
 	"github.com/edsuwarna/backupeer/internal/connection"
 )
@@ -33,6 +31,7 @@ func (e *MariabackupEngine) BackupIncremental(sch IncrementalSchedule, conn *con
 	return nil, fmt.Errorf("mariabackup incremental requires --incremental-lsn; use runMariabackup directly with lastLSN")
 }
 
+// runMariabackup performs streaming backup using mariabackup --stream=xbstream.
 func (e *MariabackupEngine) runMariabackup(sch IncrementalSchedule, conn *connection.Connection, backupID string, lastLSN string) (map[string]string, error) {
 	prov, err := e.provSvc.GetDecrypted(sch.StorageProviderID)
 	if err != nil {
@@ -42,27 +41,22 @@ func (e *MariabackupEngine) runMariabackup(sch IncrementalSchedule, conn *connec
 		return nil, fmt.Errorf("storage provider %s not found", sch.StorageProviderID)
 	}
 
-	tmpDir := filepath.Join(os.TempDir(), "backupeer", "mariabackup", backupID)
-	if err := os.MkdirAll(tmpDir, 0755); err != nil {
-		return nil, fmt.Errorf("create tmp dir: %w", err)
-	}
-	defer os.RemoveAll(tmpDir)
-
-	targetDir := filepath.Join(tmpDir, "data")
-	if err := os.MkdirAll(targetDir, 0755); err != nil {
-		return nil, fmt.Errorf("create target dir: %w", err)
+	// Create S3 client
+	client, err := NewS3ClientFromProvider(prov)
+	if err != nil {
+		return nil, fmt.Errorf("create s3 client: %w", err)
 	}
 
+	// Build mariabackup command with streaming
 	args := []string{
 		"--backup",
-		"--target-dir=" + targetDir,
+		"--stream=xbstream",
 		"--host=" + conn.Host,
 		"--port=" + fmt.Sprintf("%d", conn.Port),
 		"--user=" + conn.Username,
 		"--password=" + conn.Password,
 		"--parallel=4",
 	}
-
 	if lastLSN != "" {
 		args = append(args, "--incremental-lsn="+lastLSN)
 	}
@@ -79,58 +73,18 @@ func (e *MariabackupEngine) runMariabackup(sch IncrementalSchedule, conn *connec
 	}
 
 	cmd := exec.Command(binary, args...)
-	var cmdOut, cmdErr bytes.Buffer
-	cmd.Stdout = &cmdOut
-	cmd.Stderr = &cmdErr
-
-	if err := cmd.Run(); err != nil {
-		return nil, fmt.Errorf("%s failed: %w\noutput: %s", binary, err, cmdErr.String())
-	}
-
-	checkpointsFile := filepath.Join(targetDir, "xtrabackup_checkpoints")
-	cpData, err := os.ReadFile(checkpointsFile)
+	stdout, err := cmd.StdoutPipe()
 	if err != nil {
-		return nil, fmt.Errorf("read checkpoints: %w", err)
+		return nil, fmt.Errorf("stdout pipe: %w", err)
+	}
+	var stderrBuf bytes.Buffer
+	cmd.Stderr = &stderrBuf
+
+	if err := cmd.Start(); err != nil {
+		return nil, fmt.Errorf("%s start: %w", binary, err)
 	}
 
-	lsnMap := parseXtraCheckpoints(string(cpData))
-	fromLSN := lsnMap["from_lsn"]
-	toLSN := lsnMap["to_lsn"]
-	backupType := lsnMap["backup_type"]
-
-	fmt.Printf("[mariabackup] backup complete: type=%s from_lsn=%s to_lsn=%s\n", backupType, fromLSN, toLSN)
-
-	// Tar + gzip
-	var buf bytes.Buffer
-	gzWriter := gzip.NewWriter(&buf)
-	tarWriter := tar.NewWriter(gzWriter)
-
-	filepath.Walk(targetDir, func(path string, info os.FileInfo, err error) error {
-		if err != nil {
-			return err
-		}
-		relPath, _ := filepath.Rel(targetDir, path)
-		if relPath == "." {
-			return nil
-		}
-		header, _ := tar.FileInfoHeader(info, "")
-		header.Name = relPath
-		tarWriter.WriteHeader(header)
-		if !info.IsDir() {
-			data, _ := os.ReadFile(path)
-			tarWriter.Write(data)
-		}
-		return nil
-	})
-	tarWriter.Close()
-	gzWriter.Close()
-
-	// Upload to S3
-	client, err := NewS3ClientFromProvider(prov)
-	if err != nil {
-		return nil, fmt.Errorf("create s3 client: %w", err)
-	}
-
+	// Streaming pipeline: xbstream stdout → gzip → S3 multipart upload
 	isIncremental := lastLSN != ""
 	backupDir := "full"
 	if isIncremental {
@@ -138,13 +92,56 @@ func (e *MariabackupEngine) runMariabackup(sch IncrementalSchedule, conn *connec
 	}
 	key := fmt.Sprintf("mariabackup/%s/%s/%s/%s.tar.gz", conn.Name, backupDir, backupID, backupID)
 
+	pr, pw := io.Pipe()
+	errChan := make(chan error, 1)
+
+	go func() {
+		defer pw.Close()
+		defer close(errChan)
+
+		gw := gzip.NewWriter(pw)
+		_, copyErr := io.Copy(gw, stdout)
+		gw.Close()
+		if copyErr != nil {
+			errChan <- fmt.Errorf("compress: %w", copyErr)
+			return
+		}
+		errChan <- nil
+	}()
+
+	// Upload to S3 (streaming, auto multipart)
 	ctx := context.Background()
-	reader := bytes.NewReader(buf.Bytes())
-	if err := client.Upload(ctx, key, reader, int64(buf.Len())); err != nil {
-		return nil, fmt.Errorf("upload to s3: %w", err)
+	if uploadErr := client.UploadStream(ctx, key, pr); uploadErr != nil {
+		pr.Close()
+		<-errChan
+		if cmd.Process != nil {
+			cmd.Process.Kill()
+		}
+		cmd.Wait()
+		return nil, fmt.Errorf("upload to s3: %w", uploadErr)
 	}
 
-	fmt.Printf("[mariabackup] uploaded to s3: %s (%d bytes)\n", key, buf.Len())
+	// Wait for compression goroutine
+	if compErr := <-errChan; compErr != nil {
+		if cmd.Process != nil {
+			cmd.Process.Kill()
+		}
+		cmd.Wait()
+		return nil, compErr
+	}
+
+	// Wait for backup process to finish
+	if waitErr := cmd.Wait(); waitErr != nil {
+		return nil, fmt.Errorf("%s failed: %w\nstderr: %s", binary, waitErr, stderrBuf.String())
+	}
+
+	fmt.Printf("[mariabackup] streaming backup OK: key=%s\n", key)
+
+	// Parse LSN metadata from stderr
+	lsnMap := parseXtraStderr(stderrBuf.String())
+	fromLSN := lsnMap["from_lsn"]
+	toLSN := lsnMap["to_lsn"]
+	backupType := lsnMap["backup_type"]
 
 	metadata := map[string]string{
 		"engine":       "mariabackup",

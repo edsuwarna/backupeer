@@ -1,0 +1,972 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Backupeer — Dashboard Redesign</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --stripe-purple: #635BFF;
+  --stripe-purple-dark: #5850EC;
+  --stripe-purple-light: #7a73ff;
+  --stripe-purple-bg: rgba(99,91,255,0.1);
+  --accent-green: #10b981;
+  --accent-green-bg: rgba(16,185,129,0.1);
+  --accent-red: #ef4444;
+  --accent-red-bg: rgba(239,68,68,0.1);
+  --accent-blue: #3b82f6;
+  --accent-blue-bg: rgba(59,130,246,0.1);
+  --accent-amber: #f59e0b;
+  --accent-amber-bg: rgba(245,158,11,0.1);
+  --gradient-btn: linear-gradient(135deg, #635BFF, #5850EC);
+  --gradient-btn-hover: linear-gradient(135deg, #7a73ff, #635BFF);
+  --gradient-logo: linear-gradient(135deg, #c4b5fd, #818cf8);
+  --font-ui: 'Inter', -apple-system, system-ui, sans-serif;
+  --font-mono: 'SF Mono', 'Monaco', 'Menlo', 'JetBrains Mono', monospace;
+  --radius-sm: 6px; --radius-md: 8px; --radius-lg: 12px; --radius-xl: 16px;
+  --radius-2xl: 20px; --radius-full: 9999px;
+  --space-xs: 4px; --space-sm: 8px; --space-md: 12px;
+  --space-lg: 16px; --space-xl: 20px; --space-xxl: 24px;
+  --space-3xl: 32px; --space-4xl: 40px; --space-5xl: 48px;
+  --sidebar-w: 240px;
+}
+
+[data-theme="dark"] {
+  --bg-canvas: #0A2540;
+  --bg-surface: #0F2B47;
+  --bg-elevated: #1a3a5c;
+  --bg-subtle: rgba(255,255,255,0.04);
+  --bg-muted: #0d2b46;
+  --bg-sidebar: #0d2340;
+  --bg-sidebar-hover: rgba(255,255,255,0.06);
+  --bg-sidebar-active: rgba(99,91,255,0.15);
+  --border-default: rgba(255,255,255,0.08);
+  --border-subtle: rgba(255,255,255,0.04);
+  --border-hover: rgba(255,255,255,0.15);
+  --text-primary: rgba(255,255,255,0.95);
+  --text-secondary: rgba(255,255,255,0.65);
+  --text-tertiary: rgba(255,255,255,0.4);
+  --text-quaternary: rgba(255,255,255,0.25);
+  --text-inverse: #0f172a;
+  --text-sidebar: rgba(255,255,255,0.45);
+  --text-sidebar-active: #635BFF;
+  --text-sidebar-hover: rgba(255,255,255,0.9);
+  --gray-50: rgba(255,255,255,0.04);
+  --gray-100: rgba(255,255,255,0.08);
+  --gray-200: rgba(255,255,255,0.12);
+  --gray-300: rgba(255,255,255,0.18);
+  --gray-400: rgba(255,255,255,0.4);
+  --gray-500: rgba(255,255,255,0.5);
+  --gray-600: rgba(255,255,255,0.6);
+  --gray-700: rgba(255,255,255,0.7);
+  --gray-800: rgba(255,255,255,0.82);
+  --gray-900: rgba(255,255,255,0.92);
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.3);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.35);
+  --shadow-lg: 0 8px 30px rgba(0,0,0,0.4);
+  --shadow-xl: 0 20px 60px rgba(0,0,0,0.5);
+  --shadow-btn: 0 4px 14px rgba(99,91,255,0.5);
+  --stat-card-bg: #0F2B47;
+  --table-row-hover: rgba(255,255,255,0.04);
+  --table-header-bg: rgba(255,255,255,0.04);
+  --input-bg: rgba(255,255,255,0.06);
+  --input-border: rgba(255,255,255,0.12);
+  --badge-pg-bg: rgba(51,103,145,0.25);
+  --badge-pg-text: #6db3d9;
+  --badge-mysql-bg: rgba(0,117,143,0.25);
+  --badge-mysql-text: #4db8d4;
+  --badge-maria-bg: rgba(24,137,180,0.25);
+  --badge-maria-text: #5fc9e6;
+  --badge-success-bg: rgba(16,185,129,0.15);
+  --badge-success-text: #34d399;
+  --badge-danger-bg: rgba(239,68,68,0.15);
+  --badge-danger-text: #f87171;
+  --badge-info-bg: rgba(59,130,246,0.15);
+  --badge-info-text: #60a5fa;
+  --badge-warning-bg: rgba(245,158,11,0.15);
+  --badge-warning-text: #fbbf24;
+  --progress-bg: rgba(255,255,255,0.08);
+}
+
+body {
+  font-family: var(--font-ui);
+  background: var(--bg-canvas);
+  color: var(--text-primary);
+  min-height: 100vh;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ─── APP LAYOUT ─── */
+.app-layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* ─── SIDEBAR ─── */
+.sidebar {
+  width: var(--sidebar-w);
+  flex-shrink: 0;
+  background: var(--bg-sidebar);
+  border-right: 1px solid var(--border-default);
+  display: flex;
+  flex-direction: column;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  z-index: 50;
+}
+.sidebar-header {
+  padding: var(--space-xl) var(--space-lg);
+  border-bottom: 1px solid var(--border-default);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.sidebar-logo-text {
+  font-size: 16px; font-weight: 700; letter-spacing: -0.3px;
+  background: var(--gradient-logo);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.sidebar-nav { flex: 1; padding: var(--space-md) var(--space-sm); display: flex; flex-direction: column; gap: 2px; }
+.sidebar-section-label {
+  font-size: 10px; font-weight: 600; text-transform: uppercase;
+  letter-spacing: 1.2px; color: var(--text-tertiary);
+  padding: var(--space-lg) var(--space-lg) var(--space-sm);
+}
+.sidebar-link {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 14px; border-radius: var(--radius-md);
+  font-size: 13px; font-weight: 500; color: var(--text-sidebar);
+  text-decoration: none; transition: all 0.15s; cursor: pointer;
+}
+.sidebar-link:hover { background: var(--bg-sidebar-hover); color: var(--text-sidebar-hover); }
+.sidebar-link.active { background: var(--bg-sidebar-active); color: var(--text-sidebar-active); }
+.sidebar-link .badge-count {
+  margin-left: auto;
+  background: var(--stripe-purple-bg);
+  color: var(--stripe-purple-light);
+  font-size: 10px; font-weight: 600;
+  padding: 1px 7px; border-radius: var(--radius-full);
+}
+.sidebar-footer {
+  padding: var(--space-md) var(--space-lg);
+  border-top: 1px solid var(--border-default);
+}
+.sidebar-user { display: flex; align-items: center; gap: 10px; }
+.sidebar-user-avatar {
+  width: 28px; height: 28px; border-radius: var(--radius-full);
+  background: var(--gradient-logo); display: flex;
+  align-items: center; justify-content: center;
+  color: var(--text-inverse); font-size: 12px; font-weight: 700;
+}
+.sidebar-user-name { font-size: 12px; font-weight: 600; color: var(--text-primary); }
+.sidebar-user-plan { font-size: 10px; color: var(--text-tertiary); }
+
+/* ─── MAIN ─── */
+.main-content { flex: 1; min-width: 0; }
+.top-bar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: var(--space-lg) var(--space-3xl);
+  border-bottom: 1px solid var(--border-default);
+  background: var(--bg-surface);
+  position: sticky; top: 0; z-index: 40;
+}
+.breadcrumb { display: flex; align-items: center; gap: 8px; font-size: 13px; }
+.breadcrumb a { color: var(--text-secondary); text-decoration: none; }
+.breadcrumb a:hover { color: var(--text-primary); }
+.breadcrumb .current { color: var(--text-primary); font-weight: 500; }
+.top-bar-right { display: flex; align-items: center; gap: var(--space-md); }
+.theme-btn {
+  width: 30px; height: 30px; border-radius: var(--radius-full);
+  border: 1.5px solid var(--border-default); background: transparent;
+  color: var(--text-tertiary); cursor: pointer; display: flex;
+  align-items: center; justify-content: center; transition: all 0.2s;
+}
+.theme-btn:hover { border-color: var(--border-hover); background: var(--bg-subtle); color: var(--text-primary); }
+.time-display { font-size: 12px; color: var(--text-tertiary); font-family: var(--font-mono); }
+
+/* ─── DASHBOARD CONTENT ─── */
+.dash-content {
+  padding: var(--space-xxl) var(--space-3xl) var(--space-4xl);
+  max-width: 1280px;
+}
+
+/* ─── COMPACT HERO ─── */
+.dash-hero {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-xxl);
+}
+.dash-hero-left { }
+.dash-hero h1 {
+  font-size: 22px; font-weight: 700; letter-spacing: -0.4px;
+}
+.dash-hero h1 span { color: var(--text-tertiary); font-weight: 400; }
+.dash-hero-sub {
+  display: flex; align-items: center; gap: var(--space-sm);
+  margin-top: 4px; font-size: 13px; color: var(--text-secondary);
+}
+.operational-badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 2px 10px; border-radius: var(--radius-full);
+  font-size: 11px; font-weight: 600;
+  background: var(--accent-green-bg); color: var(--accent-green);
+}
+.dash-hero-actions { display: flex; gap: var(--space-sm); }
+.btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 8px 16px; border-radius: var(--radius-md);
+  font-family: var(--font-ui); font-size: 12px; font-weight: 500;
+  cursor: pointer; transition: all 0.2s;
+  border: none; text-decoration: none;
+}
+.btn-primary {
+  background: var(--gradient-btn); color: white; box-shadow: var(--shadow-btn);
+}
+.btn-primary:hover { background: var(--gradient-btn-hover); transform: translateY(-1px); }
+.btn-secondary {
+  background: var(--bg-subtle); color: var(--text-secondary);
+  border: 1.5px solid var(--border-default);
+}
+.btn-secondary:hover { border-color: var(--border-hover); background: var(--bg-muted); }
+.btn-sm { padding: 6px 12px; font-size: 11px; }
+
+/* ─── STATS ROW ─── */
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: var(--space-lg);
+  margin-bottom: var(--space-xxl);
+}
+.stat-card {
+  background: var(--stat-card-bg);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  padding: var(--space-xl) var(--space-lg);
+  position: relative;
+  overflow: hidden;
+}
+.stat-card .stat-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: var(--space-sm);
+}
+.stat-label { font-size: 11px; color: var(--text-tertiary); font-weight: 500; letter-spacing: 0.3px; }
+.stat-icon { color: var(--text-quaternary); }
+.stat-value { font-size: 26px; font-weight: 700; letter-spacing: -0.5px; line-height: 1; margin-bottom: 4px; }
+.stat-value.green { color: var(--accent-green); }
+.stat-value.blue { color: var(--accent-blue); }
+.stat-value.amber { color: var(--accent-amber); }
+.stat-value.purple { color: var(--stripe-purple-light); }
+.stat-change {
+  font-size: 11px;
+  display: inline-flex; align-items: center; gap: 3px;
+  padding: 1px 8px; border-radius: var(--radius-full);
+  font-weight: 500;
+}
+.stat-change.up { background: var(--accent-green-bg); color: var(--accent-green); }
+.stat-change.down { background: var(--accent-red-bg); color: var(--accent-red); }
+
+/* Mini sparkline bar */
+.sparkline {
+  display: flex; align-items: flex-end;
+  gap: 2px; height: 28px;
+  margin-top: var(--space-sm);
+}
+.sparkline .bar {
+  flex: 1;
+  border-radius: 2px 2px 0 0;
+  min-height: 4px;
+  transition: height 0.3s;
+  background: var(--stripe-purple-bg);
+}
+.sparkline .bar.filled { background: var(--stripe-purple); }
+.sparkline .bar.green { background: var(--accent-green); }
+.sparkline .bar.green-bg { background: var(--accent-green-bg); }
+.sparkline .bar.blue { background: var(--accent-blue); }
+
+/* ─── DASHBOARD TWO-COLUMN ─── */
+.dash-grid {
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  gap: var(--space-xxl);
+  margin-bottom: var(--space-xxl);
+}
+
+/* ─── SECTION HEADER ─── */
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-lg);
+}
+.section-header h3 { font-size: 14px; font-weight: 600; }
+.section-header a { font-size: 12px; color: var(--stripe-purple-light); text-decoration: none; }
+.section-header a:hover { text-decoration: underline; }
+
+/* ─── ACTIVITY FEED (compact) ─── */
+.activity-card {
+  background: var(--stat-card-bg);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+.activity-item {
+  display: flex;
+  gap: var(--space-md);
+  padding: var(--space-lg) var(--space-xl);
+  border-bottom: 1px solid var(--border-subtle);
+  transition: background 0.15s;
+}
+.activity-item:last-child { border-bottom: none; }
+.activity-item:hover { background: var(--bg-subtle); }
+.activity-item.running { border-left: 2px solid var(--accent-blue); }
+.activity-item.success { border-left: 2px solid var(--accent-green); }
+.activity-item.failed { border-left: 2px solid var(--accent-red); }
+.activity-item.info { border-left: 2px solid var(--stripe-purple); }
+
+.activity-dot {
+  width: 8px; height: 8px; border-radius: var(--radius-full);
+  margin-top: 4px; flex-shrink: 0;
+}
+.activity-dot.success { background: var(--accent-green); }
+.activity-dot.failed { background: var(--accent-red); }
+.activity-dot.running { background: var(--accent-blue); animation: pulse 1.5s infinite; }
+.activity-dot.info { background: var(--stripe-purple); }
+.activity-content { flex: 1; min-width: 0; }
+.activity-title { font-size: 12px; font-weight: 500; color: var(--text-primary); }
+.activity-meta { display: flex; align-items: center; gap: 6px; margin-top: 3px; flex-wrap: wrap; }
+.activity-time { font-size: 11px; color: var(--text-quaternary); white-space: nowrap; }
+
+.badge {
+  display: inline-flex; align-items: center;
+  padding: 1px 8px; border-radius: var(--radius-full);
+  font-size: 10px; font-weight: 600;
+}
+.badge-pg { background: var(--badge-pg-bg); color: var(--badge-pg-text); }
+.badge-mysql { background: var(--badge-mysql-bg); color: var(--badge-mysql-text); }
+.badge-maria { background: var(--badge-maria-bg); color: var(--badge-maria-text); }
+.badge-success { background: var(--badge-success-bg); color: var(--badge-success-text); }
+.badge-danger { background: var(--badge-danger-bg); color: var(--badge-danger-text); }
+.badge-info { background: var(--badge-info-bg); color: var(--badge-info-text); }
+.badge-warning { background: var(--badge-warning-bg); color: var(--badge-warning-text); }
+
+/* ─── SIDEBAR STATS ─── */
+.stats-sidebar { }
+.quick-stats-card {
+  background: var(--stat-card-bg);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  padding: var(--space-xl);
+  margin-bottom: var(--space-lg);
+}
+.quick-stats-card h5 {
+  font-size: 10px; font-weight: 600; color: var(--text-tertiary);
+  text-transform: uppercase; letter-spacing: 0.5px;
+  margin-bottom: var(--space-lg); padding-bottom: var(--space-sm);
+  border-bottom: 1px solid var(--border-subtle);
+}
+.qs-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 5px 0; font-size: 12px;
+}
+.qs-label { color: var(--text-secondary); }
+.qs-value { font-weight: 600; }
+.qs-value.green { color: var(--accent-green); }
+.qs-value.red { color: var(--accent-red); }
+.qs-value.blue { color: var(--accent-blue); }
+.qs-value.amber { color: var(--accent-amber); }
+
+/* Mini donut */
+.mini-donut-wrap {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  margin-top: var(--space-sm);
+}
+.mini-donut {
+  width: 48px; height: 48px;
+  border-radius: var(--radius-full);
+  position: relative;
+  flex-shrink: 0;
+}
+.mini-donut svg { transform: rotate(-90deg); }
+.mini-donut .bg-circle { fill: none; stroke: var(--progress-bg); stroke-width: 5; }
+.mini-donut .fg-circle {
+  fill: none; stroke: var(--accent-green); stroke-width: 5;
+  stroke-linecap: round;
+  stroke-dasharray: 125.6;
+  stroke-dashoffset: 12.56;
+}
+.mini-donut .center-text {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 700; color: var(--text-primary);
+}
+.donut-legend { }
+.donut-legend-item { display: flex; align-items: center; gap: 6px; font-size: 11px; padding: 2px 0; }
+.donut-legend-dot { width: 6px; height: 6px; border-radius: 2px; }
+
+/* Running backup indicator */
+.running-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: var(--accent-blue-bg);
+  border: 1px solid rgba(59,130,246,0.2);
+  border-radius: var(--radius-md);
+  font-size: 11px;
+  color: var(--accent-blue);
+  margin-top: var(--space-sm);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.running-badge:hover { background: rgba(59,130,246,0.15); }
+.running-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent-blue); animation: pulse 1.5s infinite; }
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+/* ─── STORAGE USAGE ─── */
+.storage-card {
+  background: var(--stat-card-bg);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  padding: var(--space-xl);
+  margin-bottom: var(--space-xxl);
+}
+.storage-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: var(--space-lg);
+}
+.storage-header h3 { font-size: 14px; font-weight: 600; }
+.storage-total { font-size: 11px; color: var(--text-tertiary); }
+.storage-list { }
+.storage-item {
+  display: flex; align-items: center;
+  gap: var(--space-lg);
+  padding: var(--space-md) 0;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.storage-item:last-child { border-bottom: none; }
+.storage-provider-icon {
+  width: 32px; height: 32px;
+  border-radius: var(--radius-md);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+.storage-provider-icon.s3 { background: rgba(255,153,0,0.15); }
+.storage-provider-icon.r2 { background: rgba(239,107,36,0.15); }
+.storage-info { flex: 1; }
+.storage-name { font-size: 12px; font-weight: 600; color: var(--text-primary); }
+.storage-meta { font-size: 11px; color: var(--text-tertiary); margin-top: 2px; }
+.storage-bar-wrapper {
+  height: 4px;
+  background: var(--progress-bg);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+  margin-top: 4px;
+}
+.storage-bar-fill {
+  height: 100%;
+  border-radius: var(--radius-full);
+  transition: width 0.5s;
+}
+.storage-bar-fill.s3 { background: linear-gradient(90deg, #ff9900, #ffbb33); }
+.storage-bar-fill.r2 { background: linear-gradient(90deg, #ef6b24, #f59e42); }
+.storage-numbers {
+  text-align: right;
+  flex-shrink: 0;
+}
+.storage-used { font-size: 12px; font-weight: 600; color: var(--text-primary); font-family: var(--font-mono); }
+.storage-total-size { font-size: 10px; color: var(--text-quaternary); }
+
+/* ─── RECENT BACKUPS TABLE ─── */
+.table-card {
+  background: var(--stat-card-bg);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+.table-card table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.table-card th {
+  text-align: left; padding: 10px 16px;
+  border-bottom: 1px solid var(--border-default);
+  color: var(--text-tertiary); font-weight: 500; font-size: 10px;
+  text-transform: uppercase; letter-spacing: 0.5px;
+  background: var(--table-header-bg);
+}
+.table-card td { padding: 10px 16px; border-bottom: 1px solid var(--border-subtle); color: var(--text-secondary); }
+.table-card tr:last-child td { border-bottom: none; }
+.table-card tr:hover td { background: var(--table-row-hover); }
+.table-card .mono { font-family: var(--font-mono); font-size: 11px; }
+
+/* Status pills */
+.status-pill {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 2px 10px; border-radius: var(--radius-full);
+  font-size: 10px; font-weight: 600; text-transform: capitalize;
+}
+.status-pill.success { background: var(--accent-green-bg); color: var(--accent-green); }
+.status-pill.failed { background: var(--accent-red-bg); color: var(--accent-red); }
+.status-pill.running { background: var(--accent-blue-bg); color: var(--accent-blue); }
+.status-pill.pending { background: var(--accent-amber-bg); color: var(--accent-amber); }
+.status-dot { width: 5px; height: 5px; border-radius: 50%; }
+.status-dot.green { background: var(--accent-green); }
+.status-dot.red { background: var(--accent-red); }
+.status-dot.blue { background: var(--accent-blue); }
+.status-dot.amber { background: var(--accent-amber); }
+
+/* Empty state */
+.empty-state {
+  text-align: center; padding: var(--space-4xl) var(--space-xl);
+  color: var(--text-tertiary);
+}
+.empty-state .icon { font-size: 32px; margin-bottom: var(--space-lg); opacity: 0.4; }
+.empty-state p { font-size: 13px; }
+.empty-state .sub { font-size: 12px; margin-top: 4px; }
+
+/* ─── RESPONSIVE ─── */
+@media (max-width: 1024px) {
+  .stats-row { grid-template-columns: repeat(3, 1fr); }
+  .dash-grid { grid-template-columns: 1fr; }
+  .dash-hero { flex-direction: column; align-items: flex-start; gap: var(--space-lg); }
+}
+@media (max-width: 768px) {
+  .stats-row { grid-template-columns: repeat(2, 1fr); }
+  .sidebar { display: none; }
+  .dash-content { padding: var(--space-lg); }
+}
+</style>
+</head>
+<body>
+
+<div class="app-layout">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <svg width="28" height="28" viewBox="0 0 32 32" fill="none">
+        <defs><linearGradient id="sg" x1="4" y1="2" x2="28" y2="32" gradientUnits="userSpaceOnUse">
+          <stop stop-color="#c4b5fd"/><stop offset="1" stop-color="#818cf8"/>
+        </linearGradient></defs>
+        <circle cx="16" cy="16" r="14.5" fill="rgba(196,181,253,0.06)" stroke="rgba(196,181,253,0.10)" stroke-width="0.8"/>
+        <path d="M16 3L29 9V21Q29 29 16 32Q3 29 3 21V9L16 3Z" fill="rgba(196,181,253,0.10)"/>
+        <path d="M16 3L29 9V21Q29 29 16 32Q3 29 3 21V9L16 3Z" stroke="url(#sg)" stroke-width="1.5"/>
+        <ellipse cx="16" cy="14" rx="7" ry="3" fill="rgba(196,181,253,0.12)" stroke="url(#sg)" stroke-width="1.2"/>
+        <rect x="9" y="14" width="14" height="6" fill="rgba(196,181,253,0.06)"/>
+        <line x1="9" y1="14" x2="9" y2="20" stroke="url(#sg)" stroke-width="1.2"/>
+        <line x1="23" y1="14" x2="23" y2="20" stroke="url(#sg)" stroke-width="1.2"/>
+        <ellipse cx="16" cy="20" rx="7" ry="3" fill="rgba(196,181,253,0.12)" stroke="url(#sg)" stroke-width="1.2"/>
+      </svg>
+      <span class="sidebar-logo-text">Backupeer</span>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="sidebar-section-label">Main</div>
+      <a class="sidebar-link active"><i data-lucide="layout-dashboard" size="16"></i> Dashboard</a>
+      <a class="sidebar-link"><i data-lucide="cable" size="16"></i> Connections <span class="badge-count">5</span></a>
+      <a class="sidebar-link"><i data-lucide="archive" size="16"></i> Backups <span class="badge-count">28</span></a>
+      <a class="sidebar-link"><i data-lucide="calendar" size="16"></i> Schedules</a>
+      <a class="sidebar-link"><i data-lucide="rotate-ccw" size="16"></i> Restores</a>
+      <div class="sidebar-section-label" style="margin-top:var(--space-md);">Infrastructure</div>
+      <a class="sidebar-link"><i data-lucide="hard-drive" size="16"></i> Storage</a>
+      <a class="sidebar-link"><i data-lucide="bell" size="16"></i> Notifications</a>
+      <a class="sidebar-link"><i data-lucide="settings" size="16"></i> Settings</a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <div class="sidebar-user-avatar">E</div>
+        <div>
+          <div class="sidebar-user-name">Endang</div>
+          <div class="sidebar-user-plan">Pro plan</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main-content">
+    <!-- TOP BAR -->
+    <div class="top-bar">
+      <div class="breadcrumb">
+        <a href="#">Backupeer</a>
+        <span style="color:var(--text-quaternary);">/</span>
+        <span class="current">Dashboard</span>
+      </div>
+      <div class="top-bar-right">
+        <span class="time-display">Jun 16, 2026 14:30 UTC</span>
+        <button class="theme-btn"><i data-lucide="sun" size="14"></i></button>
+      </div>
+    </div>
+
+    <!-- DASHBOARD CONTENT -->
+    <div class="dash-content">
+
+      <!-- ─── HERO (compact) ─── -->
+      <div class="dash-hero">
+        <div class="dash-hero-left">
+          <h1>Good afternoon, <span>Endang</span></h1>
+          <div class="dash-hero-sub">
+            <span class="operational-badge"><i data-lucide="activity" size="12"></i> All systems operational</span>
+            <span>5 databases · 4 active schedules · 28.4 GB total</span>
+          </div>
+        </div>
+        <div class="dash-hero-actions">
+          <button class="btn btn-primary"><i data-lucide="database" size="14"></i> Add Database</button>
+          <button class="btn btn-secondary"><i data-lucide="play" size="14"></i> Run Backup</button>
+          <button class="btn btn-secondary"><i data-lucide="calendar" size="14"></i> Schedule</button>
+        </div>
+      </div>
+
+      <!-- ─── STATS ROW (5 cards with sparklines) ─── -->
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-top">
+            <span class="stat-label">Databases</span>
+            <i data-lucide="database" size="14" class="stat-icon"></i>
+          </div>
+          <div class="stat-value blue">5</div>
+          <span class="stat-change up"><i data-lucide="trending-up" size="11"></i> +2 this week</span>
+          <div class="sparkline">
+            <div class="bar filled" style="height:18px"></div>
+            <div class="bar filled" style="height:10px"></div>
+            <div class="bar green" style="height:22px"></div>
+            <div class="bar filled" style="height:14px"></div>
+            <div class="bar filled" style="height:8px"></div>
+            <div class="bar green" style="height:26px"></div>
+            <div class="bar filled" style="height:16px"></div>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-top">
+            <span class="stat-label">Total Backups</span>
+            <i data-lucide="shield" size="14" class="stat-icon"></i>
+          </div>
+          <div class="stat-value purple">28</div>
+          <span class="stat-change up"><i data-lucide="trending-up" size="11"></i> 96% success rate</span>
+          <div class="sparkline">
+            <div class="bar green-bg" style="height:24px"></div>
+            <div class="bar green" style="height:28px"></div>
+            <div class="bar green-bg" style="height:20px"></div>
+            <div class="bar green" style="height:26px"></div>
+            <div class="bar green-bg" style="height:22px"></div>
+            <div class="bar green" style="height:30px"></div>
+            <div class="bar green-bg" style="height:18px"></div>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-top">
+            <span class="stat-label">Schedules</span>
+            <i data-lucide="calendar" size="14" class="stat-icon"></i>
+          </div>
+          <div class="stat-value green">4</div>
+          <span class="stat-change up"><i data-lucide="trending-up" size="11"></i> +1 this month</span>
+          <div class="sparkline">
+            <div class="bar filled" style="height:8px"></div>
+            <div class="bar filled" style="height:12px"></div>
+            <div class="bar filled" style="height:10px"></div>
+            <div class="bar green" style="height:18px"></div>
+            <div class="bar green" style="height:20px"></div>
+            <div class="bar filled" style="height:14px"></div>
+            <div class="bar green" style="height:22px"></div>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-top">
+            <span class="stat-label">Storage Used</span>
+            <i data-lucide="hard-drive" size="14" class="stat-icon"></i>
+          </div>
+          <div class="stat-value amber">72%</div>
+          <span class="stat-change down"><i data-lucide="trending-up" size="11"></i> +4.2 GB this week</span>
+          <div class="sparkline">
+            <div class="bar filled" style="height:12px"></div>
+            <div class="bar filled" style="height:16px"></div>
+            <div class="bar filled" style="height:20px"></div>
+            <div class="bar filled" style="height:18px"></div>
+            <div class="bar filled" style="height:22px"></div>
+            <div class="bar filled" style="height:24px"></div>
+            <div class="bar filled" style="height:26px"></div>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-top">
+            <span class="stat-label">Success Rate</span>
+            <i data-lucide="check-circle" size="14" class="stat-icon"></i>
+          </div>
+          <div class="stat-value green">96%</div>
+          <span class="stat-change up"><i data-lucide="trending-up" size="11"></i> +2% from last week</span>
+          <div class="sparkline">
+            <div class="bar green" style="height:24px"></div>
+            <div class="bar green-bg" style="height:2px"></div>
+            <div class="bar green" style="height:26px"></div>
+            <div class="bar green" style="height:20px"></div>
+            <div class="bar green-bg" style="height:4px"></div>
+            <div class="bar green" style="height:28px"></div>
+            <div class="bar green" style="height:22px"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── TWO-COLUMN: Activity + Stats ─── -->
+      <div class="dash-grid">
+        <!-- LEFT: Activity Feed -->
+        <div>
+          <div class="section-header">
+            <h3>Recent Activity</h3>
+            <a href="#">View all →</a>
+          </div>
+          <div class="activity-card">
+            <!-- Running -->
+            <div class="activity-item running">
+              <div class="activity-dot running"></div>
+              <div class="activity-content">
+                <div class="activity-title">Full backup — analytics_db</div>
+                <div class="activity-meta">
+                  <span class="badge badge-pg">PG</span>
+                  <span style="font-size:11px;color:var(--text-tertiary);">1.4 GB / 2.4 GB</span>
+                  <span style="font-size:11px;color:var(--text-tertiary);">— 18.2 MB/s</span>
+                  <span class="activity-time">2m ago</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Success -->
+            <div class="activity-item success">
+              <div class="activity-dot success"></div>
+              <div class="activity-content">
+                <div class="activity-title">✓ Full backup completed — production_db</div>
+                <div class="activity-meta">
+                  <span class="badge badge-pg">PG</span>
+                  <span class="badge badge-success">2.4 GB</span>
+                  <span style="font-size:11px;color:var(--text-tertiary);">Took 3m 22s</span>
+                  <span class="activity-time">15m ago</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Schedule created -->
+            <div class="activity-item info">
+              <div class="activity-dot info"></div>
+              <div class="activity-content">
+                <div class="activity-title">📅 Schedule created — Every 6 hours</div>
+                <div class="activity-meta">
+                  <span class="badge badge-mysql">MySQL</span>
+                  <span class="badge badge-info">Full Backup</span>
+                  <span style="font-size:11px;color:var(--text-tertiary);">Next: 06:00 PM</span>
+                  <span class="activity-time">1h ago</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Failed -->
+            <div class="activity-item failed">
+              <div class="activity-dot failed"></div>
+              <div class="activity-content">
+                <div class="activity-title" style="color:var(--accent-red);">✗ Verification failed — analytics_db</div>
+                <div class="activity-meta">
+                  <span class="badge badge-pg">PG</span>
+                  <span class="badge badge-danger">Checksum mismatch</span>
+                  <span class="activity-time">3h ago</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Restore completed -->
+            <div class="activity-item success">
+              <div class="activity-dot success"></div>
+              <div class="activity-content">
+                <div class="activity-title">✓ Restore completed — production_db → prod_restore</div>
+                <div class="activity-meta">
+                  <span class="badge badge-pg">PG</span>
+                  <span class="badge badge-success">Full Restore</span>
+                  <span style="font-size:11px;color:var(--text-tertiary);">5m 12s</span>
+                  <span class="activity-time">5h ago</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- New connection -->
+            <div class="activity-item info" style="border-bottom:none;">
+              <div class="activity-dot info"></div>
+              <div class="activity-content">
+                <div class="activity-title">🔌 New connection added — analytics_db</div>
+                <div class="activity-meta">
+                  <span class="badge badge-pg">PG</span>
+                  <span style="font-size:11px;color:var(--text-tertiary);">analytics.internal:5432</span>
+                  <span class="activity-time">1d ago</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- RIGHT: Quick Stats -->
+        <div class="stats-sidebar">
+          <!-- Today stats -->
+          <div class="quick-stats-card">
+            <h5>📊 Today</h5>
+            <div class="qs-row">
+              <span class="qs-label"><i data-lucide="upload" size="12" style="margin-right:4px;color:var(--text-quaternary);"></i>Backups</span>
+              <span class="qs-value blue">12</span>
+            </div>
+            <div class="qs-row">
+              <span class="qs-label"><i data-lucide="check" size="12" style="margin-right:4px;color:var(--accent-green);"></i>Successful</span>
+              <span class="qs-value green">10</span>
+            </div>
+            <div class="qs-row">
+              <span class="qs-label"><i data-lucide="x" size="12" style="margin-right:4px;color:var(--accent-red);"></i>Failed</span>
+              <span class="qs-value red">1</span>
+            </div>
+            <div class="qs-row">
+              <span class="qs-label"><i data-lucide="rotate-ccw" size="12" style="margin-right:4px;color:var(--text-quaternary);"></i>Restores</span>
+              <span class="qs-value blue">2</span>
+            </div>
+            <div class="qs-row" style="border-bottom:1px solid var(--border-subtle);padding-bottom:var(--space-md);margin-bottom:var(--space-sm);">
+              <span class="qs-label"><i data-lucide="hard-drive" size="12" style="margin-right:4px;color:var(--text-quaternary);"></i>Data stored</span>
+              <span class="qs-value">28.4 GB</span>
+            </div>
+            <div class="mini-donut-wrap">
+              <div class="mini-donut">
+                <svg width="48" height="48" viewBox="0 0 48 48">
+                  <circle class="bg-circle" cx="24" cy="24" r="20"></circle>
+                  <circle class="fg-circle" cx="24" cy="24" r="20"></circle>
+                </svg>
+                <div class="center-text">90%</div>
+              </div>
+              <div class="donut-legend">
+                <div class="donut-legend-item">
+                  <span class="donut-legend-dot" style="background:var(--accent-green);"></span>
+                  <span>Successful backups</span>
+                </div>
+                <div class="donut-legend-item">
+                  <span class="donut-legend-dot" style="background:var(--accent-red);"></span>
+                  <span>Failed backups</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Running backup indicator -->
+          <div class="running-badge">
+            <span class="running-dot"></span>
+            <span>analytics_db is running (1.4 / 2.4 GB)</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── STORAGE USAGE ─── -->
+      <div class="storage-card">
+        <div class="storage-header">
+          <h3>Storage Usage</h3>
+          <span class="storage-total">28.4 GB of 50 GB used</span>
+        </div>
+        <div class="storage-list">
+          <!-- S3 -->
+          <div class="storage-item">
+            <div class="storage-provider-icon s3"><span style="font-weight:700;color:#ff9900;">S3</span></div>
+            <div class="storage-info">
+              <div class="storage-name">AWS S3 — us-east-1</div>
+              <div class="storage-meta">Bucket: backupeer-prod</div>
+              <div class="storage-bar-wrapper">
+                <div class="storage-bar-fill s3" style="width:65%;"></div>
+              </div>
+            </div>
+            <div class="storage-numbers">
+              <div class="storage-used">20.4 GB</div>
+              <div class="storage-total-size">of 30 GB</div>
+            </div>
+          </div>
+          <!-- R2 -->
+          <div class="storage-item">
+            <div class="storage-provider-icon r2"><span style="font-weight:700;color:#ef6b24;">R2</span></div>
+            <div class="storage-info">
+              <div class="storage-name">Cloudflare R2 — auto</div>
+              <div class="storage-meta">Bucket: backupeer-r2</div>
+              <div class="storage-bar-wrapper">
+                <div class="storage-bar-fill r2" style="width:40%;"></div>
+              </div>
+            </div>
+            <div class="storage-numbers">
+              <div class="storage-used">8.0 GB</div>
+              <div class="storage-total-size">of 20 GB</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── RECENT BACKUPS TABLE ─── -->
+      <div class="section-header">
+        <h3>Recent Backups</h3>
+        <a href="#">View All →</a>
+      </div>
+      <div class="table-card">
+        <table>
+          <thead>
+            <tr><th>Database</th><th>Type</th><th>Status</th><th>Size</th><th>Duration</th><th>Created</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="badge badge-pg">PG</span> production_db</td>
+              <td><span class="badge badge-info">FULL</span></td>
+              <td><span class="status-pill success"><span class="status-dot green"></span> Success</span></td>
+              <td class="mono">2.4 GB</td>
+              <td class="mono">3m 22s</td>
+              <td style="color:var(--text-tertiary);font-size:11px;">15m ago</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge-mysql">MY</span> orders_db</td>
+              <td><span class="badge badge-info">FULL</span></td>
+              <td><span class="status-pill success"><span class="status-dot green"></span> Success</span></td>
+              <td class="mono">1.8 GB</td>
+              <td class="mono">2m 45s</td>
+              <td style="color:var(--text-tertiary);font-size:11px;">1h ago</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge-maria">MA</span> staging_db</td>
+              <td><span class="badge badge-info">FULL</span></td>
+              <td><span class="status-pill running"><span class="status-dot blue"></span> Running</span></td>
+              <td class="mono">1.4 GB / 2.4 GB</td>
+              <td class="mono">—</td>
+              <td style="color:var(--text-tertiary);font-size:11px;">2m ago</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge-pg">PG</span> users_db</td>
+              <td><span class="badge badge-info">INCR</span></td>
+              <td><span class="status-pill success"><span class="status-dot green"></span> Success</span></td>
+              <td class="mono">342 MB</td>
+              <td class="mono">28s</td>
+              <td style="color:var(--text-tertiary);font-size:11px;">3h ago</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge-pg">PG</span> analytics_db</td>
+              <td><span class="badge badge-info">FULL</span></td>
+              <td><span class="status-pill failed"><span class="status-dot red"></span> Failed</span></td>
+              <td class="mono">—</td>
+              <td class="mono">1m 12s</td>
+              <td style="color:var(--text-tertiary);font-size:11px;">3h ago</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div> <!-- /dash-content -->
+  </div> <!-- /main-content -->
+</div> <!-- /app-layout -->
+
+<script>lucide.createIcons();</script>
+</body>
+</html>

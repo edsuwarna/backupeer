@@ -5,6 +5,7 @@ import (
 	"crypto/cipher"
 	"crypto/rand"
 	"crypto/sha256"
+	"encoding/binary"
 	"encoding/hex"
 	"fmt"
 	"io"
@@ -100,7 +101,9 @@ func (a *aesgcm) Decrypt(ciphertext []byte, keyID string) ([]byte, error) {
 }
 
 // EncryptStream returns a WriteCloser that encrypts data before writing to dst.
-// Uses a simpler framing: salt + nonce + streaming chunks.
+// Uses counter-based nonce with chunk framing so each chunk is independently decryptable.
+// Stream format: [salt:16][frame:([nonce:12][frameLen:4][ciphertext])*][EOF frame:(nonce=0,frameLen=0)]
+// Each frame uses AES-256-GCM with a unique nonce (counter-based, no reuse).
 func (a *aesgcm) EncryptStream(dst io.Writer, keyID string) (io.WriteCloser, error) {
 	salt := make([]byte, 16)
 	if _, err := rand.Read(salt); err != nil {
@@ -119,27 +122,22 @@ func (a *aesgcm) EncryptStream(dst io.Writer, keyID string) (io.WriteCloser, err
 		return nil, fmt.Errorf("new gcm: %w", err)
 	}
 
-	nonce := make([]byte, gcm.NonceSize())
-	if _, err := io.ReadFull(rand.Reader, nonce); err != nil {
-		return nil, fmt.Errorf("generate nonce: %w", err)
-	}
-
-	// Write salt + nonce prefix
+	// Write salt prefix
 	if _, err := dst.Write(salt); err != nil {
 		return nil, fmt.Errorf("write salt: %w", err)
 	}
-	if _, err := dst.Write(nonce); err != nil {
-		return nil, fmt.Errorf("write nonce: %w", err)
-	}
 
+	// counter starts at 1 (0 is reserved for EOF marker)
 	return &encryptWriter{
-		dst:   dst,
-		gcm:   gcm,
-		nonce: nonce,
+		dst:     dst,
+		gcm:     gcm,
+		counter: 1,
 	}, nil
 }
 
 // DecryptStream returns a Reader that decrypts data while reading.
+// Reads the framing format produced by EncryptStream:
+// [salt:16][([nonce:12][frameLen:4][ciphertext])*][EOF]
 func (a *aesgcm) DecryptStream(src io.Reader, keyID string) (io.Reader, error) {
 	salt := make([]byte, 16)
 	if _, err := io.ReadFull(src, salt); err != nil {
@@ -158,15 +156,9 @@ func (a *aesgcm) DecryptStream(src io.Reader, keyID string) (io.Reader, error) {
 		return nil, fmt.Errorf("new gcm: %w", err)
 	}
 
-	nonce := make([]byte, gcm.NonceSize())
-	if _, err := io.ReadFull(src, nonce); err != nil {
-		return nil, fmt.Errorf("read nonce: %w", err)
-	}
-
 	return &decryptReader{
-		src:   src,
-		gcm:   gcm,
-		nonce: nonce,
+		src: src,
+		gcm: gcm,
 	}, nil
 }
 
@@ -192,47 +184,99 @@ func (a *aesgcm) deriveKey(salt []byte) []byte {
 	return argon2.IDKey(a.masterKey, salt, 1, 64*1024, 4, 32)
 }
 
-// encryptWriter wraps gcm.Seal in a WriteCloser.
+// encryptWriter wraps gcm.Seal in a framed WriteCloser with counter-based nonces.
+// Each Write call produces an independently decryptable frame:
+// [nonce:12][frameLen:4][ciphertext]
 type encryptWriter struct {
-	dst   io.Writer
-	gcm   cipher.AEAD
-	nonce []byte
+	dst     io.Writer
+	gcm     cipher.AEAD
+	counter uint64
 }
 
+// frameHeaderSize is nonce(12) + frameLen(4)
+const frameHeaderSize = 16
+
 func (w *encryptWriter) Write(p []byte) (int, error) {
-	// Simple approach: encrypt each write as a chunk
-	ciphertext := w.gcm.Seal(nil, w.nonce, p, nil)
-	_, err := w.dst.Write(ciphertext)
-	if err != nil {
-		return 0, err
+	// Build nonce from counter (8 bytes big-endian) + 4 zero bytes
+	var nonce [12]byte
+	binary.BigEndian.PutUint64(nonce[:8], w.counter)
+	w.counter++
+
+	ciphertext := w.gcm.Seal(nil, nonce[:], p, nil)
+
+	// Write header: nonce(12) + frameLen(4)
+	var header [frameHeaderSize]byte
+	copy(header[:12], nonce[:])
+	binary.BigEndian.PutUint32(header[12:16], uint32(len(ciphertext)))
+
+	if _, err := w.dst.Write(header[:]); err != nil {
+		return 0, fmt.Errorf("encrypt frame header: %w", err)
 	}
-	return len(p), nil // report all plaintext bytes written
+	if _, err := w.dst.Write(ciphertext); err != nil {
+		return 0, fmt.Errorf("encrypt frame data: %w", err)
+	}
+
+	return len(p), nil
 }
 
 func (w *encryptWriter) Close() error {
-	return nil
+	// Write EOF marker: zero nonce + zero frameLen = 16 zero bytes
+	var eof [frameHeaderSize]byte
+	_, err := w.dst.Write(eof[:])
+	return err
 }
 
-// decryptReader wraps gcm.Open in a Reader.
+// decryptReader reads framed encrypted chunks, decrypts them on the fly.
+// Each chunk is independently decrypted using the nonce from its frame header.
 type decryptReader struct {
-	src   io.Reader
-	gcm   cipher.AEAD
-	nonce []byte
-	buf   []byte
+	src  io.Reader
+	gcm  cipher.AEAD
+	done bool
+	buf  []byte
+	pos  int
 }
 
 func (r *decryptReader) Read(p []byte) (int, error) {
-	tmp := make([]byte, len(p)+r.gcm.Overhead())
-	n, err := r.src.Read(tmp)
-	if err != nil {
-		return 0, err
+	// Return buffered plaintext first
+	if r.pos < len(r.buf) {
+		n := copy(p, r.buf[r.pos:])
+		r.pos += n
+		return n, nil
+	}
+	if r.done {
+		return 0, io.EOF
 	}
 
-	plaintext, err := r.gcm.Open(r.buf[:0], r.nonce, tmp[:n], nil)
-	if err != nil {
-		return 0, fmt.Errorf("decrypt stream: %w", err)
+	// Read frame header: nonce(12) + frameLen(4)
+	var header [frameHeaderSize]byte
+	if _, err := io.ReadFull(r.src, header[:]); err != nil {
+		return 0, fmt.Errorf("read frame header: %w", err)
 	}
 
-	copy(p, plaintext)
-	return len(plaintext), nil
+	frameLen := binary.BigEndian.Uint32(header[12:16])
+
+	// EOF marker: nonce==0 && frameLen==0 OR just frameLen==0
+	if frameLen == 0 {
+		r.done = true
+		return 0, io.EOF
+	}
+
+	// Read ciphertext
+	ciphertext := make([]byte, frameLen)
+	if _, err := io.ReadFull(r.src, ciphertext); err != nil {
+		return 0, fmt.Errorf("read frame data: %w", err)
+	}
+
+	// Decrypt with the nonce from the header
+	plaintext, err := r.gcm.Open(r.buf[:0], header[:12], ciphertext, nil)
+	if err != nil {
+		return 0, fmt.Errorf("decrypt frame: %w", err)
+	}
+
+	r.buf = plaintext
+	r.pos = 0
+
+	n := copy(p, r.buf)
+	r.pos = n
+	return n, nil
 }

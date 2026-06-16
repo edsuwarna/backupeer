@@ -131,7 +131,10 @@ func (s *Service) runBackup(b *Backup, conn *connection.Connection, db *connecti
 	s.runFullBackup(b, conn, db, prov, startTime)
 }
 
-// runFullBackup handles standard full backup via pg_dump/mysqldump.
+// runFullBackup handles full backup via streaming pipeline:
+//   pg_dump/mysqldump stdout → gzip → (optional encrypt) → S3 multipart upload
+// Uses io.Pipe chain so only ~32KB buffered in memory regardless of DB size.
+// S3 UploadStream uses size=-1 to trigger auto multipart (5MiB parts).
 func (s *Service) runFullBackup(b *Backup, conn *connection.Connection, db *connection.ConnectionDatabase, prov *storage.Provider, startTime time.Time) {
 	// Create storage client
 	storageSvc, err := s.provSvc.CreateS3ClientFromProvider(prov)
@@ -146,70 +149,174 @@ func (s *Service) runFullBackup(b *Backup, conn *connection.Connection, db *conn
 		conn.Name, db.DBName, b.ID, startTime.Format("20060102-150405"), suffix)
 	b.StoragePath = key
 
-	// Build log buffer
 	var logBuf bytes.Buffer
+	logBuf.WriteString(fmt.Sprintf("BACKUP: streaming %s %s\n", conn.DBType, db.DBName))
 
-	// 1. Execute dump
-	dumpOutput, dumpErr := s.executeDump(conn, db.DBName)
-	if dumpErr != nil {
-		logBuf.WriteString(fmt.Sprintf("DUMP ERROR: %v\n", dumpErr))
+	// Create dump command with stdout pipe
+	dumpCmd := s.buildDumpCmd(conn, db.DBName)
+	stdout, err := dumpCmd.StdoutPipe()
+	if err != nil {
+		s.failBackup(b, logBuf.String()+fmt.Sprintf("STDOUT PIPE ERROR: %v\n", err))
+		return
+	}
+
+	if err := dumpCmd.Start(); err != nil {
+		s.failBackup(b, logBuf.String()+fmt.Sprintf("DUMP START ERROR: %v\n", err))
+		return
+	}
+	logBuf.WriteString(fmt.Sprintf("DUMP: %s started\n", conn.DBType))
+
+	// === Streaming Pipeline ===
+	//   dump stdout ──┬─ countWriter (track raw size) ──▶ gzip ──┬─ hashWriter (SHA256 compressed) ──▶ enc ──▶ pw ──▶ S3
+	//                  │                                        │
+	//                  └─ dump process stdout                   └─ (skip enc if encryption disabled)
+	//
+	// Memory: only what's in the io.Pipe and gzip/encrypt internal buffers (~64KB total)
+
+	pr, pw := io.Pipe()
+	errChan := make(chan error, 1)
+
+	var rawSize int64
+	hashWriter := sha256.New()
+
+	go func() {
+		defer pw.Close()
+		defer close(errChan)
+
+		// Count raw dump bytes before compression
+		dumpReader := io.TeeReader(stdout, &countWriter{&rawSize})
+
+		if s.encSvc != nil {
+			// Pipeline: dump → gzip → SHA256 + encrypt → pw → S3
+			encWriter, encErr := s.encSvc.EncryptStream(pw, "default")
+			if encErr != nil {
+				errChan <- fmt.Errorf("encrypt stream init: %w", encErr)
+				return
+			}
+			defer encWriter.Close()
+
+			gw := gzip.NewWriter(io.MultiWriter(hashWriter, encWriter))
+			_, copyErr := io.Copy(gw, dumpReader)
+			gw.Close() // flush gzip footer
+			encWriter.Close()
+			if copyErr != nil {
+				errChan <- fmt.Errorf("compress: %w", copyErr)
+				return
+			}
+		} else {
+			// Pipeline: dump → gzip → SHA256 + pw → S3 (no encryption)
+			gw := gzip.NewWriter(io.MultiWriter(hashWriter, pw))
+			_, copyErr := io.Copy(gw, dumpReader)
+			gw.Close()
+			if copyErr != nil {
+				errChan <- fmt.Errorf("compress: %w", copyErr)
+				return
+			}
+		}
+
+		errChan <- nil
+	}()
+
+	// Upload stream to S3 (size=-1 triggers automatic multipart upload with 5MiB parts)
+	uploadCtx := context.Background()
+	if uploadErr := storageSvc.UploadStream(uploadCtx, key, pr); uploadErr != nil {
+		// Upload failed — break the pipe so goroutine stops immediately
+		pr.Close()
+		_ = <-errChan
+
+		// Kill dump process if still running
+		if dumpCmd.Process != nil {
+			dumpCmd.Process.Kill()
+		}
+		dumpCmd.Wait()
+
+		logBuf.WriteString(fmt.Sprintf("UPLOAD ERROR: %v\n", uploadErr))
 		s.failBackup(b, logBuf.String())
 		return
 	}
-	logBuf.WriteString(fmt.Sprintf("DUMP: %d bytes from %s\n", len(dumpOutput), conn.DBType))
 
-	// 2. Compress with gzip
-	compressed := compressData(dumpOutput)
-	logBuf.WriteString(fmt.Sprintf("COMPRESS: %d -> %d bytes (%.1f%%)\n",
-		len(dumpOutput), len(compressed),
-		float64(len(compressed))/float64(len(dumpOutput))*100))
-
-	b.SizeBytes = ptr(int64(len(dumpOutput)))
-
-	// 3. Optional encrypt
-	finalData := compressed
-	if s.encSvc != nil {
-		encrypted, err := s.encSvc.Encrypt(compressed, "default")
-		if err != nil {
-			logBuf.WriteString(fmt.Sprintf("ENCRYPT ERROR: %v\n", err))
-			s.failBackup(b, logBuf.String())
-			return
+	// Wait for compression goroutine
+	if compErr := <-errChan; compErr != nil {
+		// Kill dump process
+		if dumpCmd.Process != nil {
+			dumpCmd.Process.Kill()
 		}
-		finalData = encrypted
-		b.EncryptedSizeBytes = ptr(int64(len(encrypted)))
-		logBuf.WriteString(fmt.Sprintf("ENCRYPT: %d bytes (AES-256-GCM)\n", len(encrypted)))
-	}
+		dumpCmd.Wait()
 
-	// 4. Upload to S3 with retry
-	ctx := context.Background()
-	var uploadErr error
-	for attempt := 0; attempt < 3; attempt++ {
-		if attempt > 0 {
-			backoff := time.Duration(1<<(attempt-1)) * time.Second
-			logBuf.WriteString(fmt.Sprintf("UPLOAD: retrying in %v (attempt %d/3)\n", backoff, attempt+1))
-			time.Sleep(backoff)
-		}
-		reader := bytes.NewReader(finalData)
-		uploadErr = storageSvc.Upload(ctx, key, reader, int64(len(finalData)))
-		if uploadErr == nil {
-			break
-		}
-	}
-	if uploadErr != nil {
-		logBuf.WriteString(fmt.Sprintf("UPLOAD ERROR (after 3 attempts): %v\n", uploadErr))
+		logBuf.WriteString(fmt.Sprintf("COMPRESS ERROR: %v\n", compErr))
 		s.failBackup(b, logBuf.String())
 		return
 	}
-	logBuf.WriteString(fmt.Sprintf("UPLOAD: %s (%d bytes)\n", key, len(finalData)))
 
-	// 5. Calculate checksum
-	if s.encSvc != nil {
-		b.Checksum = s.encSvc.Checksum(compressed)
-		b.EncryptedChecksum = s.encSvc.Checksum(finalData)
+	// Wait for dump process to finish
+	if waitErr := dumpCmd.Wait(); waitErr != nil {
+		logBuf.WriteString(fmt.Sprintf("DUMP PROCESS ERROR: %v\n", waitErr))
+		s.failBackup(b, logBuf.String())
+		return
 	}
 
-	// Success
+	logBuf.WriteString(fmt.Sprintf("DUMP: %d bytes uncompressed\n", rawSize))
+
+	// Set metadata (checksum = SHA256 of compressed data, matches pre-encryption content)
+	b.SizeBytes = ptr(rawSize)
+	if s.encSvc != nil {
+		b.Checksum = hex.EncodeToString(hashWriter.Sum(nil))
+	}
+
 	s.completeBackup(b, conn, db, logBuf.String(), startTime, &prov.ID)
+}
+
+// buildDumpCmd creates the exec.Cmd for dumping the database.
+// Returns a command with stdout piped for streaming.
+func (s *Service) buildDumpCmd(conn *connection.Connection, dbName string) *exec.Cmd {
+	switch conn.DBType {
+	case "postgresql":
+		args := []string{
+			"-h", conn.Host,
+			"-p", fmt.Sprintf("%d", conn.Port),
+			"-U", conn.Username,
+			"-d", dbName,
+			"--no-password",
+			"--clean",
+			"--if-exists",
+			"--format=c",
+		}
+		cmd := exec.Command("pg_dump", args...)
+		cmd.Env = append(cmd.Environ(), fmt.Sprintf("PGPASSWORD=%s", conn.Password))
+		return cmd
+	case "mysql", "mariadb":
+		dumpTool := "mysqldump"
+		if conn.DBType == "mariadb" {
+			if _, err := exec.LookPath("mariadb-dump"); err == nil {
+				dumpTool = "mariadb-dump"
+			}
+		}
+		args := []string{
+			"-h", conn.Host,
+			"-P", fmt.Sprintf("%d", conn.Port),
+			"-u", conn.Username,
+			fmt.Sprintf("--password=%s", conn.Password),
+			"--single-transaction",
+			"--routines",
+			"--triggers",
+			"--events",
+			dbName,
+		}
+		return exec.Command(dumpTool, args...)
+	default:
+		// Will fail at Start() — caller handles the error
+		return exec.Command("false")
+	}
+}
+
+// countWriter is an io.Writer that only counts bytes written to it.
+type countWriter struct {
+	count *int64
+}
+
+func (w *countWriter) Write(p []byte) (int, error) {
+	*w.count += int64(len(p))
+	return len(p), nil
 }
 
 // runIncrementalBackup handles incremental backup via integrated engines (pgBackRest/XtraBackup/Mariabackup).
@@ -333,76 +440,15 @@ func (s *Service) resolveProvider(providerID *string) (*storage.Provider, error)
 	return prov, nil
 }
 
-// executeDump runs the appropriate dump command for the database type.
-func (s *Service) executeDump(conn *connection.Connection, dbName string) ([]byte, error) {
-	switch conn.DBType {
-	case "postgresql":
-		return s.pgDump(conn, dbName)
-	case "mysql", "mariadb":
-		return s.mySQLDump(conn, dbName)
-	default:
-		return nil, fmt.Errorf("unsupported database type: %s", conn.DBType)
+// int64PtrToInt64 safely dereferences an *int64, returning 0 for nil.
+func int64PtrToInt64(p *int64) int64 {
+	if p == nil {
+		return 0
 	}
+	return *p
 }
 
-func (s *Service) pgDump(conn *connection.Connection, dbName string) ([]byte, error) {
-	args := []string{
-		"-h", conn.Host,
-		"-p", fmt.Sprintf("%d", conn.Port),
-		"-U", conn.Username,
-		"-d", dbName,
-		"--no-password",
-		"--clean",
-		"--if-exists",
-		"--format=c",
-	}
-
-	cmd := exec.Command("pg_dump", args...)
-	cmd.Env = append(cmd.Environ(), fmt.Sprintf("PGPASSWORD=%s", conn.Password))
-
-	var stdout, stderr bytes.Buffer
-	cmd.Stdout = &stdout
-	cmd.Stderr = &stderr
-
-	if err := cmd.Run(); err != nil {
-		return nil, fmt.Errorf("pg_dump: %w\nstderr: %s", err, stderr.String())
-	}
-
-	return stdout.Bytes(), nil
-}
-
-func (s *Service) mySQLDump(conn *connection.Connection, dbName string) ([]byte, error) {
-	dumpTool := "mysqldump"
-	if conn.DBType == "mariadb" {
-		if _, err := exec.LookPath("mariadb-dump"); err == nil {
-			dumpTool = "mariadb-dump"
-		}
-	}
-
-	args := []string{
-		"-h", conn.Host,
-		"-P", fmt.Sprintf("%d", conn.Port),
-		"-u", conn.Username,
-		fmt.Sprintf("--password=%s", conn.Password),
-		"--single-transaction",
-		"--routines",
-		"--triggers",
-		"--events",
-		dbName,
-	}
-
-	cmd := exec.Command(dumpTool, args...)
-	var stdout, stderr bytes.Buffer
-	cmd.Stdout = &stdout
-	cmd.Stderr = &stderr
-
-	if err := cmd.Run(); err != nil {
-		return nil, fmt.Errorf("%s: %w\nstderr: %s", dumpTool, err, stderr.String())
-	}
-
-	return stdout.Bytes(), nil
-}
-
+// failBackup marks a backup as failed and persists.
 func (s *Service) failBackup(b *Backup, logOutput string) {
 	now := time.Now()
 	b.CompletedAt = &now
@@ -600,35 +646,56 @@ func (s *Service) runVerification(b *Backup) {
 		return
 	}
 
-	// 1. Download from S3
+	// Streaming verification: download → (decrypt) → SHA256
+	// Memory: only io.Pipe buffer size (~64KB) regardless of backup size
 	ctx := context.Background()
-	var dataBuf bytes.Buffer
-	if err := storageSvc.Download(ctx, b.StoragePath, &dataBuf); err != nil {
-		logBuf.WriteString(fmt.Sprintf("DOWNLOAD ERROR: %v\n", err))
+	pr, pw := io.Pipe()
+
+	// Goroutine: download file to pipe writer
+	errChan := make(chan error, 1)
+	go func() {
+		defer pw.Close()
+		defer close(errChan)
+		if err := storageSvc.Download(ctx, b.StoragePath, pw); err != nil {
+			errChan <- fmt.Errorf("download: %w", err)
+			return
+		}
+		errChan <- nil
+	}()
+
+	// Stream decrypt if encryption was used
+	reader := io.Reader(pr)
+	if s.encSvc != nil && b.EncryptedSizeBytes != nil && *b.EncryptedSizeBytes > 0 {
+		decReader, decErr := s.encSvc.DecryptStream(reader, "default")
+		if decErr != nil {
+			logBuf.WriteString(fmt.Sprintf("DECRYPT STREAM INIT ERROR: %v\n", decErr))
+			s.failVerification(b, logBuf.String())
+			pr.Close()
+			<-errChan
+			return
+		}
+		reader = decReader
+		logBuf.WriteString("DECRYPT: streaming decrypt OK\n")
+	}
+
+	// Stream through SHA-256
+	hash := sha256.New()
+	if _, err := io.Copy(hash, reader); err != nil {
+		logBuf.WriteString(fmt.Sprintf("VERIFY STREAM ERROR: %v\n", err))
+		s.failVerification(b, logBuf.String())
+		pr.Close()
+		<-errChan
+		return
+	}
+
+	// Check download succeeded
+	if dlErr := <-errChan; dlErr != nil {
+		logBuf.WriteString(fmt.Sprintf("DOWNLOAD ERROR: %v\n", dlErr))
 		s.failVerification(b, logBuf.String())
 		return
 	}
-	logBuf.WriteString(fmt.Sprintf("DOWNLOAD: %s (%d bytes)\n", b.StoragePath, dataBuf.Len()))
 
-	data := dataBuf.Bytes()
-
-	// 2. Decrypt if needed
-	var decrypted []byte
-	if s.encSvc != nil && b.EncryptedSizeBytes != nil && *b.EncryptedSizeBytes > 0 {
-		decrypted, err = s.encSvc.Decrypt(data, "default")
-		if err != nil {
-			logBuf.WriteString(fmt.Sprintf("DECRYPT ERROR: %v\n", err))
-			s.failVerification(b, logBuf.String())
-			return
-		}
-		logBuf.WriteString("DECRYPT: OK\n")
-	} else {
-		decrypted = data
-	}
-
-	// 3. Compute checksum
-	hash := sha256.Sum256(decrypted)
-	computedChecksum := hex.EncodeToString(hash[:])
+	computedChecksum := hex.EncodeToString(hash.Sum(nil))
 	logBuf.WriteString(fmt.Sprintf("CHECKSUM: computed=%s\n", computedChecksum))
 
 	if b.Checksum != "" {
@@ -696,26 +763,11 @@ func (s *Service) EnforceRetention(scheduleID string, retentionFull, retentionIn
 				} else {
 					fmt.Printf("RETENTION: deleted old incr backup %s (schedule %s)\n", b.ID[:8], scheduleID)
 				}
-			}
+		}
 		}
 	}
 }
 
-func compressData(data []byte) []byte {
-	var buf bytes.Buffer
-	gw := gzip.NewWriter(&buf)
-	_, _ = gw.Write(data)
-	gw.Close()
-	return buf.Bytes()
-}
-
 func ptr(v int64) *int64 {
 	return &v
-}
-
-func int64PtrToInt64(p *int64) int64 {
-	if p == nil {
-		return 0
-	}
-	return *p
 }

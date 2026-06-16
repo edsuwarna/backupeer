@@ -40,6 +40,17 @@ func (s *S3Client) Upload(ctx context.Context, key string, reader io.Reader, siz
 	return nil
 }
 
+// UploadStream uploads data from an io.Reader with unknown total size.
+// Uses size=-1 to trigger minio-go's automatic multipart upload with 5MiB parts,
+// so only ~5MiB + internal buffers are held in memory regardless of total file size.
+func (s *S3Client) UploadStream(ctx context.Context, key string, reader io.Reader) error {
+	_, err := s.client.PutObject(ctx, s.cfg.Bucket, key, reader, -1, minio.PutObjectOptions{})
+	if err != nil {
+		return fmt.Errorf("s3 upload stream %s: %w", key, err)
+	}
+	return nil
+}
+
 func (s *S3Client) Download(ctx context.Context, key string, writer io.Writer) error {
 	obj, err := s.client.GetObject(ctx, s.cfg.Bucket, key, minio.GetObjectOptions{})
 	if err != nil {

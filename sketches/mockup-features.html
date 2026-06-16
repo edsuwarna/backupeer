@@ -1,0 +1,1790 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Backupeer — Feature Mockups</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+/* ══════════════════════════════════════
+   DESIGN SYSTEM (Stripe-inspired)
+   ══════════════════════════════════════ */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --stripe-purple: #635BFF;
+  --stripe-purple-dark: #5850EC;
+  --stripe-purple-light: #7a73ff;
+  --stripe-purple-bg: rgba(99,91,255,0.1);
+  --accent-green: #10b981;
+  --accent-green-bg: rgba(16,185,129,0.1);
+  --accent-red: #ef4444;
+  --accent-red-bg: rgba(239,68,68,0.1);
+  --accent-blue: #3b82f6;
+  --accent-blue-bg: rgba(59,130,246,0.1);
+  --accent-amber: #f59e0b;
+  --accent-amber-bg: rgba(245,158,11,0.1);
+  --gradient-btn: linear-gradient(135deg, #635BFF, #5850EC);
+  --gradient-btn-hover: linear-gradient(135deg, #7a73ff, #635BFF);
+  --gradient-logo: linear-gradient(135deg, #c4b5fd, #818cf8);
+  --font-ui: 'Inter', -apple-system, system-ui, sans-serif;
+  --font-mono: 'SF Mono', 'Monaco', 'Menlo', 'JetBrains Mono', monospace;
+  --radius-sm: 6px; --radius-md: 8px; --radius-lg: 12px; --radius-xl: 16px;
+  --radius-2xl: 20px; --radius-full: 9999px;
+  --space-xs: 4px; --space-sm: 8px; --space-md: 12px;
+  --space-lg: 16px; --space-xl: 20px; --space-xxl: 24px;
+  --space-3xl: 32px; --space-4xl: 40px; --space-5xl: 48px;
+  --sidebar-w: 240px;
+}
+
+[data-theme="dark"] {
+  --bg-canvas: #0A2540;
+  --bg-surface: #0F2B47;
+  --bg-elevated: #1a3a5c;
+  --bg-subtle: rgba(255,255,255,0.04);
+  --bg-muted: #0d2b46;
+  --bg-sidebar: #0d2340;
+  --bg-sidebar-hover: rgba(255,255,255,0.06);
+  --bg-sidebar-active: rgba(99,91,255,0.15);
+  --border-default: rgba(255,255,255,0.08);
+  --border-subtle: rgba(255,255,255,0.04);
+  --border-hover: rgba(255,255,255,0.15);
+  --text-primary: rgba(255,255,255,0.95);
+  --text-secondary: rgba(255,255,255,0.65);
+  --text-tertiary: rgba(255,255,255,0.4);
+  --text-quaternary: rgba(255,255,255,0.25);
+  --text-inverse: #0f172a;
+  --text-sidebar: rgba(255,255,255,0.45);
+  --text-sidebar-active: #635BFF;
+  --text-sidebar-hover: rgba(255,255,255,0.9);
+  --gray-50: rgba(255,255,255,0.04);
+  --gray-100: rgba(255,255,255,0.08);
+  --gray-200: rgba(255,255,255,0.12);
+  --gray-300: rgba(255,255,255,0.18);
+  --gray-400: rgba(255,255,255,0.4);
+  --gray-500: rgba(255,255,255,0.5);
+  --gray-600: rgba(255,255,255,0.6);
+  --gray-700: rgba(255,255,255,0.7);
+  --gray-800: rgba(255,255,255,0.82);
+  --gray-900: rgba(255,255,255,0.92);
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.3);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.35);
+  --shadow-lg: 0 8px 30px rgba(0,0,0,0.4);
+  --shadow-xl: 0 20px 60px rgba(0,0,0,0.5);
+  --shadow-btn: 0 4px 14px rgba(99,91,255,0.5);
+  --stat-card-bg: #0F2B47;
+  --table-row-hover: rgba(255,255,255,0.04);
+  --table-header-bg: rgba(255,255,255,0.04);
+  --input-bg: rgba(255,255,255,0.06);
+  --input-border: rgba(255,255,255,0.12);
+  --input-border-focus: #635BFF;
+  --input-shadow-focus: 0 0 0 3px rgba(99,91,255,0.2);
+  --input-placeholder: rgba(255,255,255,0.3);
+  --badge-pg-bg: rgba(51,103,145,0.25);
+  --badge-pg-text: #6db3d9;
+  --badge-mysql-bg: rgba(0,117,143,0.25);
+  --badge-mysql-text: #4db8d4;
+  --badge-maria-bg: rgba(24,137,180,0.25);
+  --badge-maria-text: #5fc9e6;
+  --badge-success-bg: rgba(16,185,129,0.15);
+  --badge-success-text: #34d399;
+  --badge-warning-bg: rgba(245,158,11,0.15);
+  --badge-warning-text: #fbbf24;
+  --badge-danger-bg: rgba(239,68,68,0.15);
+  --badge-danger-text: #f87171;
+  --badge-info-bg: rgba(59,130,246,0.15);
+  --badge-info-text: #60a5fa;
+  --code-bg: rgba(0,0,0,0.3);
+  --progress-bg: rgba(255,255,255,0.08);
+}
+
+body {
+  font-family: var(--font-ui);
+  background: var(--bg-canvas);
+  color: var(--text-primary);
+  min-height: 100vh;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  padding: var(--space-4xl);
+}
+
+.header {
+  max-width: 1400px;
+  margin: 0 auto var(--space-5xl);
+}
+.header h1 { font-size: 28px; font-weight: 700; letter-spacing: -0.5px; }
+.header h1 span { background: var(--gradient-logo); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.header p { color: var(--text-secondary); font-size: 14px; margin-top: var(--space-sm); }
+
+/* ═══ Section ═══ */
+.section {
+  max-width: 1400px;
+  margin: 0 auto var(--space-5xl);
+}
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  margin-bottom: var(--space-xxl);
+  padding-bottom: var(--space-lg);
+  border-bottom: 1px solid var(--border-default);
+}
+.section-header h2 {
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: -0.3px;
+}
+.section-header .tag {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 10px;
+  border-radius: var(--radius-full);
+  background: var(--stripe-purple-bg);
+  color: var(--stripe-purple-light);
+  letter-spacing: 0.3px;
+}
+.section-desc {
+  color: var(--text-secondary);
+  font-size: 13px;
+  margin-top: var(--space-xs);
+  margin-bottom: var(--space-xxl);
+}
+
+.priority-high { background: var(--accent-red-bg) !important; color: var(--accent-red) !important; }
+.priority-med { background: var(--accent-amber-bg) !important; color: var(--accent-amber) !important; }
+.priority-low { background: var(--accent-green-bg) !important; color: var(--accent-green) !important; }
+
+/* ═══ Mockup Card ═══ */
+.mockup-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-xl);
+  padding: var(--space-xxl);
+  margin-bottom: var(--space-3xl);
+}
+.mockup-card-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: var(--space-sm);
+}
+.mockup-card-desc {
+  font-size: 13px;
+  color: var(--text-tertiary);
+  margin-bottom: var(--space-xl);
+}
+
+/* ═══ Buttons ═══ */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 18px;
+  border-radius: var(--radius-md);
+  font-family: var(--font-ui);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: none;
+  text-decoration: none;
+}
+.btn-primary {
+  background: var(--gradient-btn);
+  color: white;
+  box-shadow: var(--shadow-btn);
+}
+.btn-primary:hover {
+  background: var(--gradient-btn-hover);
+  box-shadow: 0 6px 20px rgba(99,91,255,0.45);
+  transform: translateY(-1px);
+}
+.btn-secondary {
+  background: transparent;
+  color: var(--text-secondary);
+  border: 1.5px solid var(--border-default);
+}
+.btn-secondary:hover { border-color: var(--border-hover); background: var(--bg-subtle); }
+.btn-sm { padding: 6px 12px; font-size: 12px; }
+.btn-icon {
+  width: 32px; height: 32px; padding: 0;
+  display: inline-flex; align-items: center; justify-content: center;
+}
+.btn-outline-danger { color: var(--accent-red); border: 1.5px solid var(--accent-red-bg); background: transparent; }
+.btn-outline-danger:hover { background: var(--accent-red-bg); }
+.btn-outline-success { color: var(--accent-green); border: 1.5px solid var(--accent-green-bg); background: transparent; }
+.btn-outline-success:hover { background: var(--accent-green-bg); }
+
+/* ═══ Badges ═══ */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 10px;
+  border-radius: var(--radius-full);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+}
+.badge-pg { background: var(--badge-pg-bg); color: var(--badge-pg-text); }
+.badge-mysql { background: var(--badge-mysql-bg); color: var(--badge-mysql-text); }
+.badge-maria { background: var(--badge-maria-bg); color: var(--badge-maria-text); }
+.badge-success { background: var(--badge-success-bg); color: var(--badge-success-text); }
+.badge-warning { background: var(--badge-warning-bg); color: var(--badge-warning-text); }
+.badge-danger { background: var(--badge-danger-bg); color: var(--badge-danger-text); }
+.badge-info { background: var(--badge-info-bg); color: var(--badge-info-text); }
+
+/* ═══ Modal Simulator ═══ */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+.modal {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-2xl);
+  width: 100%;
+  max-width: 560px;
+  box-shadow: var(--shadow-xl);
+  overflow: hidden;
+}
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-xl) var(--space-xxl);
+  border-bottom: 1px solid var(--border-default);
+}
+.modal-header h3 { font-size: 16px; font-weight: 600; }
+.modal-close { color: var(--text-tertiary); cursor: pointer; }
+.modal-body { padding: var(--space-xxl); }
+.modal-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-sm);
+  padding: var(--space-lg) var(--space-xxl);
+  border-top: 1px solid var(--border-default);
+}
+
+/* ═══ Form Elements ═══ */
+.form-group { margin-bottom: var(--space-lg); }
+.form-row { display: flex; gap: var(--space-lg); }
+.form-row .form-group { flex: 1; }
+.form-label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.form-input {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1.5px solid var(--input-border);
+  border-radius: var(--radius-md);
+  font-family: var(--font-ui);
+  font-size: 13px;
+  color: var(--text-primary);
+  background: var(--input-bg);
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.form-input:focus { border-color: var(--input-border-focus); box-shadow: var(--input-shadow-focus); }
+.form-input::placeholder { color: var(--input-placeholder); }
+.form-input-error { border-color: var(--accent-red) !important; }
+.form-hint { font-size: 11px; color: var(--text-tertiary); margin-top: 4px; }
+.form-error { font-size: 11px; color: var(--accent-red); margin-top: 4px; }
+.form-select {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1.5px solid var(--input-border);
+  border-radius: var(--radius-md);
+  font-family: var(--font-ui);
+  font-size: 13px;
+  color: var(--text-primary);
+  background: var(--input-bg);
+  outline: none;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='rgba(255,255,255,0.4)' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 36px;
+}
+
+/* ═══ Tabs ═══ */
+.tabs {
+  display: flex;
+  gap: 2px;
+  background: var(--bg-muted);
+  border-radius: var(--radius-md);
+  padding: 3px;
+  margin-bottom: var(--space-xxl);
+}
+.tab {
+  flex: 1;
+  padding: 8px 16px;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.2s;
+  border: none;
+  background: none;
+  font-family: var(--font-ui);
+}
+.tab.active {
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  box-shadow: var(--shadow-sm);
+}
+
+/* ══════════════════════════════════════════
+   FEATURE 1: TEST CONNECTION
+   ══════════════════════════════════════════ */
+.test-conn-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-xxl);
+  align-items: start;
+}
+.test-conn-form { }
+.test-conn-result {
+  background: var(--bg-muted);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  padding: var(--space-xxl);
+}
+.result-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  margin-bottom: var(--space-lg);
+}
+.result-icon {
+  width: 40px; height: 40px;
+  border-radius: var(--radius-full);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px;
+}
+.result-icon.success { background: var(--accent-green-bg); color: var(--accent-green); }
+.result-icon.failed { background: var(--accent-red-bg); color: var(--accent-red); }
+.result-icon.loading { background: var(--accent-amber-bg); color: var(--accent-amber); }
+.result-info h4 { font-size: 14px; font-weight: 600; }
+.result-info p { font-size: 12px; color: var(--text-tertiary); margin-top: 2px; }
+.result-details {
+  margin-top: var(--space-lg);
+  border-top: 1px solid var(--border-default);
+  padding-top: var(--space-lg);
+}
+.result-detail-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 0;
+  font-size: 12px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.result-detail-row:last-child { border-bottom: none; }
+.result-detail-label { color: var(--text-tertiary); }
+.result-detail-value { color: var(--text-primary); font-family: var(--font-mono); font-size: 11px; }
+.result-detail-value.green { color: var(--accent-green); }
+.result-detail-value.red { color: var(--accent-red); }
+
+/* Connection type selector */
+.conn-type-selector {
+  display: flex;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-lg);
+}
+.conn-type-option {
+  flex: 1;
+  padding: 10px;
+  text-align: center;
+  border: 1.5px solid var(--input-border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all 0.2s;
+  background: transparent;
+  font-family: var(--font-ui);
+}
+.conn-type-option:hover { border-color: var(--border-hover); background: var(--bg-subtle); }
+.conn-type-option.active {
+  border-color: var(--stripe-purple);
+  background: var(--stripe-purple-bg);
+}
+.conn-type-option .icon { font-size: 20px; display: block; margin-bottom: 4px; }
+.conn-type-option .label { font-size: 11px; font-weight: 500; color: var(--text-secondary); }
+.conn-type-option.active .label { color: var(--stripe-purple-light); }
+
+/* ══════════════════════════════════════════
+   FEATURE 2: BACKUP PROGRESS
+   ══════════════════════════════════════════ */
+.progress-container {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+}
+.progress-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-lg) var(--space-xxl);
+  border-bottom: 1px solid var(--border-default);
+}
+.progress-db-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.progress-db-badge .db-icon {
+  width: 28px; height: 28px;
+  border-radius: var(--radius-sm);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 700;
+}
+.progress-db-badge .db-icon.pg { background: var(--badge-pg-bg); color: var(--badge-pg-text); }
+.progress-db-badge .db-name { font-size: 13px; font-weight: 600; }
+.progress-db-badge .db-size { font-size: 11px; color: var(--text-tertiary); }
+.progress-status { font-size: 12px; display: flex; align-items: center; gap: 6px; }
+.progress-status.running { color: var(--accent-blue); }
+.progress-status.completed { color: var(--accent-green); }
+.progress-status.failed { color: var(--accent-red); }
+
+.progress-bar-container {
+  padding: var(--space-xl) var(--space-xxl);
+}
+.progress-bar-wrapper {
+  height: 6px;
+  background: var(--progress-bg);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+  margin-bottom: var(--space-sm);
+}
+.progress-bar-fill {
+  height: 100%;
+  border-radius: var(--radius-full);
+  transition: width 0.5s ease;
+  background: linear-gradient(90deg, var(--stripe-purple), var(--stripe-purple-light));
+  width: 0%;
+}
+.progress-bar-fill.completed { background: linear-gradient(90deg, #10b981, #34d399); }
+.progress-bar-fill.failed { background: linear-gradient(90deg, #ef4444, #f87171); }
+.progress-stats {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: var(--text-tertiary);
+}
+.progress-stats .stat { display: flex; align-items: center; gap: 4px; }
+
+/* Live Log */
+.live-log {
+  background: var(--code-bg);
+  border-top: 1px solid var(--border-default);
+  padding: var(--space-lg) var(--space-xxl);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  line-height: 1.8;
+  max-height: 200px;
+  overflow-y: auto;
+}
+.live-log .line { display: flex; gap: 8px; }
+.live-log .timestamp { color: var(--text-quaternary); flex-shrink: 0; }
+.live-log .level { width: 40px; flex-shrink: 0; font-weight: 600; }
+.live-log .level.info { color: var(--accent-blue); }
+.live-log .level.ok { color: var(--accent-green); }
+.live-log .level.warn { color: var(--accent-amber); }
+.live-log .level.err { color: var(--accent-red); }
+.live-log .msg { color: var(--text-secondary); }
+.live-log .highlight { color: var(--text-primary); }
+.live-log .active-line { background: rgba(99,91,255,0.08); margin: 0 calc(-1 * var(--space-xxl)); padding: 0 var(--space-xxl); }
+
+/* ══════════════════════════════════════════
+   FEATURE 3: CRON PREVIEW
+   ══════════════════════════════════════════ */
+.cron-preview-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-xxl);
+  align-items: start;
+}
+.cron-form {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-xl);
+  padding: var(--space-xxl);
+}
+.cron-presets {
+  display: flex;
+  gap: var(--space-sm);
+  flex-wrap: wrap;
+  margin-bottom: var(--space-lg);
+}
+.cron-preset-btn {
+  padding: 6px 14px;
+  border-radius: var(--radius-full);
+  border: 1.5px solid var(--border-default);
+  background: transparent;
+  color: var(--text-secondary);
+  font-family: var(--font-ui);
+  font-size: 11px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.cron-preset-btn:hover { border-color: var(--border-hover); background: var(--bg-subtle); }
+.cron-preset-btn.active {
+  border-color: var(--stripe-purple);
+  background: var(--stripe-purple-bg);
+  color: var(--stripe-purple-light);
+}
+
+/* Human description */
+.cron-human {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-md) var(--space-lg);
+  background: var(--bg-muted);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--space-lg);
+}
+.cron-human .icon { color: var(--stripe-purple-light); flex-shrink: 0; }
+.cron-human .text { font-size: 13px; font-weight: 500; color: var(--text-primary); }
+.cron-human .badge { margin-left: auto; }
+
+/* Next runs */
+.next-runs {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+}
+.next-runs-header {
+  padding: var(--space-lg) var(--space-xxl);
+  border-bottom: 1px solid var(--border-default);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.next-runs-header h4 { font-size: 13px; font-weight: 600; }
+.next-runs-header h4 .count { color: var(--stripe-purple-light); }
+.next-runs-list { }
+.next-run-item {
+  display: flex;
+  align-items: center;
+  padding: var(--space-md) var(--space-xxl);
+  border-bottom: 1px solid var(--border-subtle);
+  gap: var(--space-lg);
+}
+.next-run-item:last-child { border-bottom: none; }
+.next-run-num {
+  width: 22px; height: 22px;
+  border-radius: var(--radius-full);
+  background: var(--bg-muted);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 600; color: var(--text-tertiary);
+  flex-shrink: 0;
+}
+.next-run-date { font-size: 12px; font-weight: 500; color: var(--text-primary); min-width: 130px; }
+.next-run-time { font-size: 12px; color: var(--text-secondary); font-family: var(--font-mono); }
+.next-run-from-now { margin-left: auto; font-size: 11px; color: var(--text-tertiary); }
+.next-run-item.soon .next-run-date { color: var(--accent-blue); }
+.next-run-item.soon .next-run-num { background: var(--stripe-purple-bg); color: var(--stripe-purple-light); }
+
+/* ══════════════════════════════════════════
+   FEATURE 4: BACKUP VERIFICATION
+   ══════════════════════════════════════════ */
+.verification-summary {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-lg);
+  margin-bottom: var(--space-xxl);
+}
+.v-stat {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  padding: var(--space-xl);
+  text-align: center;
+}
+.v-stat .number { font-size: 24px; font-weight: 700; letter-spacing: -0.5px; }
+.v-stat .number.green { color: var(--accent-green); }
+.v-stat .number.red { color: var(--accent-red); }
+.v-stat .number.amber { color: var(--accent-amber); }
+.v-stat .label { font-size: 11px; color: var(--text-tertiary); margin-top: 4px; }
+.v-stat .sub { font-size: 10px; color: var(--text-quaternary); margin-top: 2px; }
+
+.verification-list { }
+.v-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-lg);
+  padding: var(--space-lg) var(--space-xl);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  margin-bottom: var(--space-md);
+  transition: all 0.2s;
+}
+.v-item:hover { border-color: var(--border-hover); box-shadow: var(--shadow-md); }
+.v-status-icon {
+  width: 36px; height: 36px;
+  border-radius: var(--radius-full);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+.v-status-icon.passed { background: var(--accent-green-bg); color: var(--accent-green); }
+.v-status-icon.failed { background: var(--accent-red-bg); color: var(--accent-red); }
+.v-status-icon.pending { background: var(--accent-amber-bg); color: var(--accent-amber); }
+.v-info { flex: 1; }
+.v-info .name { font-size: 13px; font-weight: 600; }
+.v-info .meta { font-size: 11px; color: var(--text-tertiary); margin-top: 2px; }
+.v-metrics { display: flex; gap: var(--space-lg); }
+.v-metric { text-align: center; }
+.v-metric .val { font-size: 12px; font-weight: 600; color: var(--text-primary); font-family: var(--font-mono); }
+.v-metric .lbl { font-size: 10px; color: var(--text-quaternary); }
+.v-checksum {
+  font-size: 10px;
+  color: var(--text-quaternary);
+  font-family: var(--font-mono);
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ══════════════════════════════════════════
+   FEATURE 5: RESTORE WORKFLOW
+   ══════════════════════════════════════════ */
+.restore-wizard {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+}
+.wizard-steps {
+  display: flex;
+  border-bottom: 1px solid var(--border-default);
+}
+.wizard-step {
+  flex: 1;
+  padding: var(--space-lg) var(--space-xl);
+  text-align: center;
+  position: relative;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-tertiary);
+  border-bottom: 2px solid transparent;
+  cursor: default;
+}
+.wizard-step .step-num {
+  display: inline-flex;
+  width: 20px; height: 20px;
+  border-radius: var(--radius-full);
+  align-items: center; justify-content: center;
+  font-size: 10px; font-weight: 700;
+  background: var(--bg-muted);
+  color: var(--text-tertiary);
+  margin-right: 6px;
+}
+.wizard-step.active {
+  color: var(--text-primary);
+  border-bottom-color: var(--stripe-purple);
+}
+.wizard-step.active .step-num { background: var(--stripe-purple); color: white; }
+.wizard-step.completed {
+  color: var(--accent-green);
+  border-bottom-color: var(--accent-green);
+}
+.wizard-step.completed .step-num { background: var(--accent-green); color: white; }
+
+.wizard-body { padding: var(--space-xxl); }
+.wizard-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-lg) var(--space-xxl);
+  border-top: 1px solid var(--border-default);
+}
+
+/* Restore options */
+.restore-options {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-lg);
+  margin-bottom: var(--space-xxl);
+}
+.restore-option {
+  border: 1.5px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  padding: var(--space-xl);
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: center;
+}
+.restore-option:hover { border-color: var(--border-hover); background: var(--bg-subtle); }
+.restore-option.active {
+  border-color: var(--stripe-purple);
+  background: var(--stripe-purple-bg);
+}
+.restore-option .icon { font-size: 24px; margin-bottom: var(--space-sm); }
+.restore-option h5 { font-size: 13px; font-weight: 600; color: var(--text-primary); }
+.restore-option p { font-size: 11px; color: var(--text-tertiary); margin-top: 4px; }
+
+/* Restore review table */
+.restore-review-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+.restore-review-table th {
+  text-align: left;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border-default);
+  color: var(--text-tertiary);
+  font-weight: 500;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.restore-review-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+}
+.restore-review-table td .val { color: var(--text-primary); font-weight: 500; }
+.restore-warning {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-md);
+  padding: var(--space-lg);
+  background: var(--accent-amber-bg);
+  border: 1px solid rgba(245,158,11,0.2);
+  border-radius: var(--radius-md);
+  margin-top: var(--space-lg);
+}
+.restore-warning .icon { color: var(--accent-amber); flex-shrink: 0; margin-top: 1px; }
+.restore-warning .text { font-size: 12px; color: var(--text-secondary); }
+.restore-warning .text strong { color: var(--text-primary); }
+
+/* ══════════════════════════════════════════
+   FEATURE 6: ACTIVITY FEED
+   ══════════════════════════════════════════ */
+.activity-layout {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: var(--space-xxl);
+  align-items: start;
+}
+
+/* Activity feed list */
+.activity-feed { }
+.activity-item {
+  display: flex;
+  gap: var(--space-lg);
+  padding: var(--space-lg) 0;
+  border-bottom: 1px solid var(--border-subtle);
+  position: relative;
+}
+.activity-item:last-child { border-bottom: none; }
+.activity-timeline {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 28px;
+  flex-shrink: 0;
+}
+.activity-dot {
+  width: 10px; height: 10px;
+  border-radius: var(--radius-full);
+  flex-shrink: 0;
+  z-index: 1;
+}
+.activity-dot.success { background: var(--accent-green); }
+.activity-dot.failed { background: var(--accent-red); }
+.activity-dot.running { background: var(--accent-blue); animation: pulse 2s infinite; }
+.activity-dot.warning { background: var(--accent-amber); }
+.activity-line {
+  width: 1px;
+  flex: 1;
+  background: var(--border-default);
+  margin-top: 4px;
+}
+.activity-content { flex: 1; min-width: 0; }
+.activity-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm);
+}
+.activity-title { font-size: 13px; font-weight: 500; color: var(--text-primary); }
+.activity-title .highlight { color: var(--stripe-purple-light); }
+.activity-time { font-size: 11px; color: var(--text-quaternary); white-space: nowrap; }
+.activity-meta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  margin-top: 4px;
+  flex-wrap: wrap;
+}
+.activity-detail { font-size: 12px; color: var(--text-secondary); margin-top: 4px; }
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+/* Activity sidebar */
+.activity-sidebar { }
+.activity-stats-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  padding: var(--space-xl);
+  margin-bottom: var(--space-lg);
+}
+.activity-stats-card h5 {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: var(--space-lg);
+}
+.as-stat-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 0;
+  font-size: 12px;
+}
+.as-stat-label { color: var(--text-secondary); }
+.as-stat-value { font-weight: 600; }
+.as-stat-value.green { color: var(--accent-green); }
+.as-stat-value.red { color: var(--accent-red); }
+.as-stat-value.blue { color: var(--accent-blue); }
+.as-stat-value.amber { color: var(--accent-amber); }
+
+.activity-recent {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  padding: var(--space-xl);
+}
+.activity-recent h5 {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: var(--space-lg);
+}
+.ar-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border-subtle);
+  font-size: 12px;
+}
+.ar-item:last-child { border-bottom: none; }
+.ar-dot {
+  width: 6px; height: 6px;
+  border-radius: var(--radius-full);
+  flex-shrink: 0;
+}
+.ar-dot.green { background: var(--accent-green); }
+.ar-dot.red { background: var(--accent-red); }
+.ar-dot.blue { background: var(--accent-blue); }
+.ar-dot.amber { background: var(--accent-amber); }
+.ar-text { color: var(--text-primary); flex: 1; }
+.ar-time { color: var(--text-quaternary); font-size: 10px; }
+
+/* ═══ Responsive ═══ */
+@media (max-width: 1024px) {
+  .test-conn-grid,
+  .cron-preview-grid,
+  .activity-layout { grid-template-columns: 1fr; }
+  .verification-summary { grid-template-columns: 1fr; }
+  .restore-options { grid-template-columns: 1fr; }
+}
+@media (max-width: 768px) {
+  body { padding: var(--space-lg); }
+  .form-row { flex-direction: column; gap: 0; }
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>🔧 <span>Backupeer</span> — Feature Mockups</h1>
+  <p>6 fitur prioritas: interactive mockup dengan Stripe-inspired design system</p>
+</div>
+
+<!-- ════════════════════════════════════════ -->
+<!-- NAV -->
+<!-- ════════════════════════════════════════ -->
+<div style="display:flex;gap:8px;flex-wrap:wrap;max-width:1400px;margin:0 auto var(--space-4xl);">
+  <a href="#test-connection" class="btn btn-secondary btn-sm" style="color:var(--accent-blue)">1. Test Connection</a>
+  <a href="#progress" class="btn btn-secondary btn-sm" style="color:var(--accent-blue)">2. Backup Progress</a>
+  <a href="#cron" class="btn btn-secondary btn-sm" style="color:var(--accent-blue)">3. CRON Preview</a>
+  <a href="#verification" class="btn btn-secondary btn-sm" style="color:var(--accent-blue)">4. Backup Verification</a>
+  <a href="#restore" class="btn btn-secondary btn-sm" style="color:var(--accent-blue)">5. Restore Workflow</a>
+  <a href="#activity" class="btn btn-secondary btn-sm" style="color:var(--accent-blue)">6. Activity Feed</a>
+</div>
+
+<style>
+.nav-link { text-decoration: none; }
+.nav-link:hover { filter: brightness(1.2); }
+</style>
+
+<!-- ════════════════════════════════════════ -->
+<!-- 1. TEST CONNECTION -->
+<!-- ════════════════════════════════════════ -->
+<div class="section" id="test-connection">
+  <div class="section-header">
+    <h2>🔌 Test Connection</h2>
+    <span class="tag priority-high">HIGH</span>
+  </div>
+  <p class="section-desc">Form untuk test koneksi ke database sebelum disimpan. Support PostgreSQL, MySQL, MariaDB dengan real-time feedback.</p>
+
+  <div class="test-conn-grid">
+    <!-- LEFT: Connection Form -->
+    <div class="mockup-card">
+      <div class="mockup-card-title">New Connection</div>
+      <div class="mockup-card-desc">Enter database credentials to test connectivity</div>
+
+      <!-- Connection type selector -->
+      <div class="conn-type-selector">
+        <button class="conn-type-option active">
+          <div class="icon">🐘</div>
+          <div class="label">PostgreSQL</div>
+        </button>
+        <button class="conn-type-option">
+          <div class="icon">🐬</div>
+          <div class="label">MySQL</div>
+        </button>
+        <button class="conn-type-option">
+          <div class="icon">🪶</div>
+          <div class="label">MariaDB</div>
+        </button>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Host</label>
+          <input class="form-input" type="text" placeholder="localhost" value="db-prod-1.internal">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Port</label>
+          <input class="form-input" type="text" placeholder="5432" value="5432">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Database Name</label>
+        <input class="form-input" type="text" placeholder="mydb" value="production_db">
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Username</label>
+          <input class="form-input" type="text" placeholder="postgres" value="postgres">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <input class="form-input" type="password" placeholder="••••••••">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">SSL Mode</label>
+        <select class="form-select">
+          <option>require</option>
+          <option selected>prefer</option>
+          <option>disable</option>
+        </select>
+      </div>
+
+      <div style="display:flex;gap:var(--space-sm);margin-top:var(--space-xl);">
+        <button class="btn btn-primary" onclick="document.getElementById('test-result').style.display='block'">
+          <i data-lucide="zap" size="14"></i> Test Connection
+        </button>
+        <button class="btn btn-secondary">
+          <i data-lucide="save" size="14"></i> Save Connection
+        </button>
+      </div>
+    </div>
+
+    <!-- RIGHT: Test Result -->
+    <div id="test-result" class="test-conn-result" style="display:block;">
+      <div class="result-header">
+        <div class="result-icon success">
+          <i data-lucide="check-circle" size="20"></i>
+        </div>
+        <div class="result-info">
+          <h4>Connection Successful</h4>
+          <p>Connected to <strong>production_db</strong> on <strong>db-prod-1.internal:5432</strong></p>
+        </div>
+      </div>
+
+      <div class="result-details">
+        <div class="result-detail-row">
+          <span class="result-detail-label">Server Version</span>
+          <span class="result-detail-value green">PostgreSQL 16.4</span>
+        </div>
+        <div class="result-detail-row">
+          <span class="result-detail-label">Latency</span>
+          <span class="result-detail-value green">12ms</span>
+        </div>
+        <div class="result-detail-row">
+          <span class="result-detail-label">Database Size</span>
+          <span class="result-detail-value">2.4 GB</span>
+        </div>
+        <div class="result-detail-row">
+          <span class="result-detail-label">Tables</span>
+          <span class="result-detail-value">34</span>
+        </div>
+        <div class="result-detail-row">
+          <span class="result-detail-label">Extensions</span>
+          <span class="result-detail-value">pg_stat_statements, postgis, uuid-ossp</span>
+        </div>
+        <div class="result-detail-row">
+          <span class="result-detail-label">Max Connections</span>
+          <span class="result-detail-value">100 / 200</span>
+        </div>
+        <div class="result-detail-row">
+          <span class="result-detail-label">Uptime</span>
+          <span class="result-detail-value">14 days 6h</span>
+        </div>
+        <div class="result-detail-row">
+          <span class="result-detail-label">WAL Archiving</span>
+          <span class="result-detail-value green">Enabled ✓</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Failed state example -->
+  <div class="test-conn-grid" style="margin-top:var(--space-lg);opacity:0.7;">
+    <div></div>
+    <div class="test-conn-result" style="border-color:rgba(239,68,68,0.3);">
+      <div class="result-header">
+        <div class="result-icon failed">
+          <i data-lucide="x-circle" size="20"></i>
+        </div>
+        <div class="result-info">
+          <h4 style="color:var(--accent-red);">Connection Failed</h4>
+          <p>Could not connect to <strong>db-prod-1.internal:5432</strong></p>
+        </div>
+      </div>
+      <div class="result-details">
+        <div class="result-detail-row">
+          <span class="result-detail-label">Error</span>
+          <span class="result-detail-value red">connection refused — is the server running?</span>
+        </div>
+        <div class="result-detail-row">
+          <span class="result-detail-label">Tried</span>
+          <span class="result-detail-value">TCP 10.0.1.50:5432</span>
+        </div>
+        <div class="result-detail-row">
+          <span class="result-detail-label">Suggestions</span>
+          <span class="result-detail-value" style="color:var(--text-secondary);">
+            • Check firewall rules<br>
+            • Verify PostgreSQL is running<br>
+            • Confirm listen_addresses setting
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════════ -->
+<!-- 2. BACKUP PROGRESS -->
+<!-- ════════════════════════════════════════ -->
+<div class="section" id="progress">
+  <div class="section-header">
+    <h2>⏳ Backup Progress & Live Log</h2>
+    <span class="tag priority-high">HIGH</span>
+  </div>
+  <p class="section-desc">Real-time progress tracking dengan live log streaming — user bisa lihat persis apa yang terjadi selama backup.</p>
+
+  <div class="progress-container">
+    <!-- Running state -->
+    <div class="progress-header">
+      <div class="progress-db-badge">
+        <div class="db-icon pg">PG</div>
+        <div>
+          <div class="db-name">production_db</div>
+          <div class="db-size">Scheduled: Daily Full Backup</div>
+        </div>
+      </div>
+      <div class="progress-status running">
+        <span style="display:inline-flex;align-items:center;gap:4px;">
+          <span style="width:6px;height:6px;border-radius:50%;background:var(--accent-blue);display:inline-block;animation:pulse 1.5s infinite;"></span>
+          Running
+        </span>
+        <span style="color:var(--text-tertiary);font-size:11px;">Started 2m 34s ago</span>
+      </div>
+    </div>
+
+    <div class="progress-bar-container">
+      <div class="progress-bar-wrapper">
+        <div class="progress-bar-fill" style="width:68%;"></div>
+      </div>
+      <div class="progress-stats">
+        <span class="stat"><i data-lucide="download" size="12"></i> 1.4 GB / 2.4 GB</span>
+        <span class="stat"><i data-lucide="clock" size="12"></i> Est. 1m 12s remaining</span>
+        <span class="stat"><i data-lucide="zap" size="12"></i> 18.2 MB/s</span>
+      </div>
+    </div>
+
+    <!-- Live Log -->
+    <div class="live-log">
+      <div class="line active-line">
+        <span class="timestamp">23:14:02</span>
+        <span class="level ok">OK</span>
+        <span class="msg">Started <span class="highlight">pg_dump</span> for production_db (full backup)</span>
+      </div>
+      <div class="line">
+        <span class="timestamp">23:14:03</span>
+        <span class="level info">...</span>
+        <span class="msg">Connected to database, querying schema information</span>
+      </div>
+      <div class="line">
+        <span class="timestamp">23:14:05</span>
+        <span class="level info">...</span>
+        <span class="msg">Exporting table: <span class="highlight">users</span> (1,234,567 rows)</span>
+      </div>
+      <div class="line">
+        <span class="timestamp">23:14:08</span>
+        <span class="level info">...</span>
+        <span class="msg">Exporting table: <span class="highlight">orders</span> (892,341 rows)</span>
+      </div>
+      <div class="line">
+        <span class="timestamp">23:14:12</span>
+        <span class="level info">...</span>
+        <span class="msg">Exporting table: <span class="highlight">products</span> (45,678 rows)</span>
+      </div>
+      <div class="line">
+        <span class="timestamp">23:14:18</span>
+        <span class="level info">...</span>
+        <span class="msg">Compressing output (<span class="highlight">gzip</span>, level 6)</span>
+      </div>
+      <div class="line">
+        <span class="timestamp">23:14:22</span>
+        <span class="level info">...</span>
+        <span class="msg">Uploading to <span class="highlight">S3 (us-east-1)</span> — part 3/7</span>
+      </div>
+      <div class="line" style="opacity:0.5;">
+        <span class="timestamp">23:14:25</span>
+        <span class="level info">...</span>
+        <span class="msg">Uploading to <span class="highlight">S3 (us-east-1)</span> — part 4/7</span>
+      </div>
+    </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-xxl);margin-top:var(--space-xxl);">
+    <!-- Completed State -->
+    <div class="progress-container" style="opacity:0.85;">
+      <div class="progress-header">
+        <div class="progress-db-badge">
+          <div class="db-icon pg">PG</div>
+          <div>
+            <div class="db-name">analytics_db</div>
+            <div class="db-size">Full backup - 4.8 GB</div>
+          </div>
+        </div>
+        <div class="progress-status completed">
+          <i data-lucide="check-circle" size="14"></i> Completed
+          <span style="color:var(--text-tertiary);font-size:11px;margin-left:4px;">2h ago</span>
+        </div>
+      </div>
+      <div class="progress-bar-container" style="padding-bottom:var(--space-lg);">
+        <div class="progress-bar-wrapper">
+          <div class="progress-bar-fill completed" style="width:100%;"></div>
+        </div>
+        <div class="progress-stats">
+          <span class="stat"><i data-lucide="database" size="12"></i> 4.8 GB backed up</span>
+          <span class="stat"><i data-lucide="clock" size="12"></i> Took 4m 22s</span>
+          <span class="stat"><i data-lucide="check" size="12" style="color:var(--accent-green);"></i> Checksum verified</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Failed State -->
+    <div class="progress-container" style="opacity:0.85;">
+      <div class="progress-header">
+        <div class="progress-db-badge">
+          <div class="db-icon maria" style="background:var(--badge-maria-bg);color:var(--badge-maria-text);">MA</div>
+          <div>
+            <div class="db-name">staging_db</div>
+            <div class="db-size">Full backup - 1.1 GB</div>
+          </div>
+        </div>
+        <div class="progress-status failed">
+          <i data-lucide="alert-circle" size="14"></i> Failed
+          <span style="color:var(--text-tertiary);font-size:11px;margin-left:4px;">30m ago</span>
+        </div>
+      </div>
+      <div class="progress-bar-container" style="padding-bottom:var(--space-lg);">
+        <div class="progress-bar-wrapper">
+          <div class="progress-bar-fill failed" style="width:47%;"></div>
+        </div>
+        <div class="progress-stats">
+          <span class="stat" style="color:var(--accent-red);"><i data-lucide="alert-triangle" size="12"></i> Error: Connection lost during upload</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════════ -->
+<!-- 3. CRON PREVIEW -->
+<!-- ════════════════════════════════════════ -->
+<div class="section" id="cron">
+  <div class="section-header">
+    <h2>🕐 Schedule — CRON Preview</h2>
+    <span class="tag priority-high">HIGH</span>
+  </div>
+  <p class="section-desc">User nggak perlu hafal CRON expression — tinggal pilih preset, langsung liat preview 5 jadwal berikutnya.</p>
+
+  <div class="cron-preview-grid">
+    <!-- LEFT: Schedule Form -->
+    <div class="cron-form">
+      <div class="form-group">
+        <label class="form-label">Schedule Preset</label>
+        <div class="cron-presets">
+          <button class="cron-preset-btn active">Every 6h</button>
+          <button class="cron-preset-btn">Daily</button>
+          <button class="cron-preset-btn">Weekly</button>
+          <button class="cron-preset-btn">Monthly</button>
+          <button class="cron-preset-btn">Custom CRON</button>
+        </div>
+      </div>
+
+      <div class="form-group" style="display:none;">
+        <!-- Shown when Custom CRON selected -->
+        <label class="form-label">CRON Expression</label>
+        <input class="form-input" type="text" placeholder="0 */6 * * *" value="0 */6 * * *">
+        <div class="form-hint">* * * * * → minute hour day month weekday</div>
+      </div>
+
+      <!-- Human readable -->
+      <div class="cron-human">
+        <i data-lucide="clock" size="16" class="icon"></i>
+        <span class="text">Every 6 hours at minute 0</span>
+        <span class="badge badge-info">0 */6 * * *</span>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Backup Type</label>
+        <select class="form-select">
+          <option selected>Full Backup</option>
+          <option>Incremental Backup</option>
+          <option>Differential Backup</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Retention</label>
+        <select class="form-select">
+          <option>Keep last 7 backups</option>
+          <option selected>Keep last 30 backups</option>
+          <option>Keep last 90 backups</option>
+          <option>Keep all</option>
+        </select>
+      </div>
+
+      <button class="btn btn-primary" style="width:100%;margin-top:var(--space-sm);">
+        <i data-lucide="plus" size="14"></i> Create Schedule
+      </button>
+    </div>
+
+    <!-- RIGHT: Next 5 Runs -->
+    <div class="next-runs">
+      <div class="next-runs-header">
+        <h4>Next <span class="count">5</span> Runs</h4>
+        <span class="badge badge-success">Active</span>
+      </div>
+      <div class="next-runs-list">
+        <div class="next-run-item soon">
+          <div class="next-run-num">1</div>
+          <div class="next-run-date">Today, 06:00 PM</div>
+          <div class="next-run-time">in 2h 14m</div>
+        </div>
+        <div class="next-run-item soon">
+          <div class="next-run-num">2</div>
+          <div class="next-run-date">Today, 12:00 AM</div>
+          <div class="next-run-time">in 8h 14m</div>
+        </div>
+        <div class="next-run-item">
+          <div class="next-run-num">3</div>
+          <div class="next-run-date">Tomorrow, 06:00 AM</div>
+          <div class="next-run-time">in 14h 14m</div>
+        </div>
+        <div class="next-run-item">
+          <div class="next-run-num">4</div>
+          <div class="next-run-date">Tomorrow, 12:00 PM</div>
+          <div class="next-run-time">in 20h 14m</div>
+        </div>
+        <div class="next-run-item">
+          <div class="next-run-num">5</div>
+          <div class="next-run-date">Tomorrow, 06:00 PM</div>
+          <div class="next-run-time">in 26h 14m</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════════ -->
+<!-- 4. BACKUP VERIFICATION -->
+<!-- ════════════════════════════════════════ -->
+<div class="section" id="verification">
+  <div class="section-header">
+    <h2>✅ Backup Verification</h2>
+    <span class="tag priority-med">MEDIUM</span>
+  </div>
+  <p class="section-desc">Automated verification setelah backup — restore test + checksum validation biar yakin backup bisa dipulihkan.</p>
+
+  <div class="verification-summary">
+    <div class="v-stat">
+      <div class="number green">28</div>
+      <div class="label">Verified ✓</div>
+      <div class="sub">Backups confirmed valid</div>
+    </div>
+    <div class="v-stat">
+      <div class="number amber">3</div>
+      <div class="label">Pending</div>
+      <div class="sub">Awaiting verification</div>
+    </div>
+    <div class="v-stat">
+      <div class="number red">1</div>
+      <div class="label">Failed ⚠</div>
+      <div class="sub">Corrupt / unrecoverable</div>
+    </div>
+  </div>
+
+  <div class="verification-list">
+    <!-- Verified OK -->
+    <div class="v-item">
+      <div class="v-status-icon passed"><i data-lucide="check" size="16"></i></div>
+      <div class="v-info">
+        <div class="name">production_db — Daily Full 2025-06-16</div>
+        <div class="meta">
+          <span class="badge badge-pg" style="margin-right:4px;">PG</span>
+          Verified 2h ago · Took 3m 12s
+        </div>
+      </div>
+      <div class="v-metrics">
+        <div class="v-metric"><div class="val">2.4 GB</div><div class="lbl">Size</div></div>
+        <div class="v-metric"><div class="val">✓</div><div class="lbl">Checksum</div></div>
+        <div class="v-metric"><div class="val green">34/34</div><div class="lbl">Tables</div></div>
+      </div>
+      <div class="v-checksum">sha256:a4b8c...d1e2f</div>
+      <button class="btn btn-secondary btn-sm"><i data-lucide="eye" size="12"></i> Details</button>
+    </div>
+
+    <!-- Pending -->
+    <div class="v-item" style="opacity:0.8;">
+      <div class="v-status-icon pending"><i data-lucide="loader" size="14"></i></div>
+      <div class="v-info">
+        <div class="name">staging_db — Daily Full 2025-06-16</div>
+        <div class="meta">
+          <span class="badge badge-maria" style="margin-right:4px;">MA</span>
+          Completed 15m ago · Verification queued
+        </div>
+      </div>
+      <div class="v-metrics">
+        <div class="v-metric"><div class="val">1.1 GB</div><div class="lbl">Size</div></div>
+        <div class="v-metric"><div class="val" style="color:var(--accent-amber);">—</div><div class="lbl">Checksum</div></div>
+        <div class="v-metric"><div class="val">—</div><div class="lbl">Tables</div></div>
+      </div>
+      <div class="v-checksum">pending...</div>
+      <button class="btn btn-outline-success btn-sm"><i data-lucide="play" size="12"></i> Verify Now</button>
+    </div>
+
+    <!-- Failed -->
+    <div class="v-item" style="border-color:rgba(239,68,68,0.3);">
+      <div class="v-status-icon failed"><i data-lucide="x" size="16"></i></div>
+      <div class="v-info">
+        <div class="name" style="color:var(--accent-red);">analytics_db — Incremental 2025-06-15</div>
+        <div class="meta">
+          <span class="badge badge-pg" style="margin-right:4px;">PG</span>
+          Checksum mismatch — data corruption detected
+        </div>
+      </div>
+      <div class="v-metrics">
+        <div class="v-metric"><div class="val">1.8 GB</div><div class="lbl">Size</div></div>
+        <div class="v-metric"><div class="val red">✗</div><div class="lbl">Checksum</div></div>
+        <div class="v-metric"><div class="val red">28/34</div><div class="lbl">Tables</div></div>
+      </div>
+      <div class="v-checksum" style="color:var(--accent-red);">MISMATCH</div>
+      <button class="btn btn-outline-danger btn-sm"><i data-lucide="refresh-cw" size="12"></i> Retry Backup</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════════ -->
+<!-- 5. RESTORE WORKFLOW -->
+<!-- ════════════════════════════════════════ -->
+<div class="section" id="restore">
+  <div class="section-header">
+    <h2>🔁 Restore Workflow</h2>
+    <span class="tag priority-high">HIGH</span>
+  </div>
+  <p class="section-desc">Multi-step restore wizard — pilih backup → pilih mode → review → confirm. Support full restore & PITR.</p>
+
+  <div class="restore-wizard">
+    <!-- Steps -->
+    <div class="wizard-steps">
+      <div class="wizard-step completed">
+        <span class="step-num">✓</span> Select Backup
+      </div>
+      <div class="wizard-step completed">
+        <span class="step-num">✓</span> Restore Mode
+      </div>
+      <div class="wizard-step active">
+        <span class="step-num">3</span> Review & Confirm
+      </div>
+      <div class="wizard-step">
+        <span class="step-num">4</span> Execute
+      </div>
+    </div>
+
+    <!-- Body -->
+    <div class="wizard-body">
+      <!-- Restore Mode Selection -->
+      <div class="restore-options" style="margin-bottom:var(--space-xxl);">
+        <div class="restore-option active">
+          <div class="icon">🔄</div>
+          <h5>Full Restore</h5>
+          <p>Restore entire database from backup</p>
+        </div>
+        <div class="restore-option">
+          <div class="icon">📂</div>
+          <h5>Partial Restore</h5>
+          <p>Restore specific tables only</p>
+        </div>
+        <div class="restore-option">
+          <div class="icon">⏰</div>
+          <h5>Point-in-Time</h5>
+          <p>Restore to specific timestamp (PITR)</p>
+        </div>
+      </div>
+
+      <!-- PITR option (shown when point-in-time selected) -->
+      <div class="form-row" style="display:none;">
+        <div class="form-group">
+          <label class="form-label">Restore to</label>
+          <input class="form-input" type="text" placeholder="2025-06-16 14:30:00 UTC">
+        </div>
+        <div class="form-group">
+          <label class="form-label">WAL Position (optional)</label>
+          <input class="form-input" type="text" placeholder="0/AB12CD34">
+        </div>
+      </div>
+
+      <!-- Review Table -->
+      <table class="restore-review-table">
+        <thead>
+          <tr>
+            <th>Item</th>
+            <th>Details</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Source Backup</td>
+            <td><span class="val">production_db — Daily Full 2025-06-16</span></td>
+          </tr>
+          <tr>
+            <td>Database Type</td>
+            <td><span class="badge badge-pg">PostgreSQL 16.4</span></td>
+          </tr>
+          <tr>
+            <td>Backup Size</td>
+            <td><span class="val">2.4 GB</span> (compressed)</td>
+          </tr>
+          <tr>
+            <td>Restore Target</td>
+            <td><span class="val">production_db_restore</span> (new database)</td>
+          </tr>
+          <tr>
+            <td>Restore Mode</td>
+            <td><span class="val">Full Restore</span></td>
+          </tr>
+          <tr>
+            <td>Estimated Time</td>
+            <td><span class="val">~4-6 minutes</span></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Warning -->
+      <div class="restore-warning">
+        <i data-lucide="alert-triangle" size="16" class="icon"></i>
+        <div class="text">
+          <strong>⚠ Existing data will be overwritten.</strong> If restoring to an existing database, all current data in the target database will be replaced. Make sure you have a recent backup of the target before proceeding.
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="wizard-footer">
+      <button class="btn btn-secondary">
+        <i data-lucide="arrow-left" size="14"></i> Back
+      </button>
+      <div style="display:flex;gap:var(--space-sm);">
+        <button class="btn btn-secondary">Cancel</button>
+        <button class="btn btn-primary">
+          <i data-lucide="play" size="14"></i> Start Restore
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════════ -->
+<!-- 6. ACTIVITY FEED -->
+<!-- ════════════════════════════════════════ -->
+<div class="section" id="activity">
+  <div class="section-header">
+    <h2>📊 Activity Feed</h2>
+    <span class="tag priority-med">MEDIUM</span>
+  </div>
+  <p class="section-desc">Live activity timeline — liat semua event backup, restore, dan verifikasi dalam satu feed real-time.</p>
+
+  <div class="activity-layout">
+    <!-- Main Feed -->
+    <div class="activity-feed">
+      <div class="mockup-card" style="padding:0;">
+        <!-- Running -->
+        <div class="activity-item" style="padding:var(--space-xl) var(--space-xxl);">
+          <div class="activity-timeline">
+            <div class="activity-dot running"></div>
+            <div class="activity-line"></div>
+          </div>
+          <div class="activity-content">
+            <div class="activity-header">
+              <div class="activity-title">
+                Running: <span class="highlight">Full backup</span> — analytics_db
+              </div>
+              <div class="activity-time">2m ago</div>
+            </div>
+            <div class="activity-meta">
+              <span class="badge badge-pg">PG</span>
+              <span style="font-size:11px;color:var(--text-tertiary);">2.4 GB / 4.8 GB</span>
+              <span style="font-size:11px;color:var(--accent-blue);">18.2 MB/s</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Completed -->
+        <div class="activity-item" style="padding:var(--space-xl) var(--space-xxl);">
+          <div class="activity-timeline">
+            <div class="activity-dot success"></div>
+            <div class="activity-line"></div>
+          </div>
+          <div class="activity-content">
+            <div class="activity-header">
+              <div class="activity-title">
+                <span style="color:var(--accent-green);">✓</span> Full backup completed — <span class="highlight">production_db</span>
+              </div>
+              <div class="activity-time">15m ago</div>
+            </div>
+            <div class="activity-meta">
+              <span class="badge badge-pg">PG</span>
+              <span class="badge badge-success">2.4 GB</span>
+              <span style="font-size:11px;color:var(--text-tertiary);">Took 3m 22s</span>
+              <span style="font-size:11px;color:var(--accent-green);">✓ Checksum verified</span>
+            </div>
+            <div class="activity-detail">
+              Uploaded to <strong>S3 (us-east-1)</strong> — bucket: backupeer-prod
+            </div>
+          </div>
+        </div>
+
+        <!-- Schedule Created -->
+        <div class="activity-item" style="padding:var(--space-xl) var(--space-xxl);">
+          <div class="activity-timeline">
+            <div class="activity-dot" style="background:var(--stripe-purple);"></div>
+            <div class="activity-line"></div>
+          </div>
+          <div class="activity-content">
+            <div class="activity-header">
+              <div class="activity-title">
+                📅 Schedule created — <span class="highlight">Daily every 6h</span>
+              </div>
+              <div class="activity-time">1h ago</div>
+            </div>
+            <div class="activity-meta">
+              <span class="badge badge-mysql">MySQL</span>
+              <span class="badge badge-info">Full Backup</span>
+              <span style="font-size:11px;color:var(--text-tertiary);">Next: Today 06:00 PM</span>
+            </div>
+            <div class="activity-detail">
+              Database: <strong>staging_db</strong> · Retention: 30 backups
+            </div>
+          </div>
+        </div>
+
+        <!-- Verification Failed -->
+        <div class="activity-item" style="padding:var(--space-xl) var(--space-xxl);">
+          <div class="activity-timeline">
+            <div class="activity-dot failed"></div>
+            <div class="activity-line"></div>
+          </div>
+          <div class="activity-content">
+            <div class="activity-header">
+              <div class="activity-title" style="color:var(--accent-red);">
+                ✗ Verification failed — <span class="highlight" style="color:var(--accent-red);">analytics_db</span>
+              </div>
+              <div class="activity-time">3h ago</div>
+            </div>
+            <div class="activity-meta">
+              <span class="badge badge-pg">PG</span>
+              <span class="badge badge-danger">Checksum mismatch</span>
+            </div>
+            <div class="activity-detail" style="color:var(--accent-red);">
+              Expected: <code style="background:var(--accent-red-bg);padding:1px 6px;border-radius:3px;font-size:10px;">sha256:a4b8c...</code>
+              Got: <code style="background:var(--accent-red-bg);padding:1px 6px;border-radius:3px;font-size:10px;">sha256:e5f6a...</code>
+            </div>
+          </div>
+        </div>
+
+        <!-- Restore Completed -->
+        <div class="activity-item" style="padding:var(--space-xl) var(--space-xxl);">
+          <div class="activity-timeline">
+            <div class="activity-dot success"></div>
+            <div class="activity-line"></div>
+          </div>
+          <div class="activity-content">
+            <div class="activity-header">
+              <div class="activity-title">
+                <span style="color:var(--accent-green);">✓</span> Restore completed — <span class="highlight">production_db</span> → production_db_restore
+              </div>
+              <div class="activity-time">5h ago</div>
+            </div>
+            <div class="activity-meta">
+              <span class="badge badge-pg">PG</span>
+              <span class="badge badge-success">Full Restore</span>
+              <span style="font-size:11px;color:var(--text-tertiary);">Took 5m 12s</span>
+            </div>
+            <div class="activity-detail">
+              34 tables restored · 2.4 GB · Database integrity check: <span style="color:var(--accent-green);">✓ Passed</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Connection Added -->
+        <div class="activity-item" style="padding:var(--space-xl) var(--space-xxl);">
+          <div class="activity-timeline">
+            <div class="activity-dot" style="background:var(--stripe-purple);"></div>
+          </div>
+          <div class="activity-content">
+            <div class="activity-header">
+              <div class="activity-title">
+                🔌 New connection added — <span class="highlight">analytics_db</span>
+              </div>
+              <div class="activity-time">1d ago</div>
+            </div>
+            <div class="activity-meta">
+              <span class="badge badge-pg">PG</span>
+              <span style="font-size:11px;color:var(--text-tertiary);">analytics.internal:5432</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sidebar Stats -->
+    <div class="activity-sidebar">
+      <!-- Today Stats -->
+      <div class="activity-stats-card">
+        <h5>Today</h5>
+        <div class="as-stat-row">
+          <span class="as-stat-label"><i data-lucide="upload" size="12" style="margin-right:4px;"></i>Backups</span>
+          <span class="as-stat-value blue">12</span>
+        </div>
+        <div class="as-stat-row">
+          <span class="as-stat-label"><i data-lucide="check" size="12" style="margin-right:4px;"></i>Successful</span>
+          <span class="as-stat-value green">10</span>
+        </div>
+        <div class="as-stat-row">
+          <span class="as-stat-label"><i data-lucide="x" size="12" style="margin-right:4px;"></i>Failed</span>
+          <span class="as-stat-value red">1</span>
+        </div>
+        <div class="as-stat-row">
+          <span class="as-stat-label"><i data-lucide="rotate-ccw" size="12" style="margin-right:4px;"></i>Restores</span>
+          <span class="as-stat-value blue">2</span>
+        </div>
+        <div class="as-stat-row">
+          <span class="as-stat-label"><i data-lucide="hard-drive" size="12" style="margin-right:4px;"></i>Data stored</span>
+          <span class="as-stat-value">28.4 GB</span>
+        </div>
+      </div>
+
+      <!-- Recent Activity -->
+      <div class="activity-recent">
+        <h5>Quick Overview</h5>
+        <div class="ar-item">
+          <span class="ar-dot green"></span>
+          <span class="ar-text">production_db backed up</span>
+          <span class="ar-time">15m</span>
+        </div>
+        <div class="ar-item">
+          <span class="ar-dot blue"></span>
+          <span class="ar-text">analytics_db running...</span>
+          <span class="ar-time">2m</span>
+        </div>
+        <div class="ar-item">
+          <span class="ar-dot amber"></span>
+          <span class="ar-text">Schedule created</span>
+          <span class="ar-time">1h</span>
+        </div>
+        <div class="ar-item">
+          <span class="ar-dot red"></span>
+          <span class="ar-text">Verification failed</span>
+          <span class="ar-time">3h</span>
+        </div>
+        <div class="ar-item">
+          <span class="ar-dot green"></span>
+          <span class="ar-text">Restore completed</span>
+          <span class="ar-time">5h</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  lucide.createIcons();
+</script>
+
+</body>
+</html>
