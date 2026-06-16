@@ -12,12 +12,12 @@ export default defineConfig({
     ['link', { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: '' }],
     ['link', { rel: 'stylesheet', href: 'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap' }],
     ['link', { rel: 'icon', href: '/favicon.png', type: 'image/png' }],
-    ['meta', { name: 'theme-color', content: '#635BFF' }],
+    ['meta', { name: 'theme-color', content: '#5E6AD2' }],
     ['meta', { property: 'og:title', content: 'Backupeer — Database Backup Tool' }],
     ['meta', { property: 'og:description', content: 'Open-source database backup tool with streaming pipeline, incremental backup, and S3/R2 storage support.' }],
   ],
 
-  appearance: 'light',
+  appearance: false,
 
   themeConfig: {
     logo: '/logo-horizontal.svg',
