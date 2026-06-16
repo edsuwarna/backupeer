@@ -25,17 +25,14 @@ func (r *BackupRepo) List(connectionID, databaseID string, limit, offset int) ([
 		duration_ms, started_at, completed_at, created_at
 		FROM backups WHERE 1=1`
 	var args []interface{}
-	n := 1
 
 	if connectionID != "" {
-		query += fmt.Sprintf(" AND connection_id = ?%d", n)
+		query += fmt.Sprintf(" AND connection_id = ?%d", len(args)+1)
 		args = append(args, connectionID)
-		n++
 	}
 	if databaseID != "" {
-		query += fmt.Sprintf(" AND database_id = ?%d", n)
+		query += fmt.Sprintf(" AND database_id = ?%d", len(args)+1)
 		args = append(args, databaseID)
-		n++
 	}
 
 	query += " ORDER BY created_at DESC LIMIT ? OFFSET ?"

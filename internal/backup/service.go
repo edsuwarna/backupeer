@@ -553,7 +553,7 @@ func (s *Service) EnforceRetention(scheduleID string, retentionFull, retentionIn
 func compressData(data []byte) []byte {
 	var buf bytes.Buffer
 	gw := gzip.NewWriter(&buf)
-	gw.Write(data)
+	_, _ = gw.Write(data)
 	gw.Close()
 	return buf.Bytes()
 }

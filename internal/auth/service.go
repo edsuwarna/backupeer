@@ -30,7 +30,7 @@ func NewService(adminUser, adminPass, secretKey string) *Service {
 
 	if secretKey == "" {
 		buf := make([]byte, 32)
-		rand.Read(buf)
+		_, _ = rand.Read(buf)
 		secretKey = hex.EncodeToString(buf)
 	}
 
@@ -54,7 +54,7 @@ func (s *Service) Login(user, password string) (string, bool) {
 
 	// Generate session token
 	buf := make([]byte, 32)
-	rand.Read(buf)
+	_, _ = rand.Read(buf)
 	token := hex.EncodeToString(buf)
 
 	s.mu.Lock()
@@ -203,5 +203,5 @@ func decodeJSON(r *http.Request, v interface{}) error {
 func writeJSON(w http.ResponseWriter, status int, data interface{}) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
-	json.NewEncoder(w).Encode(data)
+	_ = json.NewEncoder(w).Encode(data)
 }

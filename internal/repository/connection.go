@@ -116,7 +116,7 @@ func (r *ConnectionRepo) UpsertDatabases(dbs []connection.ConnectionDatabase) er
 	if err != nil {
 		return fmt.Errorf("begin tx: %w", err)
 	}
-	defer tx.Rollback()
+	defer func() { _ = tx.Rollback() }()
 
 	stmt, err := tx.Prepare(`INSERT INTO connection_databases (id, connection_id, db_name, is_selected, size_bytes, created_at) VALUES (?, ?, ?, ?, ?, ?) ON CONFLICT(connection_id, db_name) DO UPDATE SET is_selected=excluded.is_selected, size_bytes=excluded.size_bytes`)
 	if err != nil {

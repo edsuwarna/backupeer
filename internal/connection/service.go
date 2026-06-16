@@ -2,10 +2,7 @@
 package connection
 
 import (
-	"context"
-	"crypto/rand"
 	"database/sql"
-	"encoding/hex"
 	"fmt"
 	"strings"
 )
@@ -214,14 +211,4 @@ func discoverMySQL(conn *Connection) ([]string, error) {
 		names = append(names, name)
 	}
 	return names, nil
-}
-
-// ctx is used for testing connections — in production use context.Background().
-var ctx = context.Background()
-
-// generateSecret creates a random hex string for encryption keys.
-func generateSecret() string {
-	b := make([]byte, 32)
-	rand.Read(b)
-	return hex.EncodeToString(b)
 }

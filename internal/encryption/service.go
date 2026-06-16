@@ -197,7 +197,6 @@ type encryptWriter struct {
 	dst   io.Writer
 	gcm   cipher.AEAD
 	nonce []byte
-	buf   []byte
 }
 
 func (w *encryptWriter) Write(p []byte) (int, error) {
