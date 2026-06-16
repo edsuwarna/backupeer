@@ -195,6 +195,10 @@ function renderApp() {
             <span class="icon"><i data-lucide="hard-drive" size="16"></i></span>
             Storage
           </a>
+          <a class="sidebar-link ${page === 'notifications' ? 'active' : ''}" data-page="notifications" onclick="navigate('notifications')">
+            <span class="icon"><i data-lucide="bell" size="16"></i></span>
+            Notifications
+          </a>
           <a class="sidebar-link ${page === 'settings' ? 'active' : ''}" data-page="settings" onclick="navigate('settings')">
             <span class="icon"><i data-lucide="settings" size="16"></i></span>
             Settings
@@ -279,7 +283,7 @@ function renderPage(page) {
   const el = document.getElementById('page-content');
   if (!el) return;
 
-  const titles = { dashboard: 'Dashboard', connections: 'Connections', backups: 'Backups', schedules: 'Schedules', storage: 'Storage', settings: 'Settings' };
+  const titles = { dashboard: 'Dashboard', connections: 'Connections', backups: 'Backups', schedules: 'Schedules', storage: 'Storage', notifications: 'Notifications', settings: 'Settings' };
   const titleEl = document.getElementById('page-title-breadcrumb');
   if (titleEl) titleEl.textContent = titles[page] || 'Dashboard';
 
@@ -289,6 +293,7 @@ function renderPage(page) {
     case 'backups': renderBackups(el); break;
     case 'schedules': renderSchedules(el); break;
     case 'storage': renderStorage(el); break;
+    case 'notifications': renderNotifications(el); break;
     case 'settings': renderSettings(el); break;
     default: el.innerHTML = '<div class="empty-state"><div class="empty-state-icon"><i data-lucide="file-x" size="24"></i></div><h3>Page not found</h3></div>'; lucide.createIcons();
   }
@@ -958,7 +963,7 @@ async function renderStorage(el) {
       tbody.innerHTML = '<tr><td colspan="7"><div class="empty-state"><p>No storage providers configured</p></div></td></tr>';
     } else {
       tbody.innerHTML = provs.map(p => {
-        const typeClass = p.provider_type === 's3' ? 'icon-s3' : p.provider_type === 'r2' ? 'icon-r2' : 'icon-s3';
+        const typeClass = p.provider_type === 's3' ? 'icon-s3' : p.provider_type === 'r2' ? 'icon-r2' : p.provider_type === 'minio' ? 'icon-minio' : p.provider_type === 'gcs' ? 'icon-gcs' : p.provider_type === 'b2' ? 'icon-b2' : 'icon-s3';
         return `<tr>
           <td><strong style="color:var(--text-primary);">${escHtml(p.name)}</strong></td>
           <td><div class="config-item-icon ${typeClass}" style="width:28px;height:28px;font-size:10px;display:inline-flex;">${p.provider_type.toUpperCase()}</div></td>
@@ -994,6 +999,9 @@ function showAddStorageModal() {
           <option value="s3">AWS S3</option>
           <option value="r2">Cloudflare R2</option>
           <option value="minio">MinIO</option>
+          <option value="gcs">Google Cloud Storage</option>
+          <option value="b2">Backblaze B2</option>
+          <option value="s3-compat">S3-Compatible</option>
         </select>
       </div>
       <div class="form-group" style="flex:1">
@@ -1077,6 +1085,9 @@ async function showEditStorageModal(id) {
           <option value="s3" ${prov.provider_type === 's3' ? 'selected' : ''}>AWS S3</option>
           <option value="r2" ${prov.provider_type === 'r2' ? 'selected' : ''}>Cloudflare R2</option>
           <option value="minio" ${prov.provider_type === 'minio' ? 'selected' : ''}>MinIO</option>
+          <option value="gcs" ${prov.provider_type === 'gcs' ? 'selected' : ''}>Google Cloud Storage</option>
+          <option value="b2" ${prov.provider_type === 'b2' ? 'selected' : ''}>Backblaze B2</option>
+          <option value="s3-compat" ${prov.provider_type === 's3-compat' ? 'selected' : ''}>S3-Compatible</option>
         </select>
       </div>
       <div class="form-group" style="flex:1">
@@ -1290,6 +1301,269 @@ function cronHuman(expr) {
   if (parts[0] === '*/30' && parts[1] === '*' && parts[2] === '*' && parts[3] === '*' && parts[4] === '*')
     return 'Every 30 minutes';
   return expr;
+}
+
+// ══════════════════════════════════════
+// NOTIFICATIONS
+// ══════════════════════════════════════
+async function renderNotifications(el) {
+  el.innerHTML = `
+    <div class="page-header">
+      <h1>Notifications</h1>
+      <p>Configure Telegram, Discord, and Slack notification channels</p>
+    </div>
+    <div style="margin-bottom:var(--space-lg);">
+      <button class="btn btn-primary" onclick="showAddNotifModal()">+ Add Channel</button>
+    </div>
+    <div class="card">
+      <div class="table-container">
+        <table>
+          <thead><tr><th>Name</th><th>Type</th><th>Success</th><th>Failure</th><th>Status</th><th>Actions</th></tr></thead>
+          <tbody id="notif-table-body"></tbody>
+        </table>
+      </div>
+    </div>
+  `;
+
+  try {
+    const notifs = await API.get('/api/notifications');
+    const tbody = document.getElementById('notif-table-body');
+    if (notifs.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state"><p>No notification channels configured</p></div></td></tr>';
+    } else {
+      tbody.innerHTML = notifs.map(n => {
+        const typeIcons = { telegram: 'send', discord: 'message-circle', slack: 'message-square' };
+        const typeIcon = typeIcons[n.notif_type] || 'bell';
+        return `<tr>
+          <td><strong style="color:var(--text-primary);">${escHtml(n.name)}</strong></td>
+          <td><div class="config-item-icon" style="width:28px;height:28px;font-size:10px;display:inline-flex;"><i data-lucide="${typeIcon}" size="14"></i></div> ${n.notif_type.charAt(0).toUpperCase() + n.notif_type.slice(1)}</td>
+          <td>${n.notify_on_success ? '<span class="badge badge-success">Notify</span>' : '<span class="badge" style="background:var(--surface-3);color:var(--text-muted);">Silent</span>'}</td>
+          <td>${n.notify_on_failure ? '<span class="badge badge-warning">Notify</span>' : '<span class="badge" style="background:var(--surface-3);color:var(--text-muted);">Silent</span>'}</td>
+          <td>${n.enabled ? '<span class="badge badge-success">Active</span>' : '<span class="badge" style="background:var(--surface-3);color:var(--text-muted);">Disabled</span>'}</td>
+          <td>
+            <button class="btn btn-sm" onclick="testNotif('${n.id}')" title="Test"><i data-lucide="zap" size="13"></i></button>
+            <button class="btn btn-sm" onclick="showEditNotifModal('${n.id}')" title="Edit"><i data-lucide="pencil" size="13"></i></button>
+            <button class="btn btn-sm btn-danger" onclick="deleteNotif('${n.id}')" title="Delete"><i data-lucide="trash-2" size="13"></i></button>
+          </td>
+        </tr>`;
+      }).join('');
+    }
+  } catch (err) {
+    document.getElementById('notif-table-body').innerHTML = '<tr><td colspan="6" style="color:var(--error);padding:20px;">Error: ' + escHtml(err.message) + '</td></tr>';
+  }
+  lucide.createIcons();
+}
+
+function showAddNotifModal() {
+  showModal('Add Notification Channel', `
+    <div class="form-group">
+      <label class="form-label">Name</label>
+      <input class="form-input" id="modal-notif-name" placeholder="Production Alerts">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Type</label>
+      <select class="form-select" id="modal-notif-type" onchange="toggleNotifFields()">
+        <option value="telegram">Telegram</option>
+        <option value="discord">Discord</option>
+        <option value="slack">Slack</option>
+      </select>
+    </div>
+    <div id="notif-config-fields">
+      <div class="form-group" id="notif-field-bot-token">
+        <label class="form-label">Bot Token</label>
+        <input class="form-input" id="modal-notif-bot-token" placeholder="123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11" type="password">
+      </div>
+      <div class="form-group" id="notif-field-chat-id">
+        <label class="form-label">Chat ID</label>
+        <input class="form-input" id="modal-notif-chat-id" placeholder="-1001234567890">
+      </div>
+      <div class="form-group" id="notif-field-webhook" style="display:none;">
+        <label class="form-label">Webhook URL</label>
+        <input class="form-input" id="modal-notif-webhook" placeholder="https://hooks.example.com/...">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group" style="flex:1">
+        <label class="form-label">Notify on</label>
+        <label class="checkbox-label" style="margin-top:8px;">
+          <input type="checkbox" id="modal-notif-success" checked> Backup success
+        </label>
+        <label class="checkbox-label">
+          <input type="checkbox" id="modal-notif-failure" checked> Backup failure
+        </label>
+      </div>
+      <div class="form-group" style="flex:1;padding-top:22px">
+        <label class="checkbox-label">
+          <input type="checkbox" id="modal-notif-enabled" checked> Enabled
+        </label>
+      </div>
+    </div>
+  `, async () => {
+    const name = document.getElementById('modal-notif-name').value;
+    const type = document.getElementById('modal-notif-type').value;
+    const success = document.getElementById('modal-notif-success').checked;
+    const failure = document.getElementById('modal-notif-failure').checked;
+    const enabled = document.getElementById('modal-notif-enabled').checked;
+
+    let configJson = {};
+    if (type === 'telegram') {
+      const botToken = document.getElementById('modal-notif-bot-token').value;
+      const chatId = document.getElementById('modal-notif-chat-id').value;
+      if (!botToken || !chatId) { alert('Bot Token and Chat ID are required for Telegram'); return false; }
+      configJson = { bot_token: botToken, chat_id: chatId };
+    } else {
+      const webhook = document.getElementById('modal-notif-webhook').value;
+      if (!webhook) { alert('Webhook URL is required'); return false; }
+      configJson = { webhook_url: webhook };
+    }
+
+    if (!name) { alert('Name is required'); return false; }
+
+    try {
+      await API.post('/api/notifications', {
+        name, notif_type: type, config_json: JSON.stringify(configJson),
+        notify_on_success: success, notify_on_failure: failure, enabled
+      });
+      renderNotifications(document.getElementById('page-content'));
+    } catch (err) { alert('Error: ' + err.message); return false; }
+  });
+}
+
+function toggleNotifFields() {
+  const type = document.getElementById('modal-notif-type').value;
+  const tokenField = document.getElementById('notif-field-bot-token');
+  const chatField = document.getElementById('notif-field-chat-id');
+  const webhookField = document.getElementById('notif-field-webhook');
+
+  if (type === 'telegram') {
+    tokenField.style.display = '';
+    chatField.style.display = '';
+    webhookField.style.display = 'none';
+  } else {
+    tokenField.style.display = 'none';
+    chatField.style.display = 'none';
+    webhookField.style.display = '';
+  }
+}
+
+async function testNotif(id) {
+  let notif;
+  try {
+    notif = await API.get('/api/notifications/' + id);
+  } catch (err) { alert('Error loading notification: ' + err.message); return; }
+
+  const btn = event.target.closest('button');
+  const original = btn.innerHTML;
+  btn.innerHTML = '<i data-lucide="loader" size="13" class="loading-spinner"></i>';
+  btn.disabled = true;
+  lucide.createIcons();
+
+  try {
+    await API.post('/api/notifications/test', {
+      notif_type: notif.notif_type,
+      config_json: notif.config_json
+    });
+    alert('Test notification sent!');
+  } catch (err) {
+    alert('Test failed: ' + err.message);
+  }
+
+  btn.innerHTML = original;
+  btn.disabled = false;
+  lucide.createIcons();
+}
+
+async function showEditNotifModal(id) {
+  let notif;
+  try {
+    notif = await API.get('/api/notifications/' + id);
+  } catch (err) { alert('Error: ' + err.message); return; }
+
+  let configObj = {};
+  try { configObj = JSON.parse(notif.config_json); } catch(e) {}
+
+  const botToken = configObj.bot_token || '';
+  const chatId = configObj.chat_id || '';
+  const webhook = configObj.webhook_url || '';
+
+  showModal('Edit Notification Channel', `
+    <div class="form-group">
+      <label class="form-label">Name</label>
+      <input class="form-input" id="modal-notif-name" value="${escHtml(notif.name)}">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Type</label>
+      <select class="form-select" id="modal-notif-type" onchange="toggleNotifFields()" disabled>
+        <option value="telegram" ${notif.notif_type === 'telegram' ? 'selected' : ''}>Telegram</option>
+        <option value="discord" ${notif.notif_type === 'discord' ? 'selected' : ''}>Discord</option>
+        <option value="slack" ${notif.notif_type === 'slack' ? 'selected' : ''}>Slack</option>
+      </select>
+    </div>
+    <div id="notif-config-fields">
+      <div class="form-group" id="notif-field-bot-token" style="${notif.notif_type === 'telegram' ? '' : 'display:none;'}">
+        <label class="form-label">Bot Token</label>
+        <input class="form-input" id="modal-notif-bot-token" value="${escHtml(botToken)}" type="password" placeholder="Keep existing">
+      </div>
+      <div class="form-group" id="notif-field-chat-id" style="${notif.notif_type === 'telegram' ? '' : 'display:none;'}">
+        <label class="form-label">Chat ID</label>
+        <input class="form-input" id="modal-notif-chat-id" value="${escHtml(chatId)}">
+      </div>
+      <div class="form-group" id="notif-field-webhook" style="${notif.notif_type !== 'telegram' ? '' : 'display:none;'}">
+        <label class="form-label">Webhook URL</label>
+        <input class="form-input" id="modal-notif-webhook" value="${escHtml(webhook)}" placeholder="Keep existing">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group" style="flex:1">
+        <label class="form-label">Notify on</label>
+        <label class="checkbox-label" style="margin-top:8px;">
+          <input type="checkbox" id="modal-notif-success" ${notif.notify_on_success ? 'checked' : ''}> Backup success
+        </label>
+        <label class="checkbox-label">
+          <input type="checkbox" id="modal-notif-failure" ${notif.notify_on_failure ? 'checked' : ''}> Backup failure
+        </label>
+      </div>
+      <div class="form-group" style="flex:1;padding-top:22px">
+        <label class="checkbox-label">
+          <input type="checkbox" id="modal-notif-enabled" ${notif.enabled ? 'checked' : ''}> Enabled
+        </label>
+      </div>
+    </div>
+  `, async () => {
+    const name = document.getElementById('modal-notif-name').value;
+    const type = document.getElementById('modal-notif-type').value;
+    const success = document.getElementById('modal-notif-success').checked;
+    const failure = document.getElementById('modal-notif-failure').checked;
+    const enabled = document.getElementById('modal-notif-enabled').checked;
+
+    let configJson = {};
+    if (type === 'telegram') {
+      const botToken = document.getElementById('modal-notif-bot-token').value || configObj.bot_token;
+      const chatId = document.getElementById('modal-notif-chat-id').value || configObj.chat_id;
+      configJson = { bot_token: botToken, chat_id: chatId };
+    } else {
+      const webhook = document.getElementById('modal-notif-webhook').value || configObj.webhook_url;
+      configJson = { webhook_url: webhook };
+    }
+
+    if (!name) { alert('Name is required'); return false; }
+
+    try {
+      await API.put('/api/notifications/' + id, {
+        name, notif_type: type, config_json: JSON.stringify(configJson),
+        notify_on_success: success, notify_on_failure: failure, enabled
+      });
+      renderNotifications(document.getElementById('page-content'));
+    } catch (err) { alert('Error: ' + err.message); return false; }
+  });
+}
+
+async function deleteNotif(id) {
+  if (!confirm('Delete this notification channel?')) return;
+  try {
+    await API.del('/api/notifications/' + id);
+    renderNotifications(document.getElementById('page-content'));
+  } catch (err) { alert('Error: ' + err.message); }
 }
 
 function setTheme(theme) {

@@ -19,6 +19,7 @@ import (
 	"github.com/edsuwarna/backupeer/internal/config"
 	connsvc "github.com/edsuwarna/backupeer/internal/connection"
 	"github.com/edsuwarna/backupeer/internal/encryption"
+	notifsvc "github.com/edsuwarna/backupeer/internal/notification"
 	"github.com/edsuwarna/backupeer/internal/repository"
 	restsvc "github.com/edsuwarna/backupeer/internal/restore"
 	schsvc "github.com/edsuwarna/backupeer/internal/schedule"
@@ -101,6 +102,14 @@ func main() {
 	// Initialize storage provider handler
 	storageProvHandler := storage.NewProviderHandler(provSvc)
 
+	// Initialize notification service
+	notifRepo := repository.NewNotificationRepo(db)
+	notifSvc := notifsvc.NewService(notifRepo)
+	notifHandler := notifsvc.NewHandler(notifSvc)
+
+	// Wire notifications into backup service
+	backupSvc.SetNotifier(notifSvc)
+
 	// Initialize handlers
 	connHandler := connsvc.NewHandler(connSvc)
 	backupHandler := backupsvc.NewHandler(backupSvc)
@@ -111,7 +120,7 @@ func main() {
 	authSvc := auth.NewService(cfg.AdminUser, cfg.AdminPass, cfg.SecretKey)
 
 	// Build api router (protected routes)
-	apiRouter := api.NewRouter(connHandler, backupHandler, scheduleHandler, restoreHandler, storageProvHandler)
+	apiRouter := api.NewRouter(connHandler, backupHandler, scheduleHandler, restoreHandler, storageProvHandler, notifHandler)
 	protected := authSvc.Middleware(apiRouter.Handler())
 
 	// Top-level mux

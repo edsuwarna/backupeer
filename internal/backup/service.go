@@ -23,12 +23,18 @@ type ProviderService interface {
 	CreateS3ClientFromProvider(p *storage.Provider) (*storage.S3Client, error)
 }
 
+// Notifier interface for sending notifications after backup.
+type Notifier interface {
+	NotifyBackupResult(backupID, dbName, dbType, status string, sizeBytes int64, durationMs int64, logTail string)
+}
+
 // Service handles backup execution and management.
 type Service struct {
 	repo       Repository
 	connRepo   connection.Repository
 	provSvc    ProviderService
 	encSvc     encryption.Service
+	notifier   Notifier
 	semaphore  chan struct{} // concurrent backup limiter (max 3)
 }
 
@@ -45,6 +51,11 @@ func NewService(repo Repository, connRepo connection.Repository, provSvc Provide
 // SetEncryptionService sets the optional encryption service.
 func (s *Service) SetEncryptionService(encSvc encryption.Service) {
 	s.encSvc = encSvc
+}
+
+// SetNotifier sets the optional notification service.
+func (s *Service) SetNotifier(n Notifier) {
+	s.notifier = n
 }
 
 // StartBackup initiates a backup operation for the given database.
@@ -187,6 +198,16 @@ func (s *Service) runBackup(b *Backup, conn *connection.Connection, db *connecti
 	if err := s.repo.Update(b); err != nil {
 		fmt.Printf("ERROR updating backup %s: %v\n", b.ID, err)
 	}
+
+	// Notify success
+	if s.notifier != nil {
+		dbName := ""
+		if db != nil {
+			dbName = db.DBName
+		}
+		s.notifier.NotifyBackupResult(b.ID, dbName, conn.DBType, "success",
+			int64PtrToInt64(b.SizeBytes), int64PtrToInt64(b.DurationMs), b.LogOutput)
+	}
 }
 
 // resolveProvider finds the storage provider to use for this backup.
@@ -290,6 +311,26 @@ func (s *Service) failBackup(b *Backup, logOutput string) {
 	b.LogOutput = logOutput
 	if err := s.repo.Update(b); err != nil {
 		fmt.Printf("ERROR updating failed backup %s: %v\n", b.ID, err)
+	}
+
+	// Notify failure
+	if s.notifier != nil {
+		dbName := ""
+		connDBType := ""
+		if b.ConnectionID != "" {
+			conn, err := s.connRepo.GetByID(b.ConnectionID)
+			if err == nil && conn != nil {
+				connDBType = conn.DBType
+			}
+		}
+		if b.DatabaseID != "" {
+			db, err := s.connRepo.GetDatabase(b.DatabaseID)
+			if err == nil && db != nil {
+				dbName = db.DBName
+			}
+		}
+		s.notifier.NotifyBackupResult(b.ID, dbName, connDBType, "failed",
+			int64PtrToInt64(b.SizeBytes), int64PtrToInt64(b.DurationMs), logOutput)
 	}
 }
 
@@ -560,4 +601,11 @@ func compressData(data []byte) []byte {
 
 func ptr(v int64) *int64 {
 	return &v
+}
+
+func int64PtrToInt64(p *int64) int64 {
+	if p == nil {
+		return 0
+	}
+	return *p
 }

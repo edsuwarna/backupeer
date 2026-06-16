@@ -54,7 +54,7 @@ func migrate(db *sql.DB) error {
 	CREATE TABLE IF NOT EXISTS storage_providers (
 		id                  TEXT PRIMARY KEY,
 		name                TEXT NOT NULL,
-		provider_type       TEXT NOT NULL DEFAULT 's3' CHECK(provider_type IN ('s3', 'r2', 'minio')),
+		provider_type       TEXT NOT NULL DEFAULT 's3' CHECK(provider_type IN ('s3', 'r2', 'minio', 'gcs', 'b2', 's3-compat')),
 		endpoint            TEXT NOT NULL,
 		region              TEXT DEFAULT 'auto',
 		bucket              TEXT NOT NULL,
@@ -135,5 +135,82 @@ func migrate(db *sql.DB) error {
 	`
 
 	_, err := db.Exec(schema)
-	return err
+	if err != nil {
+		return err
+	}
+
+	// Migration version tracking
+	_, _ = db.Exec(`CREATE TABLE IF NOT EXISTS _migrations (version INTEGER PRIMARY KEY, applied_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)`)
+
+	applied := func(v int) bool {
+		var count int
+		_ = db.QueryRow(`SELECT COUNT(*) FROM _migrations WHERE version = ?`, v).Scan(&count)
+		return count > 0
+	}
+
+	markApplied := func(v int) error {
+		_, err := db.Exec(`INSERT OR IGNORE INTO _migrations (version) VALUES (?)`, v)
+		return err
+	}
+
+	// Migration 1: update storage_providers CHECK constraint for new types (gcs, b2, s3-compat)
+	if !applied(1) {
+		// SQLite doesn't support ALTER TABLE for CHECK constraints, so we recreate.
+		_, err = db.Exec(`PRAGMA foreign_keys=OFF`)
+		if err != nil {
+			return err
+		}
+
+		_, err = db.Exec(`CREATE TABLE IF NOT EXISTS storage_providers_v2 (
+			id                  TEXT PRIMARY KEY,
+			name                TEXT NOT NULL,
+			provider_type       TEXT NOT NULL DEFAULT 's3' CHECK(provider_type IN ('s3', 'r2', 'minio', 'gcs', 'b2', 's3-compat')),
+			endpoint            TEXT NOT NULL,
+			region              TEXT DEFAULT 'auto',
+			bucket              TEXT NOT NULL,
+			access_key_encrypted BLOB NOT NULL,
+			secret_key_encrypted BLOB NOT NULL,
+			path_style          INTEGER DEFAULT 1,
+			is_default          INTEGER DEFAULT 0,
+			created_at          TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+			updated_at          TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+		)`)
+		if err != nil {
+			return fmt.Errorf("migrate-1: create v2: %w", err)
+		}
+
+		_, _ = db.Exec(`INSERT OR IGNORE INTO storage_providers_v2 SELECT * FROM storage_providers`)
+		_, _ = db.Exec(`DROP TABLE IF EXISTS storage_providers_old`)
+		_, _ = db.Exec(`ALTER TABLE storage_providers RENAME TO storage_providers_old`)
+		_, _ = db.Exec(`ALTER TABLE storage_providers_v2 RENAME TO storage_providers`)
+		_, _ = db.Exec(`DROP TABLE IF EXISTS storage_providers_old`)
+		_, _ = db.Exec(`PRAGMA foreign_keys=ON`)
+
+		if err := markApplied(1); err != nil {
+			return fmt.Errorf("migrate-1: mark applied: %w", err)
+		}
+	}
+
+	// Migration 2: create notifications table
+	if !applied(2) {
+		_, err = db.Exec(`CREATE TABLE IF NOT EXISTS notifications (
+			id              TEXT PRIMARY KEY,
+			name            TEXT NOT NULL,
+			notif_type      TEXT NOT NULL CHECK(notif_type IN ('telegram', 'discord', 'slack')),
+			config_json     TEXT NOT NULL,
+			notify_on_success INTEGER DEFAULT 1,
+			notify_on_failure INTEGER DEFAULT 1,
+			enabled         INTEGER DEFAULT 1,
+			created_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+			updated_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+		)`)
+		if err != nil {
+			return fmt.Errorf("migrate-2: create notifications: %w", err)
+		}
+		if err := markApplied(2); err != nil {
+			return fmt.Errorf("migrate-2: mark applied: %w", err)
+		}
+	}
+
+	return nil
 }

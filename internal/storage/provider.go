@@ -5,16 +5,19 @@ import "time"
 
 // ProviderType enum for S3-compatible providers.
 const (
-	ProviderS3    = "s3"
-	ProviderR2    = "r2"
-	ProviderMinIO = "minio"
+	ProviderS3       = "s3"
+	ProviderR2       = "r2"
+	ProviderMinIO    = "minio"
+	ProviderGCS      = "gcs"
+	ProviderB2       = "b2"
+	ProviderS3Compat = "s3-compat"
 )
 
 // Provider represents a storage provider configuration (S3/R2/MinIO).
 type Provider struct {
 	ID              string    `json:"id"`
 	Name            string    `json:"name"`
-	ProviderType    string    `json:"provider_type"` // s3, r2, minio
+	ProviderType    string    `json:"provider_type"` // s3, r2, minio, gcs, b2, s3-compat
 	Endpoint        string    `json:"endpoint"`
 	Region          string    `json:"region"`
 	Bucket          string    `json:"bucket"`
