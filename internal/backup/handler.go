@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/edsuwarna/backupeer/internal/httputil"
+	"github.com/edsuwarna/jagad/internal/httputil"
 )
 
 type Handler struct {

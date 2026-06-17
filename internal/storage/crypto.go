@@ -19,7 +19,7 @@ type CredentialEncryptor struct {
 func NewCredentialEncryptor(masterKey string) *CredentialEncryptor {
 	k := masterKey
 	if k == "" {
-		k = "backupeer-default-credential-key"
+		k = "jagad-default-credential-key"
 	}
 	hash := sha256.Sum256([]byte(k))
 	return &CredentialEncryptor{key: hash[:]}

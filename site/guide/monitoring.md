@@ -5,11 +5,11 @@ description: 'Web UI dashboard, health checks, backup logs, Prometheus metrics, 
 
 # Monitoring
 
-Backupeer provides several ways to monitor backup operations, system health, and receive alerts. From the built-in Web UI dashboard to API-based health checks and multi-channel notifications.
+Jagad provides several ways to monitor backup operations, system health, and receive alerts. From the built-in Web UI dashboard to API-based health checks and multi-channel notifications.
 
 ## Web UI Dashboard
 
-The Backupeer Web UI features a Stripe-inspired dashboard with real-time monitoring capabilities.
+The Jagad Web UI features a Stripe-inspired dashboard with real-time monitoring capabilities.
 
 ### Dashboard Sections
 
@@ -37,7 +37,7 @@ The Backupeer Web UI features a Stripe-inspired dashboard with real-time monitor
 
 ### Accessing the Dashboard
 
-The Web UI is served automatically when the Backupeer server is running:
+The Web UI is served automatically when the Jagad server is running:
 
 ```
 http://localhost:8080/
@@ -47,7 +47,7 @@ Login with your admin credentials (default: `admin` / `admin123`).
 
 ## Health Check
 
-Backupeer exposes a health check endpoint that provides system status in JSON format.
+Jagad exposes a health check endpoint that provides system status in JSON format.
 
 ```
 GET /api/health
@@ -69,7 +69,7 @@ GET /api/health
 | Field | Type | Description |
 |-------|------|-------------|
 | `status` | string | `"ok"` if the server is running |
-| `version` | string | Build version of Backupeer |
+| `version` | string | Build version of Jagad |
 | `encryption` | boolean | Whether data encryption is enabled |
 | `providers` | boolean | Whether storage providers are configured via UI |
 | `legacy_storage` | boolean | Whether legacy env-based storage is configured |
@@ -83,7 +83,7 @@ You can use the health endpoint with external monitoring services like **UptimeR
 curl http://localhost:8080/api/health
 
 # Use with exit code for shell scripts
-curl --fail http://localhost:8080/api/health && echo "Backupeer is healthy"
+curl --fail http://localhost:8080/api/health && echo "Jagad is healthy"
 ```
 
 ## Backup Logs
@@ -124,17 +124,17 @@ curl -H "Authorization: <session-token>" \
 
 ### Log Level
 
-Backupeer uses structured JSON logging via `slog` (Go's structured logging package). Logs are written to stdout and include:
+Jagad uses structured JSON logging via `slog` (Go's structured logging package). Logs are written to stdout and include:
 
 ```
-time=2025-01-01T02:00:00.000Z level=INFO msg="starting backupeer" version=dev
+time=2025-01-01T02:00:00.000Z level=INFO msg="starting jagad" version=dev
 time=2025-01-01T02:00:00.100Z level=INFO msg="encryption enabled (AES-256-GCM)"
 time=2025-01-01T02:00:01.000Z level=INFO msg="scheduler started" active=3
 ```
 
 ## Prometheus Metrics
 
-Backupeer can be integrated with the Prometheus monitoring ecosystem via the **aggregate stats API** endpoint.
+Jagad can be integrated with the Prometheus monitoring ecosystem via the **aggregate stats API** endpoint.
 
 ```
 GET /api/backups/stats
@@ -165,7 +165,7 @@ Example Prometheus `scrape_config`:
 
 ```yaml
 scrape_configs:
-  - job_name: 'backupeer'
+  - job_name: 'jagad'
     metrics_path: '/api/backups/stats'
     static_configs:
       - targets: ['localhost:8080']
@@ -175,7 +175,7 @@ scrape_configs:
 
 ## Alert Thresholds
 
-Backupeer sends real-time alerts through configurable notification channels. Alerts are triggered based on backup results, not raw metrics.
+Jagad sends real-time alerts through configurable notification channels. Alerts are triggered based on backup results, not raw metrics.
 
 ### Alert Triggers
 
@@ -192,7 +192,7 @@ Configure a Telegram bot to receive backup alerts:
 
 1. Create a bot via [@BotFather](https://t.me/botfather) and get the bot token
 2. Get your chat ID (send a message to the bot, visit `https://api.telegram.org/bot<TOKEN>/getUpdates`)
-3. Configure in Backupeer:
+3. Configure in Jagad:
 ```json
 {
   "bot_token": "123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11",
@@ -205,7 +205,7 @@ Set up a Discord webhook:
 
 1. Go to Server Settings → Integrations → Webhooks
 2. Create a webhook and copy the URL
-3. Configure in Backupeer:
+3. Configure in Jagad:
 ```json
 {
   "webhook_url": "https://discord.com/api/webhooks/123456/ABC-DEF-123"
@@ -217,7 +217,7 @@ Set up a Slack webhook:
 
 1. Go to Slack API → Incoming Webhooks
 2. Create a webhook and copy the URL
-3. Configure in Backupeer:
+3. Configure in Jagad:
 ```json
 {
   "webhook_url": "https://hooks.slack.com/services/T00/B00/XXXX"

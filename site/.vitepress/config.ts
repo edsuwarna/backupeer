@@ -1,7 +1,7 @@
 import { defineConfig } from 'vitepress'
 
 export default defineConfig({
-  title: 'Backupeer',
+  title: 'Jagad',
   description: 'Open-source database backup tool — PostgreSQL, MySQL & MariaDB with S3/R2 storage',
   lang: 'en-US',
 
@@ -13,7 +13,7 @@ export default defineConfig({
     ['link', { rel: 'stylesheet', href: 'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap' }],
     ['link', { rel: 'icon', href: '/favicon.png', type: 'image/png' }],
     ['meta', { name: 'theme-color', content: '#5E6AD2' }],
-    ['meta', { property: 'og:title', content: 'Backupeer — Database Backup Tool' }],
+    ['meta', { property: 'og:title', content: 'Jagad — Database Backup Tool' }],
     ['meta', { property: 'og:description', content: 'Open-source database backup tool with streaming pipeline, incremental backup, and S3/R2 storage support.' }],
   ],
 
@@ -27,7 +27,7 @@ export default defineConfig({
       { text: 'Guide', link: '/guide/getting-started' },
       { text: 'Architecture', link: '/architecture/overview' },
       { text: 'Reference', link: '/reference/cli' },
-      { text: 'GitHub', link: 'https://github.com/edsuwarna/backupeer' },
+      { text: 'GitHub', link: 'https://github.com/edsuwarna/jagad' },
     ],
 
     sidebar: {
@@ -87,7 +87,7 @@ export default defineConfig({
     },
 
     socialLinks: [
-      { icon: 'github', link: 'https://github.com/edsuwarna/backupeer' },
+      { icon: 'github', link: 'https://github.com/edsuwarna/jagad' },
     ],
 
     footer: {
@@ -96,7 +96,7 @@ export default defineConfig({
     },
 
     editLink: {
-      pattern: 'https://github.com/edsuwarna/backupeer/edit/main/site/:path',
+      pattern: 'https://github.com/edsuwarna/jagad/edit/main/site/:path',
     },
 
     search: {

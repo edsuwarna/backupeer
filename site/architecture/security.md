@@ -4,7 +4,7 @@ title: 'Security Model'
 
 # Security Model
 
-Backupeer is designed with a defense-in-depth approach to security, protecting backup data at every stage: at rest in the local database, in transit over the network, and at rest in S3-compatible object storage.
+Jagad is designed with a defense-in-depth approach to security, protecting backup data at every stage: at rest in the local database, in transit over the network, and at rest in S3-compatible object storage.
 
 ---
 
@@ -58,7 +58,7 @@ Backup data is encrypted **client-side** before being uploaded to S3. The encryp
 
 #### Key Derivation
 
-The master encryption key is provided via the `BACKUPEER_ENCRYPTION_KEY` environment variable. Before each backup stream, a **random salt** is generated, and Argon2id derives the actual encryption key:
+The master encryption key is provided via the `JAGAD_ENCRYPTION_KEY` environment variable. Before each backup stream, a **random salt** is generated, and Argon2id derives the actual encryption key:
 
 ```go
 func (a *aesgcm) deriveKey(salt []byte) []byte {
@@ -79,7 +79,7 @@ func (a *aesgcm) deriveKey(salt []byte) []byte {
 This means:
 - Each backup stream uses a **unique derived key** from the same master key
 - Compromising one backup does not compromise others (different salt → different key)
-- The master key never leaves the Backupeer process
+- The master key never leaves the Jagad process
 
 #### Stream Encryption Format
 
@@ -113,14 +113,14 @@ func (e *CredentialEncryptor) Encrypt(plaintext []byte) ([]byte, error) {
 ```
 
 **Key management:**
-- The credential encryption key is derived from `BACKUPEER_MASTER_KEY` (SHA-256)
-- If no master key is set, a default fallback is used (`"backupeer-default-credential-key"`)
-- **Recommendation:** Always set `BACKUPEER_MASTER_KEY` in production to a strong, unique secret
+- The credential encryption key is derived from `JAGAD_MASTER_KEY` (SHA-256)
+- If no master key is set, a default fallback is used (`"jagad-default-credential-key"`)
+- **Recommendation:** Always set `JAGAD_MASTER_KEY` in production to a strong, unique secret
 - Credentials are decrypted only when needed (before S3 operations)
 
 ### Checksum Verification
 
-Backupeer computes a **SHA-256 checksum** of the compressed backup data (before encryption) during the streaming upload. This checksum is stored in the SQLite database alongside the backup record and can be verified on restore:
+Jagad computes a **SHA-256 checksum** of the compressed backup data (before encryption) during the streaming upload. This checksum is stored in the SQLite database alongside the backup record and can be verified on restore:
 
 ```go
 hashWriter := sha256.New()
@@ -162,7 +162,7 @@ client, err := minio.New(cfg.Endpoint, &minio.Options{
 ```
 
 The `Secure: true` setting ensures TLS for all S3 API calls. This protects:
-- Backup data in transit between Backupeer and S3
+- Backup data in transit between Jagad and S3
 - Access key and secret key during authentication
 - Integrity verification via TLS MAC
 
@@ -181,7 +181,7 @@ Database connections are established using the native client tools (`pg_dump`, `
 
 ### Session-Based Authentication
 
-Backupeer uses a simple session-based auth system:
+Jagad uses a simple session-based auth system:
 
 ```go
 type Service struct {
@@ -253,12 +253,12 @@ All sensitive configuration is passed via environment variables, never written t
 
 | Variable | Sensitivity | Description |
 |---|---|---|
-| `BACKUPEER_ADMIN_PASS` | High | Admin password |
-| `BACKUPEER_SECRET_KEY` | High | Session signing secret |
-| `BACKUPEER_ENCRYPTION_KEY` | Critical | Master key for backup encryption |
-| `BACKUPEER_MASTER_KEY` | Critical | Master key for credential encryption |
-| `BACKUPEER_S3_ACCESS_KEY` | High | S3 access key |
-| `BACKUPEER_S3_SECRET_KEY` | Critical | S3 secret key |
+| `JAGAD_ADMIN_PASS` | High | Admin password |
+| `JAGAD_SECRET_KEY` | High | Session signing secret |
+| `JAGAD_ENCRYPTION_KEY` | Critical | Master key for backup encryption |
+| `JAGAD_MASTER_KEY` | Critical | Master key for credential encryption |
+| `JAGAD_S3_ACCESS_KEY` | High | S3 access key |
+| `JAGAD_S3_SECRET_KEY` | Critical | S3 secret key |
 
 ### Docker Secrets
 
@@ -269,8 +269,8 @@ When using Docker Compose, pass sensitive values via environment files or Docker
 services:
   backend:
     environment:
-      - BACKUPEER_ENCRYPTION_KEY=${BACKUPEER_ENCRYPTION_KEY}
-      - BACKUPEER_MASTER_KEY=${BACKUPEER_MASTER_KEY}
+      - JAGAD_ENCRYPTION_KEY=${JAGAD_ENCRYPTION_KEY}
+      - JAGAD_MASTER_KEY=${JAGAD_MASTER_KEY}
     secrets:
       - admin_pass
       - s3_secret_key
@@ -278,14 +278,14 @@ services:
 
 ### SQLite Database Protection
 
-The SQLite database file (`/data/backupeer.db`) contains:
+The SQLite database file (`/data/jagad.db`) contains:
 - Encrypted S3 credentials
 - Backup metadata with storage paths
 - Schedule configurations
 
 **Protection recommendations:**
 - Set file permissions to `0600` (owner read/write only)
-- Run Backupeer in a Docker container with restricted filesystem access
+- Run Jagad in a Docker container with restricted filesystem access
 - Consider filesystem-level encryption for the data directory
 - Back up the SQLite database itself regularly
 
@@ -297,28 +297,28 @@ The SQLite database file (`/data/backupeer.db`) contains:
 
 ```sql
 -- Minimal permissions for pg_dump
-CREATE USER backupeer WITH PASSWORD 'strong_password';
-GRANT CONNECT ON DATABASE mydb TO backupeer;
-GRANT USAGE ON SCHEMA public TO backupeer;
-GRANT SELECT ON ALL TABLES IN SCHEMA public TO backupeer;
-ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT ON TABLES TO backupeer;
+CREATE USER jagad WITH PASSWORD 'strong_password';
+GRANT CONNECT ON DATABASE mydb TO jagad;
+GRANT USAGE ON SCHEMA public TO jagad;
+GRANT SELECT ON ALL TABLES IN SCHEMA public TO jagad;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT ON TABLES TO jagad;
 
 -- For pgBackRest (incremental), additional privileges needed:
-GRANT EXECUTE ON FUNCTION pg_start_backup(text, boolean) TO backupeer;
-GRANT EXECUTE ON FUNCTION pg_stop_backup() TO backupeer;
+GRANT EXECUTE ON FUNCTION pg_start_backup(text, boolean) TO jagad;
+GRANT EXECUTE ON FUNCTION pg_stop_backup() TO jagad;
 ```
 
 ### MySQL/MariaDB User
 
 ```sql
 -- Minimal permissions for mysqldump
-CREATE USER 'backupeer'@'%' IDENTIFIED BY 'strong_password';
-GRANT SELECT, LOCK TABLES, SHOW VIEW, TRIGGER ON mydb.* TO 'backupeer'@'%';
-GRANT PROCESS, REPLICATION CLIENT ON *.* TO 'backupeer'@'%';
+CREATE USER 'jagad'@'%' IDENTIFIED BY 'strong_password';
+GRANT SELECT, LOCK TABLES, SHOW VIEW, TRIGGER ON mydb.* TO 'jagad'@'%';
+GRANT PROCESS, REPLICATION CLIENT ON *.* TO 'jagad'@'%';
 
 -- For XtraBackup/Mariabackup (incremental), additional privileges:
 -- RELOAD is needed for FLUSH TABLES WITH READ LOCK
-GRANT RELOAD ON *.* TO 'backupeer'@'%';
+GRANT RELOAD ON *.* TO 'jagad'@'%';
 ```
 
 ### S3 IAM Policy
@@ -350,7 +350,7 @@ GRANT RELOAD ON *.* TO 'backupeer'@'%';
 
 ## Audit Logging
 
-Backupeer records all backup and restore operations with timestamps, status, and error details in the SQLite database. Each record includes:
+Jagad records all backup and restore operations with timestamps, status, and error details in the SQLite database. Each record includes:
 
 | Field | Description |
 |---|---|

@@ -4,7 +4,7 @@ package schedule
 import (
 	"fmt"
 
-	"github.com/edsuwarna/backupeer/internal/connection"
+	"github.com/edsuwarna/jagad/internal/connection"
 )
 
 // Service handles backup schedule CRUD and cron engine integration.

@@ -6,8 +6,8 @@ build/
 *.dll
 *.so
 *.dylib
-backupeer
-backupeer-*
+/jagad
+/jagad-*
 
 # Data
 data/

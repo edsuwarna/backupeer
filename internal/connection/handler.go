@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/edsuwarna/backupeer/internal/httputil"
+	"github.com/edsuwarna/jagad/internal/httputil"
 )
 
 // Handler serves HTTP endpoints for connection management.

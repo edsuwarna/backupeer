@@ -5,11 +5,11 @@ description: 'Full YAML schema, all fields with types, default values, and examp
 
 # Configuration File Reference
 
-Backupeer is primarily configured via **environment variables** or **command-line flags** at server startup. The Web UI also maintains application settings stored in the SQLite database. This reference documents both the startup configuration and the Web UI configurable settings.
+Jagad is primarily configured via **environment variables** or **command-line flags** at server startup. The Web UI also maintains application settings stored in the SQLite database. This reference documents both the startup configuration and the Web UI configurable settings.
 
 ## Startup Configuration
 
-Backupeer reads configuration at startup from environment variables or CLI flags (CLI flags take precedence). There is no YAML/JSON configuration file for the binary itself; instead, settings are configured via environment variables with the `BACKUPEER_` prefix.
+Jagad reads configuration at startup from environment variables or CLI flags (CLI flags take precedence). There is no YAML/JSON configuration file for the binary itself; instead, settings are configured via environment variables with the `JAGAD_` prefix.
 
 ### Environment Variables Reference
 
@@ -17,19 +17,19 @@ Backupeer reads configuration at startup from environment variables or CLI flags
 
 | Variable | Type | Default | Description |
 |----------|------|---------|-------------|
-| `BACKUPEER_PORT` | string | `"8080"` | HTTP server listen port |
-| `BACKUPEER_DATA_DIR` | string | `"/data"` | Directory for SQLite database and runtime data |
-| `BACKUPEER_ADMIN_USER` | string | `"admin"` | Web UI admin username for login |
-| `BACKUPEER_ADMIN_PASS` | string | `"admin123"` | Web UI admin password (SHA-256 hashed at startup) |
-| `BACKUPEER_SECRET_KEY` | string | Auto-generated | Secret key for session token signing |
-| `BACKUPEER_MAX_CONCURRENT` | int | `3` | Maximum number of concurrent backup operations |
+| `JAGAD_PORT` | string | `"8080"` | HTTP server listen port |
+| `JAGAD_DATA_DIR` | string | `"/data"` | Directory for SQLite database and runtime data |
+| `JAGAD_ADMIN_USER` | string | `"admin"` | Web UI admin username for login |
+| `JAGAD_ADMIN_PASS` | string | `"admin123"` | Web UI admin password (SHA-256 hashed at startup) |
+| `JAGAD_SECRET_KEY` | string | Auto-generated | Secret key for session token signing |
+| `JAGAD_MAX_CONCURRENT` | int | `3` | Maximum number of concurrent backup operations |
 
 #### Encryption Settings
 
 | Variable | Type | Default | Description |
 |----------|------|---------|-------------|
-| `BACKUPEER_ENCRYPTION_KEY` | string | `""` (disabled) | Master key for AES-256-GCM backup data encryption. If set, all backups are encrypted on-the-fly. |
-| `BACKUPEER_MASTER_KEY` | string | `""` (fallback to default) | Master key for encrypting storage provider credentials at rest. If empty, a hardcoded default key is used. |
+| `JAGAD_ENCRYPTION_KEY` | string | `""` (disabled) | Master key for AES-256-GCM backup data encryption. If set, all backups are encrypted on-the-fly. |
+| `JAGAD_MASTER_KEY` | string | `""` (fallback to default) | Master key for encrypting storage provider credentials at rest. If empty, a hardcoded default key is used. |
 
 #### Legacy Storage Settings
 
@@ -37,19 +37,19 @@ These are provided for backward compatibility. In the current version, storage p
 
 | Variable | Type | Default | Description |
 |----------|------|---------|-------------|
-| `BACKUPEER_S3_ENDPOINT` | string | `""` | S3-compatible storage endpoint URL |
-| `BACKUPEER_S3_REGION` | string | `"auto"` | S3 region |
-| `BACKUPEER_S3_BUCKET` | string | `"backups"` | S3 bucket name |
-| `BACKUPEER_S3_ACCESS_KEY` | string | `""` | S3 access key |
-| `BACKUPEER_S3_SECRET_KEY` | string | `""` | S3 secret key |
-| `BACKUPEER_S3_PATH_STYLE` | bool | `true` | Use path-style S3 URL addressing (vs virtual-hosted) |
+| `JAGAD_S3_ENDPOINT` | string | `""` | S3-compatible storage endpoint URL |
+| `JAGAD_S3_REGION` | string | `"auto"` | S3 region |
+| `JAGAD_S3_BUCKET` | string | `"backups"` | S3 bucket name |
+| `JAGAD_S3_ACCESS_KEY` | string | `""` | S3 access key |
+| `JAGAD_S3_SECRET_KEY` | string | `""` | S3 secret key |
+| `JAGAD_S3_PATH_STYLE` | bool | `true` | Use path-style S3 URL addressing (vs virtual-hosted) |
 
 ### Example Configuration
 
 #### Minimal (defaults only)
 
 ```bash
-backupeer
+jagad
 ```
 
 Starts on port 8080 with SQLite at `/data`, admin credentials `admin`/`admin123`, no encryption, no storage.
@@ -57,23 +57,23 @@ Starts on port 8080 with SQLite at `/data`, admin credentials `admin`/`admin123`
 #### Production (with encryption and storage)
 
 ```bash
-export BACKUPEER_PORT=443
-export BACKUPEER_DATA_DIR=/var/lib/backupeer
-export BACKUPEER_ADMIN_USER=admin
-export BACKUPEER_ADMIN_PASS=$(cat /run/secrets/admin_pass)
-export BACKUPEER_SECRET_KEY=$(cat /run/secrets/session_secret)
-export BACKUPEER_ENCRYPTION_KEY=$(cat /run/secrets/encryption_key)
-export BACKUPEER_MASTER_KEY=$(cat /run/secrets/master_key)
-export BACKUPEER_MAX_CONCURRENT=5
-backupeer
+export JAGAD_PORT=443
+export JAGAD_DATA_DIR=/var/lib/jagad
+export JAGAD_ADMIN_USER=admin
+export JAGAD_ADMIN_PASS=$(cat /run/secrets/admin_pass)
+export JAGAD_SECRET_KEY=$(cat /run/secrets/session_secret)
+export JAGAD_ENCRYPTION_KEY=$(cat /run/secrets/encryption_key)
+export JAGAD_MASTER_KEY=$(cat /run/secrets/master_key)
+export JAGAD_MAX_CONCURRENT=5
+jagad
 ```
 
 #### Using CLI Flags
 
 ```bash
-backupeer \
+jagad \
   --port 443 \
-  --data-dir /var/lib/backupeer \
+  --data-dir /var/lib/jagad \
   --admin-user admin \
   --admin-pass "$(cat /run/secrets/admin_pass)" \
   --secret-key "$(cat /run/secrets/session_secret)" \
@@ -84,7 +84,7 @@ backupeer \
 
 ## Web UI Settings (Database-Stored)
 
-The Backupeer Web UI allows configuring application settings that are stored in the SQLite database and managed through the Settings API.
+The Jagad Web UI allows configuring application settings that are stored in the SQLite database and managed through the Settings API.
 
 ### Settings Schema
 
@@ -100,7 +100,7 @@ The Backupeer Web UI allows configuring application settings that are stored in 
 
 ## Domain Models (API/YAML Reference)
 
-For reference, here are the full schema definitions of major Backupeer domain objects.
+For reference, here are the full schema definitions of major Jagad domain objects.
 
 ### Connection
 
@@ -261,10 +261,10 @@ notification:
 
 ## Full Example Configuration (Conceptual YAML)
 
-This shows the equivalent YAML for documentation purposes — note that Backupeer does not currently parse this YAML format at startup. Use environment variables or the Web UI instead.
+This shows the equivalent YAML for documentation purposes — note that Jagad does not currently parse this YAML format at startup. Use environment variables or the Web UI instead.
 
 ```yaml
-# Backupeer Configuration (documentation reference only)
+# Jagad Configuration (documentation reference only)
 server:
   port: 8080
   data_dir: /data

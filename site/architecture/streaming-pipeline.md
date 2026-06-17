@@ -4,7 +4,7 @@ title: 'Streaming Pipeline'
 
 # Streaming Pipeline
 
-The streaming pipeline is the architectural centerpiece of Backupeer. It enables **unlimited database sizes** with **constant memory usage** by piping data directly from the database dump tool through compression, encryption, and upload to S3 — all without touching disk.
+The streaming pipeline is the architectural centerpiece of Jagad. It enables **unlimited database sizes** with **constant memory usage** by piping data directly from the database dump tool through compression, encryption, and upload to S3 — all without touching disk.
 
 This document provides a comprehensive deep dive into how the pipeline works, why it's designed this way, and the guarantees it provides.
 
@@ -39,7 +39,7 @@ aws s3 cp /tmp/backup.sql.gz.gpg s3://bucket/backups/
 
 ## The Solution: io.Pipe Streaming
 
-Backupeer replaces the entire disk-based pipeline with a chain of `io.Pipe` connections:
+Jagad replaces the entire disk-based pipeline with a chain of `io.Pipe` connections:
 
 ```
 pg_dump stdout ──▶ gzip ──▶ AES-256-GCM ──▶ S3 Multipart Upload
@@ -170,7 +170,7 @@ If S3 is slow, backpressure propagates all the way back to `pg_dump`, which simp
 
 A 1 TB database backed up via this pipeline:
 - **Memory:** ~64 KB (same as a 1 MB database)
-- **Disk:** 0 bytes written by Backupeer
+- **Disk:** 0 bytes written by Jagad
 - **Network:** ~1 TB of compressed data sent to S3 (compression ratio depends on data)
 - **Time:** Limited by dump speed, compression speed, and upload bandwidth — not by I/O
 
@@ -201,7 +201,7 @@ pg_dump ──▶ Pipe(32KB) ──▶ gzip ──▶ Pipe(32KB) ──▶ encry
 
 ## Encryption Framing for Streaming
 
-Standard AES-GCM is not directly usable for streaming because it requires the entire plaintext to produce the authentication tag. Backupeer uses a **chunked framing format** that makes each chunk independently decryptable.
+Standard AES-GCM is not directly usable for streaming because it requires the entire plaintext to produce the authentication tag. Jagad uses a **chunked framing format** that makes each chunk independently decryptable.
 
 ### Stream Format
 
@@ -297,7 +297,7 @@ func (r *decryptReader) Read(p []byte) (int, error) {
 
 ## Hash Verification During Upload
 
-Backupeer computes a **SHA-256 checksum of the compressed data** (before encryption) during the upload, using an `io.TeeReader` and `io.MultiWriter` pattern:
+Jagad computes a **SHA-256 checksum of the compressed data** (before encryption) during the upload, using an `io.TeeReader` and `io.MultiWriter` pattern:
 
 ### How It Works
 
@@ -500,7 +500,7 @@ GCM authentication will fail at the first decrypted frame boundary during restor
 
 ## Comparison: Streaming vs. Disk-Based
 
-| Aspect | Disk-Based (Traditional) | Streaming (Backupeer) |
+| Aspect | Disk-Based (Traditional) | Streaming (Jagad) |
 |---|---|---|
 | Disk space | 2x DB size (dump + compress) | **0 bytes** |
 | Peak memory | Unbounded (depends on tool) | **~64 KB** |

@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/edsuwarna/backupeer/internal/notification"
+	"github.com/edsuwarna/jagad/internal/notification"
 	"github.com/google/uuid"
 )
 

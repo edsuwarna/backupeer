@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/edsuwarna/backupeer/internal/httputil"
+	"github.com/edsuwarna/jagad/internal/httputil"
 )
 
 // ProviderHandler handles HTTP requests for storage provider management.

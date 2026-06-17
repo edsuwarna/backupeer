@@ -3,25 +3,25 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: backupeer-api
+    container_name: jagad-api
     restart: unless-stopped
     expose:
       - 8080
     volumes:
-      - backupeer_data:/data
+      - jagad_data:/data
     environment:
-      - BACKUPEER_PORT=8080
-      - BACKUPEER_DATA_DIR=/data
-      - BACKUPEER_ADMIN_USER=admin
-      - BACKUPEER_ADMIN_PASS=admin123
-      - BACKUPEER_SECRET_KEY=change-me-in-production
-      - BACKUPEER_ENCRYPTION_KEY=
-      - BACKUPEER_S3_ENDPOINT=
-      - BACKUPEER_S3_REGION=auto
-      - BACKUPEER_S3_BUCKET=backups
-      - BACKUPEER_S3_ACCESS_KEY=
-      - BACKUPEER_S3_SECRET_KEY=
-      - BACKUPEER_S3_PATH_STYLE=true
+      - JAGAD_PORT=8080
+      - JAGAD_DATA_DIR=/data
+      - JAGAD_ADMIN_USER=admin
+      - JAGAD_ADMIN_PASS=admin123
+      - JAGAD_SECRET_KEY=change-me-in-production
+      - JAGAD_ENCRYPTION_KEY=
+      - JAGAD_S3_ENDPOINT=
+      - JAGAD_S3_REGION=auto
+      - JAGAD_S3_BUCKET=backups
+      - JAGAD_S3_ACCESS_KEY=
+      - JAGAD_S3_SECRET_KEY=
+      - JAGAD_S3_PATH_STYLE=true
     healthcheck:
       test: ["CMD", "wget", "-qO-", "http://localhost:8080/api/health"]
       interval: 30s
@@ -33,7 +33,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.frontend
-    container_name: backupeer-ui
+    container_name: jagad-ui
     restart: unless-stopped
     ports:
       - "8085:80"
@@ -42,4 +42,4 @@ services:
         condition: service_started
 
 volumes:
-  backupeer_data:
+  jagad_data:

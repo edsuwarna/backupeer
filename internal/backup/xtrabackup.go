@@ -10,8 +10,8 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/edsuwarna/backupeer/internal/connection"
-	"github.com/edsuwarna/backupeer/internal/storage"
+	"github.com/edsuwarna/jagad/internal/connection"
+	"github.com/edsuwarna/jagad/internal/storage"
 )
 
 // XtraBackupEngine implements IncrementalEngine for MySQL using Percona XtraBackup.

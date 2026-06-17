@@ -1,0 +1,1760 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Backupeer — Monitoring Mockups</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --stripe-purple: #635BFF;
+    --stripe-purple-dark: #5850EC;
+    --stripe-purple-light: #7a73ff;
+    --gradient-btn: linear-gradient(135deg, #635BFF, #5850EC);
+    --bg-canvas: #0A2540;
+    --bg-surface: #0F2B47;
+    --bg-elevated: #1a3a5c;
+    --bg-sidebar: #0d2340;
+    --bg-sidebar-hover: rgba(255,255,255,0.06);
+    --bg-sidebar-active: rgba(99,91,255,0.15);
+    --bg-subtle: rgba(255,255,255,0.04);
+    --border-default: rgba(255,255,255,0.08);
+    --border-subtle: rgba(255,255,255,0.04);
+    --border-hover: rgba(255,255,255,0.15);
+    --text-primary: rgba(255,255,255,0.95);
+    --text-secondary: rgba(255,255,255,0.65);
+    --text-tertiary: rgba(255,255,255,0.4);
+    --text-quaternary: rgba(255,255,255,0.25);
+    --text-sidebar: rgba(255,255,255,0.45);
+    --text-sidebar-active: #635BFF;
+    --accent-green: #10b981;
+    --accent-green-light: #34d399;
+    --accent-red: #ef4444;
+    --accent-red-light: #f87171;
+    --accent-blue: #3b82f6;
+    --accent-amber: #f59e0b;
+    --radius-sm: 6px;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+    --radius-xl: 16px;
+    --radius-2xl: 20px;
+    --shadow-sm: 0 1px 2px rgba(0,0,0,0.3);
+    --shadow-md: 0 4px 12px rgba(0,0,0,0.35);
+    --shadow-lg: 0 8px 30px rgba(0,0,0,0.4);
+    --shadow-btn: 0 4px 14px rgba(99,91,255,0.5);
+    --font-ui: 'Inter', -apple-system, system-ui, sans-serif;
+    --font-mono: 'SF Mono', 'Monaco', 'Menlo', 'JetBrains Mono', monospace;
+    --sidebar-w: 240px;
+  }
+
+  body {
+    font-family: var(--font-ui);
+    background: var(--bg-canvas);
+    color: var(--text-primary);
+    -webkit-font-smoothing: antialiased;
+    line-height: 1.5;
+    overflow: hidden;
+    height: 100vh;
+  }
+
+  /* Layout */
+  .app-layout {
+    display: flex;
+    height: 100vh;
+  }
+
+  /* Sidebar */
+  .sidebar {
+    width: var(--sidebar-w);
+    background: var(--bg-sidebar);
+    border-right: 1px solid var(--border-default);
+    display: flex;
+    flex-direction: column;
+    padding: 20px 12px;
+    flex-shrink: 0;
+  }
+
+  .sidebar-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
+    margin-bottom: 28px;
+  }
+
+  .sidebar-logo {
+    width: 32px;
+    height: 32px;
+    background: var(--gradient-btn);
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 14px;
+    color: #fff;
+  }
+
+  .sidebar-brand-text {
+    font-size: 16px;
+    font-weight: 700;
+    background: linear-gradient(135deg, #c4b5fd, #818cf8);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .sidebar-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 1;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    border-radius: var(--radius-md);
+    color: var(--text-sidebar);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s;
+    text-decoration: none;
+  }
+
+  .nav-item:hover { background: var(--bg-sidebar-hover); color: var(--text-primary); }
+  .nav-item.active { background: var(--bg-sidebar-active); color: var(--text-sidebar-active); }
+
+  .nav-item svg { width: 18px; height: 18px; flex-shrink: 0; }
+
+  .nav-section-label {
+    padding: 16px 12px 6px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-quaternary);
+  }
+
+  /* Main Content */
+  .main-area {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  /* Top Bar */
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 32px;
+    border-bottom: 1px solid var(--border-default);
+    background: var(--bg-canvas);
+  }
+
+  .topbar-left { display: flex; align-items: center; gap: 16px; }
+  .topbar-title { font-size: 18px; font-weight: 600; }
+  .topbar-right { display: flex; align-items: center; gap: 12px; }
+
+  /* Variant tabs */
+  .variant-tabs {
+    display: flex;
+    gap: 4px;
+    background: var(--bg-surface);
+    padding: 4px;
+    border-radius: var(--radius-md);
+  }
+
+  .variant-tab {
+    padding: 6px 14px;
+    border-radius: var(--radius-sm);
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-tertiary);
+    cursor: pointer;
+    border: none;
+    background: none;
+    font-family: var(--font-ui);
+    transition: all 0.15s;
+  }
+
+  .variant-tab:hover { color: var(--text-primary); }
+  .variant-tab.active { background: var(--bg-elevated); color: var(--text-primary); }
+
+  /* Content area scrollable */
+  .content-area {
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px 32px 32px;
+  }
+
+  /* ======== ALL VARIANTS HIDDEN BY DEFAULT ======== */
+  .variant { display: none; }
+  .variant.active { display: block; }
+
+  /* ================================================ */
+  /* VARIANT A: GRID HEALTH                           */
+  /* ================================================ */
+  .kpi-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  .kpi-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-lg);
+    padding: 20px;
+  }
+
+  .kpi-label {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-tertiary);
+    margin-bottom: 6px;
+    letter-spacing: 0.02em;
+  }
+
+  .kpi-value {
+    font-size: 28px;
+    font-weight: 700;
+    line-height: 1.1;
+  }
+
+  .kpi-delta {
+    font-size: 12px;
+    margin-top: 6px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .kpi-delta.up { color: var(--accent-green); }
+  .kpi-delta.down { color: var(--accent-red); }
+
+  /* Health Grid */
+  .health-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+  }
+
+  .health-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-lg);
+    padding: 20px;
+    transition: border-color 0.15s;
+  }
+
+  .health-card:hover {
+    border-color: var(--border-hover);
+  }
+
+  .health-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+
+  .health-card-name {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    font-size: 14px;
+  }
+
+  .status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .status-dot.up { background: var(--accent-green); box-shadow: 0 0 6px var(--accent-green); }
+  .status-dot.down { background: var(--accent-red); box-shadow: 0 0 6px var(--accent-red); }
+  .status-dot.degraded { background: var(--accent-amber); box-shadow: 0 0 6px var(--accent-amber); }
+
+  .db-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 8px;
+    border-radius: var(--radius-full);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+  }
+
+  .db-badge.postgresql {
+    background: rgba(51,103,145,0.25);
+    color: #6db3d9;
+  }
+
+  .db-badge.mysql {
+    background: rgba(0,117,143,0.25);
+    color: #4db8d4;
+  }
+
+  .db-badge.mariadb {
+    background: rgba(24,137,180,0.25);
+    color: #5fc9e6;
+  }
+
+  .health-card-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .health-stat {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .health-stat-label {
+    font-size: 11px;
+    color: var(--text-tertiary);
+  }
+
+  .health-stat-value {
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  /* Mini sparkline chart */
+  .sparkline {
+    grid-column: 1 / -1;
+    height: 32px;
+    margin-top: 8px;
+    display: flex;
+    align-items: flex-end;
+    gap: 2px;
+  }
+
+  .sparkline-bar {
+    flex: 1;
+    border-radius: 2px 2px 0 0;
+    min-height: 4px;
+  }
+
+  .sparkline-bar.green { background: rgba(16,185,129,0.5); }
+  .sparkline-bar.yellow { background: rgba(245,158,11,0.5); }
+  .sparkline-bar.red { background: rgba(239,68,68,0.5); }
+
+  .health-card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border-subtle);
+    font-size: 11px;
+    color: var(--text-tertiary);
+  }
+
+  .health-card-actions {
+    display: flex;
+    gap: 8px;
+  }
+
+  .btn-icon {
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-default);
+    background: transparent;
+    color: var(--text-tertiary);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .btn-icon:hover { border-color: var(--border-hover); color: var(--text-primary); }
+  .btn-icon svg { width: 14px; height: 14px; }
+
+  /* ================================================ */
+  /* VARIANT B: ANALYTICS DASHBOARD                   */
+  /* ================================================ */
+  .analytics-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+
+  .analytics-full {
+    grid-column: 1 / -1;
+  }
+
+  .analytics-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+  }
+
+  .analytics-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border-subtle);
+  }
+
+  .analytics-card-title {
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  .analytics-card-action {
+    font-size: 12px;
+    color: var(--stripe-purple);
+    cursor: pointer;
+    font-weight: 500;
+  }
+
+  .analytics-card-body {
+    padding: 20px;
+  }
+
+  /* Simulated chart bars */
+  .chart-container {
+    height: 180px;
+    display: flex;
+    align-items: flex-end;
+    gap: 3px;
+    padding-top: 20px;
+  }
+
+  .chart-bar {
+    flex: 1;
+    border-radius: 3px 3px 0 0;
+    position: relative;
+    min-height: 4px;
+  }
+
+  .chart-bar.purple { background: linear-gradient(to top, #635BFF, #7a73ff); }
+  .chart-bar.green { background: linear-gradient(to top, #10b981, #34d399); }
+  .chart-bar.red { background: linear-gradient(to top, #ef4444, #f87171); }
+  .chart-bar.blue { background: linear-gradient(to top, #3b82f6, #60a5fa); }
+
+  .chart-x-label {
+    font-size: 10px;
+    color: var(--text-quaternary);
+    text-align: center;
+    margin-top: 8px;
+  }
+
+  .chart-y-label {
+    position: absolute;
+    top: -16px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 10px;
+    color: var(--text-tertiary);
+    font-weight: 600;
+    font-family: var(--font-mono);
+  }
+
+  /* Table in analytics */
+  .perf-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+
+  .perf-table th {
+    text-align: left;
+    padding: 10px 12px;
+    font-weight: 500;
+    color: var(--text-tertiary);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-bottom: 1px solid var(--border-subtle);
+  }
+
+  .perf-table td {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border-subtle);
+  }
+
+  .perf-table tr:last-child td { border-bottom: none; }
+
+  .query-text {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-secondary);
+    max-width: 300px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .metric-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 8px;
+    border-radius: var(--radius-full);
+    font-size: 11px;
+    font-weight: 600;
+  }
+
+  .metric-badge.good { background: rgba(16,185,129,0.15); color: var(--accent-green); }
+  .metric-badge.warn { background: rgba(245,158,11,0.15); color: var(--accent-amber); }
+  .metric-badge.bad { background: rgba(239,68,68,0.15); color: var(--accent-red); }
+
+  /* ================================================ */
+  /* VARIANT C: LIST VIEW                             */
+  /* ================================================ */
+  .list-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+
+  .list-filters {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .filter-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: var(--radius-full);
+    font-size: 12px;
+    font-weight: 500;
+    border: 1px solid var(--border-default);
+    background: transparent;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .filter-chip:hover { border-color: var(--border-hover); }
+  .filter-chip.active { background: var(--bg-sidebar-active); border-color: var(--stripe-purple); color: var(--stripe-purple); }
+
+  .list-table-wrap {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+  }
+
+  .list-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+
+  .list-table th {
+    text-align: left;
+    padding: 12px 16px;
+    font-weight: 500;
+    color: var(--text-tertiary);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-bottom: 1px solid var(--border-default);
+    background: var(--bg-subtle);
+    white-space: nowrap;
+  }
+
+  .list-table td {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border-subtle);
+    vertical-align: middle;
+  }
+
+  .list-table tr:hover td { background: var(--bg-subtle); }
+  .list-table tr:last-child td { border-bottom: none; }
+
+  .list-conn-name {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+  }
+
+  .list-conn-host {
+    font-size: 12px;
+    color: var(--text-tertiary);
+    font-weight: 400;
+  }
+
+  .expand-row {
+    background: rgba(0,0,0,0.15);
+  }
+
+  .expand-row td {
+    padding: 0;
+  }
+
+  .expand-content {
+    padding: 16px 24px 20px;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 16px;
+  }
+
+  .mini-chart {
+    background: rgba(0,0,0,0.2);
+    border-radius: var(--radius-sm);
+    padding: 12px;
+  }
+
+  .mini-chart-title {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    font-weight: 500;
+    margin-bottom: 8px;
+  }
+
+  .mini-chart-vis {
+    display: flex;
+    align-items: flex-end;
+    gap: 2px;
+    height: 40px;
+  }
+
+  .mini-chart-bar {
+    flex: 1;
+    border-radius: 2px 2px 0 0;
+    min-height: 4px;
+  }
+
+  .mini-chart-bar.latency { background: var(--stripe-purple); }
+  .mini-chart-bar.connections { background: var(--accent-blue); }
+  .mini-chart-bar.size { background: var(--accent-green); }
+
+  .expand-toggle {
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-default);
+    background: transparent;
+    color: var(--text-tertiary);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .expand-toggle:hover { border-color: var(--border-hover); }
+  .expand-toggle svg { width: 14px; height: 14px; transition: transform 0.2s; }
+
+  /* Scrollbar */
+  .content-area::-webkit-scrollbar { width: 6px; }
+  .content-area::-webkit-scrollbar-track { background: transparent; }
+  .content-area::-webkit-scrollbar-thumb { background: var(--border-default); border-radius: 3px; }
+
+  /* User avatar mockup */
+  .user-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--gradient-btn);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    color: #fff;
+  }
+
+  .current-time {
+    font-size: 12px;
+    color: var(--text-tertiary);
+    font-family: var(--font-mono);
+  }
+
+  /* Section header */
+  .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+
+  .section-header h2 {
+    font-size: 16px;
+    font-weight: 600;
+  }
+
+  .section-header-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    background: var(--gradient-btn);
+    border: none;
+    border-radius: var(--radius-md);
+    color: #fff;
+    font-size: 13px;
+    font-weight: 600;
+    font-family: var(--font-ui);
+    cursor: pointer;
+    box-shadow: var(--shadow-btn);
+    transition: all 0.15s;
+  }
+
+  .btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(99,91,255,0.4);
+  }
+
+  .btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    background: transparent;
+    border: 1.5px solid var(--border-default);
+    border-radius: var(--radius-md);
+    color: var(--text-secondary);
+    font-size: 13px;
+    font-weight: 500;
+    font-family: var(--font-ui);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .btn-secondary:hover { border-color: var(--border-hover); color: var(--text-primary); }
+  .btn-secondary svg, .btn-primary svg { width: 16px; height: 16px; }
+
+  .badge-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 20px;
+    height: 20px;
+    padding: 0 6px;
+    border-radius: var(--radius-full);
+    background: var(--bg-elevated);
+    color: var(--text-secondary);
+    font-size: 11px;
+    font-weight: 600;
+  }
+</style>
+</head>
+<body>
+<div class="app-layout">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="sidebar-logo">B</div>
+      <span class="sidebar-brand-text">Backupeer</span>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">General</div>
+      <a class="nav-item" href="#">
+        <svg><use href="#icon-layout-dashboard"/></svg> Dashboard
+      </a>
+      <a class="nav-item active" href="#">
+        <svg><use href="#icon-activity"/></svg> Monitoring
+        <span style="margin-left:auto; background:var(--stripe-purple); color:#fff; font-size:10px; padding:2px 7px; border-radius:999px; font-weight:600;">NEW</span>
+      </a>
+      <a class="nav-item" href="#">
+        <svg><use href="#icon-database"/></svg> Connections
+        <span class="badge-count" style="margin-left:auto;">12</span>
+      </a>
+      <a class="nav-item" href="#">
+        <svg><use href="#icon-file-text"/></svg> Backups
+      </a>
+      <a class="nav-item" href="#">
+        <svg><use href="#icon-calendar"/></svg> Schedules
+      </a>
+      <div class="nav-section-label">Data</div>
+      <a class="nav-item" href="#">
+        <svg><use href="#icon-hard-drive"/></svg> Storage
+      </a>
+      <a class="nav-item" href="#">
+        <svg><use href="#icon-bell"/></svg> Notifications
+      </a>
+      <div class="nav-section-label" style="margin-top:auto;">Account</div>
+      <a class="nav-item" href="#">
+        <svg><use href="#icon-settings"/></svg> Settings
+      </a>
+    </nav>
+  </aside>
+
+  <!-- Main -->
+  <div class="main-area">
+    <!-- Top Bar -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <h1 class="topbar-title">Monitoring</h1>
+        <span class="current-time">Updated 12s ago</span>
+      </div>
+      <div class="topbar-right">
+        <div class="variant-tabs" id="variantTabs">
+          <button class="variant-tab active" data-tab="a">Grid</button>
+          <button class="variant-tab" data-tab="b">Analytics</button>
+          <button class="variant-tab" data-tab="c">List</button>
+        </div>
+        <button class="btn-primary">
+          <svg><use href="#icon-plus"/></svg> Add Monitor
+        </button>
+        <div class="user-avatar">E</div>
+      </div>
+    </header>
+
+    <!-- Content -->
+    <div class="content-area">
+
+      <!-- ============================================ -->
+      <!-- VARIANT A: GRID HEALTH                        -->
+      <!-- ============================================ -->
+      <div class="variant active" id="variantA">
+        <!-- KPI Row -->
+        <div class="kpi-row">
+          <div class="kpi-card">
+            <div class="kpi-label">Total Connections</div>
+            <div class="kpi-value">12</div>
+            <div class="kpi-delta up">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"/></svg>
+              +2 new this week
+            </div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Healthy</div>
+            <div class="kpi-value" style="color:var(--accent-green);">10 / 12</div>
+            <div class="kpi-delta up">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"/></svg>
+              83.3% uptime (7d)
+            </div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Avg Response</div>
+            <div class="kpi-value">24<span style="font-size:14px; font-weight:400; color:var(--text-tertiary);">ms</span></div>
+            <div class="kpi-delta down">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+              +8ms vs last week
+            </div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Total DB Size</div>
+            <div class="kpi-value">284<span style="font-size:14px; font-weight:400; color:var(--text-tertiary);">GB</span></div>
+            <div class="kpi-delta up">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"/></svg>
+              +12GB this month
+            </div>
+          </div>
+        </div>
+
+        <!-- Health Grid -->
+        <div class="section-header">
+          <h2>Connection Health</h2>
+          <div class="section-header-actions">
+            <button class="btn-secondary">
+              <svg><use href="#icon-refresh-cw"/></svg> Refresh All
+            </button>
+            <select style="background:var(--bg-surface); border:1px solid var(--border-default); border-radius:var(--radius-md); padding:8px 12px; color:var(--text-secondary); font-size:12px; font-family:var(--font-ui);">
+              <option>Last 5 minutes</option>
+              <option>Last 1 hour</option>
+              <option>Last 24 hours</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="health-grid">
+          <!-- Card 1: Healthy -->
+          <div class="health-card">
+            <div class="health-card-header">
+              <div class="health-card-name">
+                <span class="status-dot up"></span>
+                Production PG
+              </div>
+              <span class="db-badge postgresql">PG 16</span>
+            </div>
+            <div class="health-card-stats">
+              <div class="health-stat">
+                <span class="health-stat-label">Response</span>
+                <span class="health-stat-value" style="color:var(--accent-green)">12ms</span>
+              </div>
+              <div class="health-stat">
+                <span class="health-stat-label">Active Conns</span>
+                <span class="health-stat-value">23 / 100</span>
+              </div>
+              <div class="health-stat">
+                <span class="health-stat-label">DB Size</span>
+                <span class="health-stat-value">127 GB</span>
+              </div>
+              <div class="health-stat">
+                <span class="health-stat-label">Growth</span>
+                <span class="health-stat-value" style="color:var(--accent-amber)">+4.2 GB/mo</span>
+              </div>
+              <div class="sparkline">
+                <div class="sparkline-bar green" style="height:12px"></div>
+                <div class="sparkline-bar green" style="height:8px"></div>
+                <div class="sparkline-bar green" style="height:18px"></div>
+                <div class="sparkline-bar green" style="height:14px"></div>
+                <div class="sparkline-bar green" style="height:10px"></div>
+                <div class="sparkline-bar green" style="height:22px"></div>
+                <div class="sparkline-bar green" style="height:16px"></div>
+                <div class="sparkline-bar green" style="height:20px"></div>
+                <div class="sparkline-bar green" style="height:12px"></div>
+                <div class="sparkline-bar green" style="height:8px"></div>
+                <div class="sparkline-bar green" style="height:24px"></div>
+                <div class="sparkline-bar green" style="height:14px"></div>
+              </div>
+            </div>
+            <div class="health-card-footer">
+              <span>Last: 32s ago</span>
+              <div class="health-card-actions">
+                <button class="btn-icon" title="View details">
+                  <svg><use href="#icon-eye"/></svg>
+                </button>
+                <button class="btn-icon" title="Refresh">
+                  <svg><use href="#icon-refresh-cw"/></svg>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 2: Degraded -->
+          <div class="health-card" style="border-color: rgba(245,158,11,0.3);">
+            <div class="health-card-header">
+              <div class="health-card-name">
+                <span class="status-dot degraded"></span>
+                Staging MySQL
+              </div>
+              <span class="db-badge mysql">MySQL 8.4</span>
+            </div>
+            <div class="health-card-stats">
+              <div class="health-stat">
+                <span class="health-stat-label">Response</span>
+                <span class="health-stat-value" style="color:var(--accent-amber)">1,240ms</span>
+              </div>
+              <div class="health-stat">
+                <span class="health-stat-label">Active Conns</span>
+                <span class="health-stat-value">89 / 150</span>
+              </div>
+              <div class="health-stat">
+                <span class="health-stat-label">DB Size</span>
+                <span class="health-stat-value">42 GB</span>
+              </div>
+              <div class="health-stat">
+                <span class="health-stat-label">Growth</span>
+                <span class="health-stat-value" style="color:var(--accent-green)">+1.1 GB/mo</span>
+              </div>
+              <div class="sparkline">
+                <div class="sparkline-bar green" style="height:12px"></div>
+                <div class="sparkline-bar green" style="height:10px"></div>
+                <div class="sparkline-bar yellow" style="height:24px"></div>
+                <div class="sparkline-bar yellow" style="height:28px"></div>
+                <div class="sparkline-bar green" style="height:14px"></div>
+                <div class="sparkline-bar yellow" style="height:22px"></div>
+                <div class="sparkline-bar yellow" style="height:26px"></div>
+                <div class="sparkline-bar green" style="height:16px"></div>
+                <div class="sparkline-bar green" style="height:10px"></div>
+                <div class="sparkline-bar yellow" style="height:20px"></div>
+                <div class="sparkline-bar yellow" style="height:28px"></div>
+                <div class="sparkline-bar green" style="height:12px"></div>
+              </div>
+            </div>
+            <div class="health-card-footer">
+              <span>Last: 12s ago</span>
+              <div class="health-card-actions">
+                <button class="btn-icon" title="View details">
+                  <svg><use href="#icon-eye"/></svg>
+                </button>
+                <button class="btn-icon" title="Refresh">
+                  <svg><use href="#icon-refresh-cw"/></svg>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 3: Down -->
+          <div class="health-card" style="border-color: rgba(239,68,68,0.3);">
+            <div class="health-card-header">
+              <div class="health-card-name">
+                <span class="status-dot down"></span>
+                Analytics PG
+              </div>
+              <span class="db-badge postgresql">PG 15</span>
+            </div>
+            <div class="health-card-stats">
+              <div class="health-stat">
+                <span class="health-stat-label">Response</span>
+                <span class="health-stat-value" style="color:var(--accent-red)">Timeout</span>
+              </div>
+              <div class="health-stat">
+                <span class="health-stat-label">Active Conns</span>
+                <span class="health-stat-value">—</span>
+              </div>
+              <div class="health-stat">
+                <span class="health-stat-label">DB Size</span>
+                <span class="health-stat-value">84 GB</span>
+              </div>
+              <div class="health-stat">
+                <span class="health-stat-label">Last Up</span>
+                <span class="health-stat-value" style="color:var(--text-tertiary)">3h ago</span>
+              </div>
+              <div class="sparkline">
+                <div class="sparkline-bar green" style="height:14px"></div>
+                <div class="sparkline-bar green" style="height:18px"></div>
+                <div class="sparkline-bar green" style="height:10px"></div>
+                <div class="sparkline-bar green" style="height:22px"></div>
+                <div class="sparkline-bar green" style="height:16px"></div>
+                <div class="sparkline-bar red" style="height:4px"></div>
+                <div class="sparkline-bar red" style="height:4px"></div>
+                <div class="sparkline-bar red" style="height:4px"></div>
+                <div class="sparkline-bar red" style="height:4px"></div>
+                <div class="sparkline-bar red" style="height:4px"></div>
+                <div class="sparkline-bar red" style="height:4px"></div>
+                <div class="sparkline-bar red" style="height:4px"></div>
+              </div>
+            </div>
+            <div class="health-card-footer">
+              <span>Last: 5m ago</span>
+              <div class="health-card-actions">
+                <button class="btn-icon" title="View details">
+                  <svg><use href="#icon-eye"/></svg>
+                </button>
+                <button class="btn-icon" title="Retry" style="border-color:var(--accent-red); color:var(--accent-red);">
+                  <svg><use href="#icon-rotate-ccw"/></svg>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 4: Healthy -->
+          <div class="health-card">
+            <div class="health-card-header">
+              <div class="health-card-name">
+                <span class="status-dot up"></span>
+                Production MariaDB
+              </div>
+              <span class="db-badge mariadb">MariaDB 11</span>
+            </div>
+            <div class="health-card-stats">
+              <div class="health-stat">
+                <span class="health-stat-label">Response</span>
+                <span class="health-stat-value" style="color:var(--accent-green)">8ms</span>
+              </div>
+              <div class="health-stat">
+                <span class="health-stat-label">Active Conns</span>
+                <span class="health-stat-value">15 / 100</span>
+              </div>
+              <div class="health-stat">
+                <span class="health-stat-label">DB Size</span>
+                <span class="health-stat-value">18 GB</span>
+              </div>
+              <div class="health-stat">
+                <span class="health-stat-label">Growth</span>
+                <span class="health-stat-value" style="color:var(--accent-green)">+0.3 GB/mo</span>
+              </div>
+              <div class="sparkline">
+                <div class="sparkline-bar green" style="height:8px"></div>
+                <div class="sparkline-bar green" style="height:12px"></div>
+                <div class="sparkline-bar green" style="height:6px"></div>
+                <div class="sparkline-bar green" style="height:10px"></div>
+                <div class="sparkline-bar green" style="height:14px"></div>
+                <div class="sparkline-bar green" style="height:8px"></div>
+                <div class="sparkline-bar green" style="height:18px"></div>
+                <div class="sparkline-bar green" style="height:10px"></div>
+                <div class="sparkline-bar green" style="height:6px"></div>
+                <div class="sparkline-bar green" style="height:12px"></div>
+                <div class="sparkline-bar green" style="height:8px"></div>
+                <div class="sparkline-bar green" style="height:14px"></div>
+              </div>
+            </div>
+            <div class="health-card-footer">
+              <span>Last: 8s ago</span>
+              <div class="health-card-actions">
+                <button class="btn-icon" title="View details">
+                  <svg><use href="#icon-eye"/></svg>
+                </button>
+                <button class="btn-icon" title="Refresh">
+                  <svg><use href="#icon-refresh-cw"/></svg>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 5: Healthy -->
+          <div class="health-card">
+            <div class="health-card-header">
+              <div class="health-card-name">
+                <span class="status-dot up"></span>
+                Dev MySQL
+              </div>
+              <span class="db-badge mysql">MySQL 8.0</span>
+            </div>
+            <div class="health-card-stats">
+              <div class="health-stat">
+                <span class="health-stat-label">Response</span>
+                <span class="health-stat-value" style="color:var(--accent-green)">5ms</span>
+              </div>
+              <div class="health-stat">
+                <span class="health-stat-label">Active Conns</span>
+                <span class="health-stat-value">2 / 50</span>
+              </div>
+              <div class="health-stat">
+                <span class="health-stat-label">DB Size</span>
+                <span class="health-stat-value">3.2 GB</span>
+              </div>
+              <div class="health-stat">
+                <span class="health-stat-label">Growth</span>
+                <span class="health-stat-value" style="color:var(--accent-green)">+0.1 GB/mo</span>
+              </div>
+              <div class="sparkline">
+                <div class="sparkline-bar green" style="height:6px"></div>
+                <div class="sparkline-bar green" style="height:4px"></div>
+                <div class="sparkline-bar green" style="height:10px"></div>
+                <div class="sparkline-bar green" style="height:8px"></div>
+                <div class="sparkline-bar green" style="height:12px"></div>
+                <div class="sparkline-bar green" style="height:6px"></div>
+                <div class="sparkline-bar green" style="height:4px"></div>
+                <div class="sparkline-bar green" style="height:8px"></div>
+                <div class="sparkline-bar green" style="height:10px"></div>
+                <div class="sparkline-bar green" style="height:6px"></div>
+                <div class="sparkline-bar green" style="height:14px"></div>
+                <div class="sparkline-bar green" style="height:8px"></div>
+              </div>
+            </div>
+            <div class="health-card-footer">
+              <span>Last: 14s ago</span>
+              <div class="health-card-actions">
+                <button class="btn-icon" title="View details">
+                  <svg><use href="#icon-eye"/></svg>
+                </button>
+                <button class="btn-icon" title="Refresh">
+                  <svg><use href="#icon-refresh-cw"/></svg>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 6: Degraded (connections high) -->
+          <div class="health-card" style="border-color: rgba(245,158,11,0.3);">
+            <div class="health-card-header">
+              <div class="health-card-name">
+                <span class="status-dot degraded"></span>
+                Analytics MariaDB
+              </div>
+              <span class="db-badge mariadb">MariaDB 11</span>
+            </div>
+            <div class="health-card-stats">
+              <div class="health-stat">
+                <span class="health-stat-label">Response</span>
+                <span class="health-stat-value" style="color:var(--accent-green)">35ms</span>
+              </div>
+              <div class="health-stat">
+                <span class="health-stat-label">Active Conns</span>
+                <span class="health-stat-value" style="color:var(--accent-amber)">132 / 150</span>
+              </div>
+              <div class="health-stat">
+                <span class="health-stat-label">DB Size</span>
+                <span class="health-stat-value">8.7 GB</span>
+              </div>
+              <div class="health-stat">
+                <span class="health-stat-label">Growth</span>
+                <span class="health-stat-value" style="color:var(--accent-amber)">+2.4 GB/mo</span>
+              </div>
+              <div class="sparkline">
+                <div class="sparkline-bar green" style="height:10px"></div>
+                <div class="sparkline-bar yellow" style="height:22px"></div>
+                <div class="sparkline-bar green" style="height:14px"></div>
+                <div class="sparkline-bar green" style="height:18px"></div>
+                <div class="sparkline-bar yellow" style="height:26px"></div>
+                <div class="sparkline-bar green" style="height:12px"></div>
+                <div class="sparkline-bar green" style="height:16px"></div>
+                <div class="sparkline-bar yellow" style="height:24px"></div>
+                <div class="sparkline-bar green" style="height:8px"></div>
+                <div class="sparkline-bar green" style="height:14px"></div>
+                <div class="sparkline-bar yellow" style="height:20px"></div>
+                <div class="sparkline-bar green" style="height:10px"></div>
+              </div>
+            </div>
+            <div class="health-card-footer">
+              <span>Last: 44s ago</span>
+              <div class="health-card-actions">
+                <button class="btn-icon" title="View details">
+                  <svg><use href="#icon-eye"/></svg>
+                </button>
+                <button class="btn-icon" title="Refresh">
+                  <svg><use href="#icon-refresh-cw"/></svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============================================ -->
+      <!-- VARIANT B: ANALYTICS DASHBOARD                -->
+      <!-- ============================================ -->
+      <div class="variant" id="variantB">
+        <!-- KPI (compact) -->
+        <div class="kpi-row">
+          <div class="kpi-card">
+            <div class="kpi-label">Overall Uptime (7d)</div>
+            <div class="kpi-value" style="color:var(--accent-green)">99.2%</div>
+            <div class="kpi-delta up">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"/></svg>
+              +0.3% vs last week
+            </div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Avg Response Time</div>
+            <div class="kpi-value">24<span style="font-size:14px; font-weight:400; color:var(--text-tertiary);">ms</span></div>
+            <div class="kpi-delta down">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+              +8ms spike at 14:22
+            </div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Cache Hit Ratio</div>
+            <div class="kpi-value" style="color:var(--accent-amber)">96.8%</div>
+            <div class="kpi-delta down">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+              Below threshold (98%)
+            </div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Total Data Growth</div>
+            <div class="kpi-value">+12.4<span style="font-size:14px; font-weight:400; color:var(--text-tertiary);">GB</span></div>
+            <div class="kpi-delta up">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"/></svg>
+              This month
+            </div>
+          </div>
+        </div>
+
+        <div class="analytics-grid">
+          <!-- Response Time Trend -->
+          <div class="analytics-card analytics-full">
+            <div class="analytics-card-header">
+              <span class="analytics-card-title">Response Time — Last 24 Hours</span>
+              <span class="analytics-card-action">View Details</span>
+            </div>
+            <div class="analytics-card-body">
+              <div class="chart-container" style="height:200px;">
+                <div class="chart-bar purple" style="height:60px"><span class="chart-y-label">48</span></div>
+                <div class="chart-bar purple" style="height:40px"><span class="chart-y-label">32</span></div>
+                <div class="chart-bar purple" style="height:55px"><span class="chart-y-label">44</span></div>
+                <div class="chart-bar purple" style="height:35px"></div>
+                <div class="chart-bar purple" style="height:45px"></div>
+                <div class="chart-bar purple" style="height:30px"></div>
+                <div class="chart-bar purple" style="height:50px"></div>
+                <div class="chart-bar purple" style="height:65px"><span class="chart-y-label">52</span></div>
+                <div class="chart-bar purple" style="height:38px"></div>
+                <div class="chart-bar purple" style="height:42px"></div>
+                <div class="chart-bar purple" style="height:55px"></div>
+                <div class="chart-bar purple" style="height:48px"></div>
+                <div class="chart-bar purple" style="height:35px"></div>
+                <div class="chart-bar purple" style="height:70px"><span class="chart-y-label">56</span></div>
+                <div class="chart-bar purple" style="height:45px"></div>
+                <div class="chart-bar purple" style="height:32px"></div>
+                <div class="chart-bar purple" style="height:58px"></div>
+                <div class="chart-bar purple" style="height:42px"></div>
+                <div class="chart-bar purple" style="height:38px"></div>
+                <div class="chart-bar purple" style="height:50px"></div>
+                <div class="chart-bar red" style="height:180px"><span class="chart-y-label" style="color:var(--accent-red)">144</span></div>
+                <div class="chart-bar purple" style="height:52px"></div>
+                <div class="chart-bar purple" style="height:40px"></div>
+                <div class="chart-bar purple" style="height:28px"></div>
+              </div>
+              <div style="display:flex; justify-content:space-between; margin-top:4px;">
+                <span class="chart-x-label">14:00</span>
+                <span class="chart-x-label">16:00</span>
+                <span class="chart-x-label">18:00</span>
+                <span class="chart-x-label">20:00</span>
+                <span class="chart-x-label" style="color:var(--accent-red)">22:00</span>
+                <span class="chart-x-label">00:00</span>
+                <span class="chart-x-label">02:00</span>
+                <span class="chart-x-label">04:00</span>
+                <span class="chart-x-label">06:00</span>
+                <span class="chart-x-label">08:00</span>
+                <span class="chart-x-label">10:00</span>
+                <span class="chart-x-label">12:00</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Slow Queries -->
+          <div class="analytics-card">
+            <div class="analytics-card-header">
+              <span class="analytics-card-title">Top Slow Queries</span>
+              <span class="analytics-card-action">View All</span>
+            </div>
+            <div class="analytics-card-body" style="padding:0;">
+              <table class="perf-table">
+                <thead>
+                  <tr>
+                    <th>Query</th>
+                    <th>Avg</th>
+                    <th>Calls</th>
+                    <th>Total</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><span class="query-text">SELECT * FROM analytics_events WHERE …</span></td>
+                    <td><span class="metric-badge warn">2.4s</span></td>
+                    <td>1,422</td>
+                    <td>56.7m</td>
+                  </tr>
+                  <tr>
+                    <td><span class="query-text">UPDATE users SET last_seen = NOW() WHERE …</span></td>
+                    <td><span class="metric-badge warn">1.8s</span></td>
+                    <td>45,211</td>
+                    <td>22.6h</td>
+                  </tr>
+                  <tr>
+                    <td><span class="query-text">INSERT INTO audit_log (user_id, action, …</span></td>
+                    <td><span class="metric-badge good">0.3s</span></td>
+                    <td>12,044</td>
+                    <td>1.0h</td>
+                  </tr>
+                  <tr>
+                    <td><span class="query-text">SELECT p.*, u.name FROM products p …</span></td>
+                    <td><span class="metric-badge good">0.1s</span></td>
+                    <td>8,422</td>
+                    <td>14.1m</td>
+                  </tr>
+                  <tr>
+                    <td><span class="query-text">REFRESH MATERIALIZED VIEW daily_agg …</span></td>
+                    <td><span class="metric-badge bad">45.2s</span></td>
+                    <td>24</td>
+                    <td>18.1m</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Cache Hit Ratio + Connection Usage -->
+          <div class="analytics-card">
+            <div class="analytics-card-header">
+              <span class="analytics-card-title">Performance Indicators</span>
+              <span class="analytics-card-action">Configure</span>
+            </div>
+            <div class="analytics-card-body">
+              <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
+                <div>
+                  <div style="font-size:12px; color:var(--text-tertiary); margin-bottom:8px;">Cache Hit Ratio</div>
+                  <div style="display:flex; align-items:center; gap:12px;">
+                    <span style="font-size:28px; font-weight:700; color:var(--accent-amber)">96.8%</span>
+                    <span style="font-size:11px; color:var(--text-tertiary);">Target: > 98%</span>
+                  </div>
+                  <div style="margin-top:8px; height:6px; background:var(--border-default); border-radius:3px; overflow:hidden;">
+                    <div style="height:100%; width:96.8%; background:var(--accent-amber); border-radius:3px;"></div>
+                  </div>
+                  <div style="margin-top:6px; display:flex; justify-content:space-between; font-size:10px; color:var(--text-quaternary);">
+                    <span>0%</span>
+                    <span>98% threshold</span>
+                    <span>100%</span>
+                  </div>
+                </div>
+                <div>
+                  <div style="font-size:12px; color:var(--text-tertiary); margin-bottom:8px;">Connection Usage</div>
+                  <div style="display:flex; align-items:center; gap:12px;">
+                    <span style="font-size:28px; font-weight:700; color:var(--accent-green)">34%</span>
+                    <span style="font-size:11px; color:var(--text-tertiary);">Avg across servers</span>
+                  </div>
+                  <div style="margin-top:8px; height:6px; background:var(--border-default); border-radius:3px; overflow:hidden;">
+                    <div style="height:100%; width:34%; background:var(--accent-green); border-radius:3px;"></div>
+                  </div>
+                  <div style="margin-top:6px; display:flex; justify-content:space-between; font-size:10px; color:var(--text-quaternary);">
+                    <span>0%</span>
+                    <span>80% warn</span>
+                    <span>100%</span>
+                  </div>
+                </div>
+              </div>
+              <div style="margin-top:16px; padding-top:16px; border-top:1px solid var(--border-subtle);">
+                <div style="font-size:12px; color:var(--text-tertiary); margin-bottom:10px;">Per-Server Breakdown</div>
+                <table class="perf-table">
+                  <thead>
+                    <tr><th>Server</th><th>Cache Hit</th><th>Conn %</th></tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Production PG</td>
+                      <td><span class="metric-badge good">99.1%</span></td>
+                      <td><span class="metric-badge good">23%</span></td>
+                    </tr>
+                    <tr>
+                      <td>Staging MySQL</td>
+                      <td><span class="metric-badge good">98.4%</span></td>
+                      <td><span class="metric-badge warn">59%</span></td>
+                    </tr>
+                    <tr>
+                      <td>Analytics PG</td>
+                      <td><span class="metric-badge warn">91.2%</span></td>
+                      <td><span class="metric-badge bad">88%</span></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- DB Size Growth -->
+          <div class="analytics-card analytics-full">
+            <div class="analytics-card-header">
+              <span class="analytics-card-title">Database Size Growth — Last 30 Days</span>
+              <span class="analytics-card-action">Export</span>
+            </div>
+            <div class="analytics-card-body">
+              <div class="chart-container" style="height:180px;">
+                <div class="chart-bar green" style="height:20px"><span class="chart-y-label">200</span></div>
+                <div class="chart-bar green" style="height:22px"></div>
+                <div class="chart-bar green" style="height:25px"></div>
+                <div class="chart-bar green" style="height:28px"></div>
+                <div class="chart-bar green" style="height:30px"></div>
+                <div class="chart-bar green" style="height:32px"></div>
+                <div class="chart-bar green" style="height:35px"></div>
+                <div class="chart-bar green" style="height:38px"></div>
+                <div class="chart-bar green" style="height:40px"></div>
+                <div class="chart-bar green" style="height:42px"></div>
+                <div class="chart-bar green" style="height:45px"></div>
+                <div class="chart-bar green" style="height:48px"></div>
+                <div class="chart-bar green" style="height:50px"><span class="chart-y-label">280</span></div>
+                <div class="chart-bar green" style="height:52px"></div>
+                <div class="chart-bar green" style="height:55px"></div>
+                <div class="chart-bar green" style="height:58px"></div>
+                <div class="chart-bar green" style="height:60px"></div>
+                <div class="chart-bar green" style="height:62px"></div>
+                <div class="chart-bar green" style="height:65px"></div>
+                <div class="chart-bar green" style="height:68px"></div>
+                <div class="chart-bar green" style="height:70px"></div>
+                <div class="chart-bar green" style="height:72px"></div>
+                <div class="chart-bar green" style="height:75px"><span class="chart-y-label">340</span></div>
+                <div class="chart-bar green" style="height:78px"></div>
+                <div class="chart-bar green" style="height:80px"></div>
+                <div class="chart-bar green" style="height:82px"></div>
+                <div class="chart-bar green" style="height:85px"></div>
+                <div class="chart-bar green" style="height:88px"></div>
+                <div class="chart-bar green" style="height:90px"></div>
+                <div class="chart-bar green" style="height:92px"></div>
+              </div>
+              <div style="display:flex; justify-content:space-between; margin-top:4px;">
+                <span class="chart-x-label">Jun 17</span>
+                <span class="chart-x-label">Jun 24</span>
+                <span class="chart-x-label">Jul 01</span>
+                <span class="chart-x-label">Jul 08</span>
+                <span class="chart-x-label">Jul 15</span>
+              </div>
+              <div style="margin-top:16px; display:flex; gap:16px; font-size:12px; color:var(--text-tertiary);">
+                <span style="display:flex; align-items:center; gap:6px;">
+                  <span style="width:8px; height:8px; border-radius:2px; background:var(--accent-green);"></span>
+                  Production PG
+                </span>
+                <span style="display:flex; align-items:center; gap:6px;">
+                  <span style="width:8px; height:8px; border-radius:2px; background:var(--accent-blue);"></span>
+                  Staging MySQL
+                </span>
+                <span style="display:flex; align-items:center; gap:6px;">
+                  <span style="width:8px; height:8px; border-radius:2px; background:var(--accent-amber);"></span>
+                  Analytics PG
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============================================ -->
+      <!-- VARIANT C: LIST VIEW                          -->
+      <!-- ============================================ -->
+      <div class="variant" id="variantC">
+        <div class="list-toolbar">
+          <div class="list-filters">
+            <button class="filter-chip active">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/></svg>
+              All (12)
+            </button>
+            <button class="filter-chip">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/></svg>
+              Healthy (10)
+            </button>
+            <button class="filter-chip">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/></svg>
+              Degraded (1)
+            </button>
+            <button class="filter-chip">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/></svg>
+              Down (1)
+            </button>
+          </div>
+          <div style="display:flex; gap:8px; align-items:center;">
+            <div style="position:relative;">
+              <svg style="position:absolute; left:10px; top:50%; transform:translateY(-50%); width:14px; height:14px; color:var(--text-quaternary);"><use href="#icon-search"/></svg>
+              <input type="text" placeholder="Search connections..." style="background:var(--bg-surface); border:1px solid var(--border-default); border-radius:var(--radius-md); padding:8px 12px 8px 32px; color:var(--text-primary); font-size:12px; font-family:var(--font-ui); width:220px;">
+            </div>
+          </div>
+        </div>
+
+        <div class="list-table-wrap">
+          <table class="list-table">
+            <thead>
+              <tr>
+                <th style="width:24px;"></th>
+                <th>Connection</th>
+                <th>Type</th>
+                <th>Status</th>
+                <th>Response</th>
+                <th>Active / Max</th>
+                <th>DB Size</th>
+                <th>Cache Hit</th>
+                <th>Last Check</th>
+                <th style="width:60px;"></th>
+              </tr>
+            </thead>
+            <tbody id="listBody">
+              <tr>
+                <td><button class="expand-toggle" onclick="toggleExpand(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></button></td>
+                <td><div class="list-conn-name"><span class="status-dot up"></span>Production PG <span class="list-conn-host">pg.example.com</span></div></td>
+                <td><span class="db-badge postgresql">PG</span></td>
+                <td><span class="metric-badge good">Healthy</span></td>
+                <td style="font-family:var(--font-mono); font-size:12px;">12ms</td>
+                <td style="font-family:var(--font-mono); font-size:12px;">23 / 100</td>
+                <td style="font-family:var(--font-mono); font-size:12px;">127 GB</td>
+                <td><span class="metric-badge good">99.1%</span></td>
+                <td style="font-family:var(--font-mono); font-size:11px; color:var(--text-tertiary);">32s ago</td>
+                <td><button class="btn-icon" style="width:28px;height:28px;"><svg><use href="#icon-more-horizontal"/></svg></button></td>
+              </tr>
+              <!-- Expanded row (detail) -->
+              <tr class="expand-row" style="display:none;">
+                <td colspan="10">
+                  <div class="expand-content">
+                    <div class="mini-chart">
+                      <div class="mini-chart-title">Response Time (24h)</div>
+                      <div class="mini-chart-vis">
+                        <div class="mini-chart-bar latency" style="height:12px"></div>
+                        <div class="mini-chart-bar latency" style="height:8px"></div>
+                        <div class="mini-chart-bar latency" style="height:16px"></div>
+                        <div class="mini-chart-bar latency" style="height:10px"></div>
+                        <div class="mini-chart-bar latency" style="height:14px"></div>
+                        <div class="mini-chart-bar latency" style="height:20px"></div>
+                        <div class="mini-chart-bar latency" style="height:6px"></div>
+                        <div class="mini-chart-bar latency" style="height:18px"></div>
+                        <div class="mini-chart-bar latency" style="height:12px"></div>
+                        <div class="mini-chart-bar latency" style="height:16px"></div>
+                        <div class="mini-chart-bar latency" style="height:8px"></div>
+                        <div class="mini-chart-bar latency" style="height:14px"></div>
+                        <div class="mini-chart-bar latency" style="height:10px"></div>
+                        <div class="mini-chart-bar latency" style="height:22px"></div>
+                        <div class="mini-chart-bar latency" style="height:12px"></div>
+                        <div class="mini-chart-bar latency" style="height:6px"></div>
+                        <div class="mini-chart-bar latency" style="height:16px"></div>
+                        <div class="mini-chart-bar latency" style="height:10px"></div>
+                        <div class="mini-chart-bar latency" style="height:14px"></div>
+                        <div class="mini-chart-bar latency" style="height:8px"></div>
+                        <div class="mini-chart-bar latency" style="height:40px"></div>
+                        <div class="mini-chart-bar latency" style="height:12px"></div>
+                        <div class="mini-chart-bar latency" style="height:8px"></div>
+                        <div class="mini-chart-bar latency" style="height:10px"></div>
+                      </div>
+                    </div>
+                    <div class="mini-chart">
+                      <div class="mini-chart-title">Active Connections (24h)</div>
+                      <div class="mini-chart-vis">
+                        <div class="mini-chart-bar connections" style="height:8px"></div>
+                        <div class="mini-chart-bar connections" style="height:12px"></div>
+                        <div class="mini-chart-bar connections" style="height:10px"></div>
+                        <div class="mini-chart-bar connections" style="height:16px"></div>
+                        <div class="mini-chart-bar connections" style="height:14px"></div>
+                        <div class="mini-chart-bar connections" style="height:20px"></div>
+                        <div class="mini-chart-bar connections" style="height:18px"></div>
+                        <div class="mini-chart-bar connections" style="height:12px"></div>
+                        <div class="mini-chart-bar connections" style="height:24px"></div>
+                        <div class="mini-chart-bar connections" style="height:16px"></div>
+                        <div class="mini-chart-bar connections" style="height:22px"></div>
+                        <div class="mini-chart-bar connections" style="height:28px"></div>
+                        <div class="mini-chart-bar connections" style="height:20px"></div>
+                        <div class="mini-chart-bar connections" style="height:16px"></div>
+                        <div class="mini-chart-bar connections" style="height:16px"></div>
+                        <div class="mini-chart-bar connections" style="height:14px"></div>
+                        <div class="mini-chart-bar connections" style="height:18px"></div>
+                        <div class="mini-chart-bar connections" style="height:22px"></div>
+                        <div class="mini-chart-bar connections" style="height:26px"></div>
+                        <div class="mini-chart-bar connections" style="height:20px"></div>
+                        <div class="mini-chart-bar connections" style="height:16px"></div>
+                        <div class="mini-chart-bar connections" style="height:12px"></div>
+                        <div class="mini-chart-bar connections" style="height:10px"></div>
+                        <div class="mini-chart-bar connections" style="height:8px"></div>
+                      </div>
+                    </div>
+                    <div class="mini-chart">
+                      <div class="mini-chart-title">DB Size Growth (30d)</div>
+                      <div class="mini-chart-vis">
+                        <div class="mini-chart-bar size" style="height:4px"></div>
+                        <div class="mini-chart-bar size" style="height:6px"></div>
+                        <div class="mini-chart-bar size" style="height:8px"></div>
+                        <div class="mini-chart-bar size" style="height:10px"></div>
+                        <div class="mini-chart-bar size" style="height:8px"></div>
+                        <div class="mini-chart-bar size" style="height:12px"></div>
+                        <div class="mini-chart-bar size" style="height:14px"></div>
+                        <div class="mini-chart-bar size" style="height:10px"></div>
+                        <div class="mini-chart-bar size" style="height:16px"></div>
+                        <div class="mini-chart-bar size" style="height:18px"></div>
+                        <div class="mini-chart-bar size" style="height:14px"></div>
+                        <div class="mini-chart-bar size" style="height:12px"></div>
+                        <div class="mini-chart-bar size" style="height:20px"></div>
+                        <div class="mini-chart-bar size" style="height:16px"></div>
+                        <div class="mini-chart-bar size" style="height:22px"></div>
+                        <div class="mini-chart-bar size" style="height:18px"></div>
+                        <div class="mini-chart-bar size" style="height:24px"></div>
+                        <div class="mini-chart-bar size" style="height:20px"></div>
+                        <div class="mini-chart-bar size" style="height:26px"></div>
+                        <div class="mini-chart-bar size" style="height:22px"></div>
+                        <div class="mini-chart-bar size" style="height:28px"></div>
+                        <div class="mini-chart-bar size" style="height:24px"></div>
+                        <div class="mini-chart-bar size" style="height:20px"></div>
+                        <div class="mini-chart-bar size" style="height:30px"></div>
+                      </div>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td><button class="expand-toggle" onclick="toggleExpand(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></button></td>
+                <td><div class="list-conn-name"><span class="status-dot degraded"></span>Staging MySQL <span class="list-conn-host">staging.example.com</span></div></td>
+                <td><span class="db-badge mysql">MySQL</span></td>
+                <td><span class="metric-badge warn">Degraded</span></td>
+                <td style="font-family:var(--font-mono); font-size:12px; color:var(--accent-amber);">1,240ms</td>
+                <td style="font-family:var(--font-mono); font-size:12px; color:var(--accent-amber);">89 / 150</td>
+                <td style="font-family:var(--font-mono); font-size:12px;">42 GB</td>
+                <td><span class="metric-badge good">98.4%</span></td>
+                <td style="font-family:var(--font-mono); font-size:11px; color:var(--text-tertiary);">12s ago</td>
+                <td><button class="btn-icon"><svg><use href="#icon-more-horizontal"/></svg></button></td>
+              </tr>
+              <tr>
+                <td><button class="expand-toggle" onclick="toggleExpand(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></button></td>
+                <td><div class="list-conn-name"><span class="status-dot down"></span>Analytics PG <span class="list-conn-host">analytics.example.com</span></div></td>
+                <td><span class="db-badge postgresql">PG</span></td>
+                <td><span class="metric-badge bad">Down</span></td>
+                <td style="font-family:var(--font-mono); font-size:12px; color:var(--accent-red);">Timeout</td>
+                <td style="font-family:var(--font-mono); font-size:12px; color:var(--text-tertiary);">—</td>
+                <td style="font-family:var(--font-mono); font-size:12px;">84 GB</td>
+                <td><span class="metric-badge warn">91.2%</span></td>
+                <td style="font-family:var(--font-mono); font-size:11px; color:var(--accent-red);">5m ago</td>
+                <td><button class="btn-icon"><svg><use href="#icon-more-horizontal"/></svg></button></td>
+              </tr>
+              <tr>
+                <td><button class="expand-toggle" onclick="toggleExpand(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></button></td>
+                <td><div class="list-conn-name"><span class="status-dot up"></span>Production MariaDB <span class="list-conn-host">mariadb.example.com</span></div></td>
+                <td><span class="db-badge mariadb">MariaDB</span></td>
+                <td><span class="metric-badge good">Healthy</span></td>
+                <td style="font-family:var(--font-mono); font-size:12px;">8ms</td>
+                <td style="font-family:var(--font-mono); font-size:12px;">15 / 100</td>
+                <td style="font-family:var(--font-mono); font-size:12px;">18 GB</td>
+                <td><span class="metric-badge good">99.5%</span></td>
+                <td style="font-family:var(--font-mono); font-size:11px; color:var(--text-tertiary);">8s ago</td>
+                <td><button class="btn-icon"><svg><use href="#icon-more-horizontal"/></svg></button></td>
+              </tr>
+              <tr>
+                <td><button class="expand-toggle" onclick="toggleExpand(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></button></td>
+                <td><div class="list-conn-name"><span class="status-dot up"></span>Dev MySQL <span class="list-conn-host">dev.example.com</span></div></td>
+                <td><span class="db-badge mysql">MySQL</span></td>
+                <td><span class="metric-badge good">Healthy</span></td>
+                <td style="font-family:var(--font-mono); font-size:12px;">5ms</td>
+                <td style="font-family:var(--font-mono); font-size:12px;">2 / 50</td>
+                <td style="font-family:var(--font-mono); font-size:12px;">3.2 GB</td>
+                <td><span class="metric-badge good">99.8%</span></td>
+                <td style="font-family:var(--font-mono); font-size:11px; color:var(--text-tertiary);">14s ago</td>
+                <td><button class="btn-icon"><svg><use href="#icon-more-horizontal"/></svg></button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Pagination -->
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-top:16px;">
+          <span style="font-size:12px; color:var(--text-tertiary);">Showing 5 of 12 connections</span>
+          <div style="display:flex; gap:4px;">
+            <button class="btn-icon" style="width:32px; height:32px;" disabled><svg><use href="#icon-chevron-left"/></svg></button>
+            <button class="btn-icon" style="width:32px; height:32px; background:var(--bg-sidebar-active); border-color:var(--stripe-purple); color:var(--stripe-purple);">1</button>
+            <button class="btn-icon" style="width:32px; height:32px;">2</button>
+            <button class="btn-icon" style="width:32px; height:32px;">3</button>
+            <button class="btn-icon" style="width:32px; height:32px;"><svg><use href="#icon-chevron-right"/></svg></button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Inline SVG Icons -->
+<svg display="none">
+  <defs>
+    <symbol id="icon-layout-dashboard" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></symbol>
+    <symbol id="icon-activity" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></symbol>
+    <symbol id="icon-database" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></symbol>
+    <symbol id="icon-file-text" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></symbol>
+    <symbol id="icon-calendar" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></symbol>
+    <symbol id="icon-hard-drive" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="12" x2="2" y2="12"/><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/><line x1="6" y1="16" x2="6.01" y2="16"/><line x1="10" y1="16" x2="10.01" y2="16"/></symbol>
+    <symbol id="icon-bell" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></symbol>
+    <symbol id="icon-settings" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></symbol>
+    <symbol id="icon-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></symbol>
+    <symbol id="icon-refresh-cw" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></symbol>
+    <symbol id="icon-eye" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></symbol>
+    <symbol id="icon-rotate-ccw" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></symbol>
+    <symbol id="icon-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></symbol>
+    <symbol id="icon-chevron-left" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></symbol>
+    <symbol id="icon-chevron-right" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></symbol>
+    <symbol id="icon-more-horizontal" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></symbol>
+  </defs>
+</svg>
+
+<script>
+  // Tab switching
+  document.querySelectorAll('.variant-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.variant-tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      document.querySelectorAll('.variant').forEach(v => v.classList.remove('active'));
+      document.getElementById('variant' + tab.dataset.tab.toUpperCase()).classList.add('active');
+    });
+  });
+
+  // Expand/collapse rows
+  function toggleExpand(btn) {
+    var row = btn.closest('tr').nextElementSibling;
+    var icon = btn.querySelector('svg');
+    if (row && row.classList.contains('expand-row')) {
+      var isHidden = row.style.display === 'none' || !row.style.display;
+      row.style.display = isHidden ? 'table-row' : 'none';
+      icon.style.transform = isHidden ? 'rotate(90deg)' : '';
+    }
+  }
+
+  // Filter chips
+  document.querySelectorAll('.filter-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+    });
+  });
+</script>
+</body>
+</html>

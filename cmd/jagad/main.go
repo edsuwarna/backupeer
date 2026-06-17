@@ -1,4 +1,4 @@
-// Backupeer — Database backup management tool.
+// Jagad — Database backup, restore & monitoring tool.
 package main
 
 import (
@@ -13,18 +13,18 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/edsuwarna/backupeer/internal/api"
-	"github.com/edsuwarna/backupeer/internal/auth"
-	backupsvc "github.com/edsuwarna/backupeer/internal/backup"
-	"github.com/edsuwarna/backupeer/internal/config"
-	connsvc "github.com/edsuwarna/backupeer/internal/connection"
-	"github.com/edsuwarna/backupeer/internal/encryption"
-	notifsvc "github.com/edsuwarna/backupeer/internal/notification"
-	"github.com/edsuwarna/backupeer/internal/repository"
-	restsvc "github.com/edsuwarna/backupeer/internal/restore"
-	schsvc "github.com/edsuwarna/backupeer/internal/schedule"
-	"github.com/edsuwarna/backupeer/internal/settings"
-	"github.com/edsuwarna/backupeer/internal/storage"
+	"github.com/edsuwarna/jagad/internal/api"
+	"github.com/edsuwarna/jagad/internal/auth"
+	backupsvc "github.com/edsuwarna/jagad/internal/backup"
+	"github.com/edsuwarna/jagad/internal/config"
+	connsvc "github.com/edsuwarna/jagad/internal/connection"
+	"github.com/edsuwarna/jagad/internal/encryption"
+	notifsvc "github.com/edsuwarna/jagad/internal/notification"
+	"github.com/edsuwarna/jagad/internal/repository"
+	restsvc "github.com/edsuwarna/jagad/internal/restore"
+	schsvc "github.com/edsuwarna/jagad/internal/schedule"
+	"github.com/edsuwarna/jagad/internal/settings"
+	"github.com/edsuwarna/jagad/internal/storage"
 )
 
 var Version = "dev"
@@ -33,7 +33,7 @@ func main() {
 	cfg := config.Load()
 
 	slog.SetDefault(slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelInfo})))
-	slog.Info("starting backupeer", "version", Version)
+	slog.Info("starting jagad", "version", Version)
 
 	// Initialize SQLite
 	db, err := repository.Open(cfg.DataDir, 5)

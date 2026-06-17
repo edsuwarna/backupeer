@@ -1,4 +1,4 @@
-// Backupeer — Vanilla JS SPA
+// Jagad — Vanilla JS SPA
 // Stripe-inspired design system
 
 const API = {
@@ -51,7 +51,7 @@ function toggleTheme() {
     el.setAttribute('data-lucide', next === 'dark' ? 'sun' : 'moon');
   });
   lucide.createIcons();
-  localStorage.setItem('backupeer-theme', next);
+  localStorage.setItem('jagad-theme', next);
 }
 
 function toggleMobileSidebar() {
@@ -85,7 +85,7 @@ function closeMobileSidebar() {
 }
 
 async function init() {
-  const saved = localStorage.getItem('backupeer-theme') || 'dark';
+  const saved = localStorage.getItem('jagad-theme') || 'dark';
   document.documentElement.setAttribute('data-theme', saved);
 
   try {
@@ -121,7 +121,7 @@ function renderLogin() {
             <line x1="10" y1="16" x2="22" y2="16" stroke="url(#lg-grad)" stroke-width="0.8" stroke-linecap="round"/>
             <line x1="10" y1="18" x2="22" y2="18" stroke="url(#lg-grad)" stroke-width="0.8" stroke-linecap="round"/>
           </svg>
-          <span class="login-logo-text">Backupeer</span>
+          <span class="login-logo-text">Jagad</span>
         </div>
         <div class="login-subtitle">
           Sign in to <strong>manage your backups</strong><br>
@@ -196,7 +196,7 @@ function renderApp() {
             <line x1="10" y1="16" x2="22" y2="16" stroke="url(#sd-grad)" stroke-width="0.8" stroke-linecap="round"/>
             <line x1="10" y1="18" x2="22" y2="18" stroke="url(#sd-grad)" stroke-width="0.8" stroke-linecap="round"/>
           </svg>
-          <span class="sidebar-logo-text">Backupeer</span>
+          <span class="sidebar-logo-text">Jagad</span>
         </div>
 
         <nav class="sidebar-nav">
@@ -268,7 +268,7 @@ function renderApp() {
               <i data-lucide="menu" size="18"></i>
             </button>
             <div class="breadcrumb">
-              <a href="#" onclick="navigate('dashboard');return false;">Backupeer</a>
+              <a href="#" onclick="navigate('dashboard');return false;">Jagad</a>
               <span>/</span>
               <span style="color:var(--text-secondary);font-weight:500;" id="page-title-breadcrumb">Dashboard</span>
             </div>
@@ -2017,7 +2017,7 @@ async function renderSettings(el) {
             <input class="form-input" id="setting-version" value="..." disabled>
           </div>
           <p style="color:var(--text-tertiary);font-size:12px;margin-top:8px;">
-            Backupeer — PostgreSQL · MySQL · MariaDB backup manager.
+            Jagad — PostgreSQL · MySQL · MariaDB backup &amp; monitoring.
           </p>
         </div>
       </div>
@@ -2043,7 +2043,7 @@ async function renderSettings(el) {
   // Check encryption
   API.get('/api/health').then(h => {
     document.getElementById('encrypt-status').textContent =
-      h.encryption ? '✅ AES-256-GCM enabled' : '⚠️ Not configured (set BACKUPEER_ENCRYPTION_KEY)';
+          h.encryption ? '✅ AES-256-GCM enabled' : '⚠️ Not configured (set JAGAD_ENCRYPTION_KEY)';
   }).catch(() => {
     document.getElementById('encrypt-status').textContent = '⚠️ Unknown';
   });
@@ -2801,7 +2801,7 @@ function setTheme(theme) {
     el.setAttribute('data-lucide', theme === 'dark' ? 'sun' : 'moon');
   });
   lucide.createIcons();
-  localStorage.setItem('backupeer-theme', theme);
+  localStorage.setItem('jagad-theme', theme);
 }
 
 function escHtml(str) {

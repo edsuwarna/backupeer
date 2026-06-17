@@ -4,7 +4,7 @@ title: 'Incremental Backup'
 
 # Incremental Backup
 
-Backupeer supports incremental backups for all three supported database types through integration with mature, battle-tested third-party tools. This document explains how incremental backups work, how LSN tracking enables efficient change capture, and how the incremental chain is reconstructed during restore.
+Jagad supports incremental backups for all three supported database types through integration with mature, battle-tested third-party tools. This document explains how incremental backups work, how LSN tracking enables efficient change capture, and how the incremental chain is reconstructed during restore.
 
 ---
 
@@ -49,9 +49,9 @@ pgBackRest manages PostgreSQL backup and restore using **Write-Ahead Log (WAL)**
 2. Continuously archives WAL segments as PostgreSQL generates them
 3. Supports **differential backups** (all changes since last full) and **incremental backups** (all changes since last backup)
 
-### Integration in Backupeer
+### Integration in Jagad
 
-Backupeer generates a pgBackRest configuration file dynamically for each backup:
+Jagad generates a pgBackRest configuration file dynamically for each backup:
 
 ```
 [stanza_name]
@@ -103,11 +103,11 @@ func (e *PGBackRestEngine) runBackup(sch IncrementalSchedule, conn *connection.C
 | **Differential** | `--type=diff` | Changes since last full | 10-30% |
 | **Incremental** | `--type=incr` | Changes since last backup (any type) | 1-5% |
 
-Backupeer uses `--type=incr` for incremental backups, letting pgBackRest automatically determine the best base backup.
+Jagad uses `--type=incr` for incremental backups, letting pgBackRest automatically determine the best base backup.
 
 ### WAL Archiving
 
-pgBackRest requires PostgreSQL to be configured with `archive_mode=on` and `archive_command` pointing to `pgbackrest --stanza=<name> archive-push`. This is a prerequisite that must be configured on the PostgreSQL server — Backupeer does not manage this automatically.
+pgBackRest requires PostgreSQL to be configured with `archive_mode=on` and `archive_command` pointing to `pgbackrest --stanza=<name> archive-push`. This is a prerequisite that must be configured on the PostgreSQL server — Jagad does not manage this automatically.
 
 ### Restore with Incrementals
 
@@ -141,7 +141,7 @@ Percona XtraBackup performs **physical backups** of MySQL by copying InnoDB data
 1. **Full backup:** Copies all InnoDB data files, records the LSN at the end
 2. **Incremental backup:** Uses `--incremental-lsn=<LSN>` to copy only pages changed since that LSN
 
-### Integration in Backupeer
+### Integration in Jagad
 
 XtraBackup supports `--stream=xbstream` which outputs backup data to stdout — enabling the same streaming pipeline pattern:
 
@@ -182,7 +182,7 @@ func (e *XtraBackupEngine) runXtraBackup(...) {
 
 ### LSN Tracking
 
-After each backup, Backupeer extracts the LSN range from XtraBackup's stderr output:
+After each backup, Jagad extracts the LSN range from XtraBackup's stderr output:
 
 ```
 xtrabackup: The latest check point (for incremental): '12345678'
@@ -251,7 +251,7 @@ Mariabackup is MariaDB's fork of Percona XtraBackup. It uses the **same page-lev
 
 ### Fallback Support
 
-Backupeer checks for `mariabackup` first, then falls back to `xtrabackup`:
+Jagad checks for `mariabackup` first, then falls back to `xtrabackup`:
 
 ```go
 binary := "mariabackup"
@@ -315,7 +315,7 @@ metadata := map[string]string{
 
 ### Chain Validation
 
-Before performing an incremental backup, Backupeer checks:
+Before performing an incremental backup, Jagad checks:
 
 1. Does a full backup exist? If not, perform a full backup instead.
 2. Is the previous backup's `to_lsn` available? If not, fall back to full.
@@ -337,7 +337,7 @@ if hasPrevious && b.BackupType == "incremental" {
 
 ## Retention Policy with Incrementals
 
-When incrementals are enabled, retention becomes more nuanced than simple count-based cleanup. Backupeer uses a **tiered retention strategy**:
+When incrementals are enabled, retention becomes more nuanced than simple count-based cleanup. Jagad uses a **tiered retention strategy**:
 
 | Tier | Retained | Purpose |
 |---|---|---|
@@ -372,21 +372,21 @@ func (s *Scheduler) executeBackup(sch *Schedule) {
 ### PostgreSQL (pgBackRest)
 
 - PostgreSQL with `archive_mode=on` and `archive_command` configured
-- `pgbackrest` binary installed on the Backupeer host
-- Network access from Backupeer to PostgreSQL server
+- `pgbackrest` binary installed on the Jagad host
+- Network access from Jagad to PostgreSQL server
 - PostgreSQL user with `SUPERUSER` or `REPLICATION` privileges
 
 ### MySQL (XtraBackup)
 
 - MySQL 8.0+ or Percona Server
-- `xtrabackup` binary installed on the Backupeer host
+- `xtrabackup` binary installed on the Jagad host
 - MySQL user with `RELOAD, PROCESS, LOCK TABLES, REPLICATION CLIENT` privileges
 - InnoDB tables (XtraBackup only supports InnoDB/XtraDB)
 
 ### MariaDB (Mariabackup)
 
 - MariaDB 10.2+
-- `mariabackup` binary installed on the Backupeer host
+- `mariabackup` binary installed on the Jagad host
 - MariaDB user with `RELOAD, PROCESS, LOCK TABLES, REPLICATION CLIENT` privileges
 
 ---

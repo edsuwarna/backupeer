@@ -11,13 +11,13 @@
               <path d="M12 8a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v4h-8V8z" fill="rgba(94,106,210,0.3)" stroke="#5E6AD2" stroke-width="1.2"/>
               <path d="M14 20l2 2 4-4" stroke="#5E6AD2" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
-            <span class="bp-logo-text">Backupeer</span>
+            <span class="bp-logo-text">Jagad</span>
           </a>
           <div class="bp-nav-links">
             <a href="#features">Features</a>
             <a href="/architecture/overview">Architecture</a>
             <a href="/guide/getting-started">Docs</a>
-            <a href="https://github.com/edsuwarna/backupeer" target="_blank">GitHub</a>
+            <a href="https://github.com/edsuwarna/jagad" target="_blank">GitHub</a>
           </div>
         </div>
         <div class="bp-nav-right">
@@ -45,7 +45,7 @@
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14"/><path d="M19 12l-7 7-7-7"/></svg>
               Get Started
             </a>
-            <a href="https://github.com/edsuwarna/backupeer" target="_blank" class="bp-btn bp-btn-ghost bp-btn-lg">
+            <a href="https://github.com/edsuwarna/jagad" target="_blank" class="bp-btn bp-btn-ghost bp-btn-lg">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
               View on GitHub
             </a>
@@ -168,7 +168,7 @@
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#5E6AD2" stroke-width="1.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
           <span class="bp-arch-step target">S3</span>
         </div>
-        <p class="bp-arch-desc">Unlike traditional backup tools that dump to disk, Backupeer uses a pure streaming pipeline — all connected via <code>io.Pipe</code> with under 64KB of memory. No OOM risk. No disk space contention.</p>
+        <p class="bp-arch-desc">Unlike traditional backup tools that dump to disk, Jagad uses a pure streaming pipeline — all connected via <code>io.Pipe</code> with under 64KB of memory. No OOM risk. No disk space contention.</p>
       </div>
     </section>
 
@@ -182,7 +182,7 @@
           <span>Copy &amp; paste in your terminal</span>
           <button class="bp-copy-btn" @click="copyCode">{{ copied ? 'Copied!' : 'Copy' }}</button>
         </div>
-        <pre><code>curl -fsSL https://github.com/edsuwarna/backupeer/releases/latest/download/install.sh | bash</code></pre>
+        <pre><code>curl -fsSL https://github.com/edsuwarna/jagad/releases/latest/download/install.sh | bash</code></pre>
       </div>
       <p class="bp-code-footnote">Or <a href="/guide/installation" class="text-accent">install via Docker</a> &mdash; no dependencies needed.</p>
     </section>
@@ -197,7 +197,7 @@
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14"/><path d="M19 12l-7 7-7-7"/></svg>
             Get Started
           </a>
-          <a href="https://github.com/edsuwarna/backupeer" target="_blank" class="bp-btn bp-btn-ghost bp-btn-lg">
+          <a href="https://github.com/edsuwarna/jagad" target="_blank" class="bp-btn bp-btn-ghost bp-btn-lg">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
             Star on GitHub
           </a>
@@ -222,8 +222,8 @@
         </div>
         <div class="bp-footer-col">
           <h4>Community</h4>
-          <a href="https://github.com/edsuwarna/backupeer/issues">Issues</a>
-          <a href="https://github.com/edsuwarna/backupeer">GitHub</a>
+          <a href="https://github.com/edsuwarna/jagad/issues">Issues</a>
+          <a href="https://github.com/edsuwarna/jagad">GitHub</a>
           <a href="/about/contributing">Contributing</a>
         </div>
       </div>
@@ -240,7 +240,7 @@ import { ref } from 'vue'
 const copied = ref(false)
 
 function copyCode() {
-  const code = 'curl -fsSL https://github.com/edsuwarna/backupeer/releases/latest/download/install.sh | bash'
+  const code = 'curl -fsSL https://github.com/edsuwarna/jagad/releases/latest/download/install.sh | bash'
   if (navigator.clipboard) {
     navigator.clipboard.writeText(code)
     copied.value = true
@@ -302,7 +302,7 @@ const techs = [
 ]
 
 const steps = [
-  { title: 'Connect', desc: 'Add your database connection — PostgreSQL, MySQL, or MariaDB. Backupeer auto-detects your schema.' },
+  { title: 'Connect', desc: 'Add your database connection — PostgreSQL, MySQL, or MariaDB. Jagad auto-detects your schema.' },
   { title: 'Configure', desc: 'Choose full or incremental backup, set a cron schedule, configure retention policy, and pick your storage.' },
   { title: 'Backup & Restore', desc: 'Backups run automatically on schedule. Monitor via the web UI and restore with a single click.' },
 ]
@@ -310,7 +310,7 @@ const steps = [
 
 <style scoped>
 /* ══════════════════════════════════════════════
-   Backupeer Home — Dark Theme
+   Jagad Home — Dark Theme
    ══════════════════════════════════════════════ */
 * { margin: 0; padding: 0; box-sizing: border-box; }
 

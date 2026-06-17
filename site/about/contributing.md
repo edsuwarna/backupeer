@@ -4,7 +4,7 @@ title: 'Contributing'
 
 # Contributing
 
-Thank you for your interest in contributing to Backupeer! This document provides guidelines for setting up your development environment, building from source, running tests, and submitting changes.
+Thank you for your interest in contributing to Jagad! This document provides guidelines for setting up your development environment, building from source, running tests, and submitting changes.
 
 ---
 
@@ -12,8 +12,8 @@ Thank you for your interest in contributing to Backupeer! This document provides
 
 ```bash
 # Clone the repository
-git clone https://github.com/edsuwarna/backupeer.git
-cd backupeer
+git clone https://github.com/edsuwarna/jagad.git
+cd jagad
 
 # Install dependencies
 make deps
@@ -22,7 +22,7 @@ make deps
 make run-quick
 ```
 
-The application will start at `http://localhost:8080` with SQLite storage at `./data/backupeer.db`.
+The application will start at `http://localhost:8080` with SQLite storage at `./data/jagad.db`.
 
 ---
 
@@ -51,7 +51,7 @@ Optional but recommended:
 
 ### Go Version Management
 
-Backupeer uses Go 1.25+. You can check your Go version:
+Jagad uses Go 1.25+. You can check your Go version:
 
 ```bash
 go version
@@ -71,7 +71,7 @@ docker compose -f docker-compose.dev.yml up -d
 # - PostgreSQL on :5432
 # - MySQL on :3306
 # - MinIO (S3-compatible) on :9000
-# - Backupeer on :8080
+# - Jagad on :8080
 ```
 
 ---
@@ -79,8 +79,8 @@ docker compose -f docker-compose.dev.yml up -d
 ## Project Structure
 
 ```
-backupeer/
-├── cmd/backupeer/           # Main entrypoint
+jagad/
+├── cmd/jagad/           # Main entrypoint
 │   └── main.go              # Application bootstrap, dependency injection
 ├── internal/
 │   ├── api/                 # HTTP router, middleware, response helpers
@@ -166,7 +166,7 @@ backupeer/
 ```bash
 # Quick build
 make build
-# Binary at: dist/backupeer
+# Binary at: dist/jagad
 
 # Run directly (hot-reload via 'go run')
 make run-quick
@@ -181,8 +181,8 @@ make build
 # Cross-compile for multiple platforms
 make dist
 # Outputs:
-#   dist/backupeer-linux-amd64
-#   dist/backupeer-linux-arm64
+#   dist/jagad-linux-amd64
+#   dist/jagad-linux-arm64
 ```
 
 ### Docker Build
@@ -293,7 +293,7 @@ func TestStreamingPipeline(t *testing.T) {
 
 ### Go Code
 
-Backupeer follows standard Go conventions with some specific guidelines:
+Jagad follows standard Go conventions with some specific guidelines:
 
 1. **Formatting:** Use `gofmt` (or `go fmt`) exclusively. No exceptions.
 2. **Linting:** Run `golangci-lint` before submitting. Configuration is in `.golangci.yml`.
@@ -362,9 +362,9 @@ func (s *Service) StartBackup(dbName string) error {
 ### 1. Fork and Clone
 
 ```bash
-git clone https://github.com/your-username/backupeer.git
-cd backupeer
-git remote add upstream https://github.com/edsuwarna/backupeer.git
+git clone https://github.com/your-username/jagad.git
+cd jagad
+git remote add upstream https://github.com/edsuwarna/jagad.git
 ```
 
 ### 2. Create a Branch
@@ -460,7 +460,7 @@ Then create a Pull Request on GitHub with:
 1. Add dump command in `internal/backup/service.go` `buildDumpCmd()`
 2. Add restore logic in `internal/restore/service.go` `executeRestore()`
 3. Add incremental engine implementing `IncrementalEngine` interface
-4. Register the engine in `cmd/backupeer/main.go`
+4. Register the engine in `cmd/jagad/main.go`
 5. Add connection form fields in `web/index.html`
 6. Add validation in `internal/connection/service.go`
 7. Update documentation
@@ -525,4 +525,4 @@ npm run build
 
 ## License
 
-By contributing to Backupeer, you agree that your contributions will be licensed under the [Apache License 2.0](https://github.com/edsuwarna/backupeer/blob/main/LICENSE).
+By contributing to Jagad, you agree that your contributions will be licensed under the [Apache License 2.0](https://github.com/edsuwarna/jagad/blob/main/LICENSE).

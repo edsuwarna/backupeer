@@ -12,8 +12,8 @@ permissions:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME_BACKEND: ghcr.io/edsuwarna/backupeer
-  IMAGE_NAME_FRONTEND: ghcr.io/edsuwarna/backupeer-ui
+  IMAGE_NAME_BACKEND: ghcr.io/edsuwarna/jagad
+  IMAGE_NAME_FRONTEND: ghcr.io/edsuwarna/jagad-ui
 
 jobs:
   changes:

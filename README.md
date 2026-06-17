@@ -1,4 +1,4 @@
-# Backupeer
+# Jagad
 
 > **Backup Manager** — Web UI untuk PostgreSQL, MySQL, dan MariaDB backup dengan S3-compatible object storage.
 
@@ -10,7 +10,7 @@
 
 ## Overview
 
-Backupeer adalah **self-hosted database backup manager** dengan Web UI yang memungkinkan kamu mengelola backup database dari satu dashboard. Support full backup, scheduled backup dengan retention policy, dan S3-compatible object storage (AWS S3, Cloudflare R2, MinIO, Backblaze B2).
+Jagad adalah **self-hosted database backup manager** dengan Web UI yang memungkinkan kamu mengelola backup database dari satu dashboard. Support full backup, scheduled backup dengan retention policy, dan S3-compatible object storage (AWS S3, Cloudflare R2, MinIO, Backblaze B2).
 
 ### Key Features
 
@@ -36,8 +36,8 @@ Backupeer adalah **self-hosted database backup manager** dengan Web UI yang memu
 ### 1. Clone & Run
 
 ```bash
-git clone https://github.com/edsuwarna/backupeer.git
-cd backupeer
+git clone https://github.com/edsuwarna/jagad.git
+cd jagad
 docker compose up -d
 ```
 
@@ -161,12 +161,12 @@ Environment variables:
 
 | Variable | Default | Description |
 |---|---|---|
-| `BACKUPEER_PORT` | `8080` | API server port |
-| `BACKUPEER_DATA_DIR` | `/data` | SQLite + temp data directory |
-| `BACKUPEER_ADMIN_USER` | `admin` | Admin username |
-| `BACKUPEER_ADMIN_PASS` | `admin123` | Admin password |
-| `BACKUPEER_SECRET_KEY` | *(auto)* | Session secret key |
-| `BACKUPEER_ENCRYPTION_KEY` | *(none)* | Master key for AES-256-GCM |
+| `JAGAD_PORT` | `8080` | API server port |
+| `JAGAD_DATA_DIR` | `/data` | SQLite + temp data directory |
+| `JAGAD_ADMIN_USER` | `admin` | Admin username |
+| `JAGAD_ADMIN_PASS` | `admin123` | Admin password |
+| `JAGAD_SECRET_KEY` | *(auto)* | Session secret key |
+| `JAGAD_ENCRYPTION_KEY` | *(none)* | Master key for AES-256-GCM |
 
 ---
 
@@ -189,8 +189,8 @@ make docker-run
 ### Project Structure
 
 ```
-backupeer/
-├── cmd/backupeer/       # Main entrypoint
+jagad/
+├── cmd/jagad/            # Main entrypoint
 ├── internal/
 │   ├── api/             # HTTP router + response helpers
 │   ├── auth/            # Authentication

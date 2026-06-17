@@ -1,11 +1,11 @@
 ---
 title: 'Storage Providers'
-description: 'Configure S3-compatible storage providers in Backupeer — AWS S3, Cloudflare R2, MinIO, Google Cloud Storage, Backblaze B2, and generic S3-compatible endpoints.'
+description: 'Configure S3-compatible storage providers in Jagad — AWS S3, Cloudflare R2, MinIO, Google Cloud Storage, Backblaze B2, and generic S3-compatible endpoints.'
 ---
 
 # Storage Providers
 
-Backupeer stores backups in **S3-compatible object storage**. Any provider that implements the S3 API can be used. This includes major cloud providers, self-hosted solutions, and specialty backup storage services.
+Jagad stores backups in **S3-compatible object storage**. Any provider that implements the S3 API can be used. This includes major cloud providers, self-hosted solutions, and specialty backup storage services.
 
 ## Provider Types
 
@@ -93,7 +93,7 @@ storage:
     provider_type: r2
     endpoint: https://abc123def456.r2.cloudflarestorage.com
     region: auto
-    bucket: backupeer-backups
+    bucket: jagad-backups
     access_key: "${R2_ACCESS_KEY_ID}"
     secret_key: "${R2_SECRET_ACCESS_KEY}"
     path_style: false
@@ -120,7 +120,7 @@ storage:
     provider_type: minio
     endpoint: http://minio.internal:9000
     region: us-east-1
-    bucket: backupeer-backups
+    bucket: jagad-backups
     access_key: "${MINIO_ROOT_USER}"
     secret_key: "${MINIO_ROOT_PASSWORD}"
     path_style: true          # MinIO requires path-style addressing
@@ -182,7 +182,7 @@ storage:
     provider_type: b2
     endpoint: https://s3.us-west-004.backblazeb2.com
     region: us-west-004
-    bucket: backupeer-backups
+    bucket: jagad-backups
     access_key: "${B2_APPLICATION_KEY_ID}"
     secret_key: "${B2_APPLICATION_KEY}"
     path_style: false
@@ -280,7 +280,7 @@ schedules:
 
 ## Default Provider
 
-The provider marked `is_default: true` is used for schedules that don't specify a `storage` field. If no default is set, Backupeer will return an error when a schedule lacks a provider reference.
+The provider marked `is_default: true` is used for schedules that don't specify a `storage` field. If no default is set, Jagad will return an error when a schedule lacks a provider reference.
 
 ## Path-Style vs Virtual-Hosted Addressing
 

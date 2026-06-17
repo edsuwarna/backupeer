@@ -1,13 +1,13 @@
 ---
-title: 'What is Backupeer?'
-description: 'Overview of the Backupeer database backup tool — the problem it solves, key features, and target audience.'
+title: 'What is Jagad?'
+description: 'Overview of the Jagad database backup tool — the problem it solves, key features, and target audience.'
 ---
 
-# What is Backupeer?
+# What is Jagad?
 
-Backupeer is an **open-source database backup tool** written in Go that streams database backups directly to S3/R2-compatible object storage with zero disk overhead. It supports PostgreSQL, MySQL, and MariaDB.
+Jagad is an **open-source database backup tool** written in Go that streams database backups directly to S3/R2-compatible object storage with zero disk overhead. It supports PostgreSQL, MySQL, and MariaDB.
 
-Unlike traditional backup tools that dump to disk or buffer in memory, Backupeer uses a pure streaming pipeline architecture — `pg_dump stdout → gzip → encrypt → S3` — connected via `io.Pipe` chains that consume approximately **64KB of memory** regardless of database size.
+Unlike traditional backup tools that dump to disk or buffer in memory, Jagad uses a pure streaming pipeline architecture — `pg_dump stdout → gzip → encrypt → S3` — connected via `io.Pipe` chains that consume approximately **64KB of memory** regardless of database size.
 
 ## The Problem
 
@@ -20,9 +20,9 @@ Database backups are critical infrastructure, yet most tools suffer from one or 
 - **No notifications** — backup failures go unnoticed until it's too late
 - **No unified interface** — different databases need different tools with different config formats
 
-## How Backupeer Solves It
+## How Jagad Solves It
 
-Backupeer addresses all of these problems in a single binary with a Stripe-inspired web UI:
+Jagad addresses all of these problems in a single binary with a Stripe-inspired web UI:
 
 | Problem | Solution |
 |----------|----------|
@@ -44,7 +44,7 @@ Process databases of any size with just ~64KB memory. The dump output streams di
 - **MariaDB** — uses `mariadb-dump` / `mysqldump` for full backups, page-level via Mariabackup for incremental
 
 ### Full & Incremental Backups
-Choose between full logical dumps or fast incremental backups. Incremental backups use database-native tools (pgBackRest, Percona XtraBackup, Mariabackup) for page-level change tracking. Backupeer orchestrates them through a unified interface.
+Choose between full logical dumps or fast incremental backups. Incremental backups use database-native tools (pgBackRest, Percona XtraBackup, Mariabackup) for page-level change tracking. Jagad orchestrates them through a unified interface.
 
 ### AES-256-GCM Encryption
 End-to-end encryption with streaming chunk-level framing. Uses Argon2id key derivation from a master key. Counter-based nonces ensure each chunk uses a unique nonce. Authentication tags and proper EOF marking guarantee integrity.
@@ -53,7 +53,7 @@ End-to-end encryption with streaming chunk-level framing. Uses Argon2id key deri
 Any S3-compatible object storage — AWS S3, Cloudflare R2, MinIO, DigitalOcean Spaces, Backblaze B2, Google Cloud Storage. Backups are uploaded as multipart uploads for reliability with large data.
 
 ### Cron-Based Scheduling
-Define backup schedules using standard cron expressions. Backupeer automatically enforces retention policies after each backup, deleting old backups that exceed configured limits.
+Define backup schedules using standard cron expressions. Jagad automatically enforces retention policies after each backup, deleting old backups that exceed configured limits.
 
 ### Multi-Channel Notifications
 Get notified on backup success, failure, or warnings via Telegram, Discord, Slack, email, or custom webhooks. Notification messages include database name, size, duration, and log excerpts.
@@ -66,7 +66,7 @@ Run up to 3 backups concurrently with built-in semaphore limiting. Each backup r
 
 ## Target Audience
 
-Backupeer is built for:
+Jagad is built for:
 
 - **DevOps engineers** who need reliable, automated database backups with minimal infrastructure
 - **System administrators** managing multiple database servers across PostgreSQL, MySQL, and MariaDB
@@ -76,4 +76,4 @@ Backupeer is built for:
 
 ## License
 
-Backupeer is released under the **Apache 2.0 License** — free to use, modify, and distribute.
+Jagad is released under the **Apache 2.0 License** — free to use, modify, and distribute.

@@ -5,8 +5,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/edsuwarna/backupeer/internal/backup"
-	"github.com/edsuwarna/backupeer/internal/connection"
+	"github.com/edsuwarna/jagad/internal/backup"
+	"github.com/edsuwarna/jagad/internal/connection"
 	"github.com/robfig/cron/v3"
 )
 

@@ -4,7 +4,7 @@ title: 'Architecture Overview'
 
 # Architecture Overview
 
-Backupeer is a self-hosted database backup manager with a modular architecture designed around streaming pipelines, pluggable storage backends, and cron-based scheduling. This document describes the high-level system architecture, component interactions, data flow, and technology choices.
+Jagad is a self-hosted database backup manager with a modular architecture designed around streaming pipelines, pluggable storage backends, and cron-based scheduling. This document describes the high-level system architecture, component interactions, data flow, and technology choices.
 
 ---
 
@@ -85,7 +85,7 @@ The backend is a single Go binary that serves the REST API, manages the schedule
 
 | Package | Responsibility |
 |---|---|
-| `cmd/backupeer` | Main entrypoint, dependency injection |
+| `cmd/jagad` | Main entrypoint, dependency injection |
 | `internal/api` | HTTP router, middleware, response helpers |
 | `internal/auth` | Session-based authentication (cookie + header) |
 | `internal/config` | Environment variable configuration |
@@ -255,10 +255,10 @@ Full backups stream directly from the database dump tool through compression and
 - **No cleanup needed:** No temp files to delete on success or failure
 
 ### Encrypted Storage Provider Credentials
-S3 access keys and secrets are encrypted at rest in SQLite using AES-256-GCM with a SHA-256 derived key. The master key is provided via the `BACKUPEER_MASTER_KEY` environment variable.
+S3 access keys and secrets are encrypted at rest in SQLite using AES-256-GCM with a SHA-256 derived key. The master key is provided via the `JAGAD_MASTER_KEY` environment variable.
 
 ### Concurrent Backup Limiting
-A buffered channel semaphore limits concurrent backups to 3 by default (configurable via `BACKUPEER_MAX_CONCURRENT`). This prevents overwhelming the host system when multiple schedules trigger simultaneously.
+A buffered channel semaphore limits concurrent backups to 3 by default (configurable via `JAGAD_MAX_CONCURRENT`). This prevents overwhelming the host system when multiple schedules trigger simultaneously.
 
 ### Pluggable Incremental Engine Architecture
 The `IncrementalEngine` interface abstracts database-specific incremental backup tools behind a common contract:

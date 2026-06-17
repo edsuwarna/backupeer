@@ -4,7 +4,7 @@ package backup
 import (
 	"fmt"
 
-	"github.com/edsuwarna/backupeer/internal/connection"
+	"github.com/edsuwarna/jagad/internal/connection"
 )
 
 // IncrementalSchedule contains the minimum schedule fields needed by incremental engines.

@@ -3,7 +3,7 @@ layout: false
 ---
 
 <script setup>
-import BackupeerHome from './.vitepress/theme/components/BackupeerHome.vue'
+import JagadHome from './.vitepress/theme/components/JagadHome.vue'
 </script>
 
-<BackupeerHome />
+<JagadHome />

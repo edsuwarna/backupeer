@@ -1,31 +1,31 @@
 ---
 title: 'Configuration'
-description: 'Complete reference for the Backupeer YAML configuration file — all options with descriptions, types, and examples.'
+description: 'Complete reference for the Jagad YAML configuration file — all options with descriptions, types, and examples.'
 ---
 
 # Configuration
 
-Backupeer is configured via a single YAML file. You can also manage all settings through the Web UI, but the YAML file serves as the source of truth.
+Jagad is configured via a single YAML file. You can also manage all settings through the Web UI, but the YAML file serves as the source of truth.
 
 ## Configuration File Location
 
-By default, Backupeer looks for configuration in these locations (in order):
+By default, Jagad looks for configuration in these locations (in order):
 
-1. `./backupeer.yaml` (current directory)
-2. `$HOME/.config/backupeer/config.yaml`
-3. `/etc/backupeer/config.yaml`
+1. `./jagad.yaml` (current directory)
+2. `$HOME/.config/jagad/config.yaml`
+3. `/etc/jagad/config.yaml`
 
 You can specify a custom path with the `--config` flag:
 
 ```bash
-backupeer --config /path/to/config.yaml daemon
+jagad --config /path/to/config.yaml daemon
 ```
 
 ## Top-Level Structure
 
 ```yaml
 # General settings
-data_dir: ~/.local/share/backupeer
+data_dir: ~/.local/share/jagad
 log_level: info
 max_concurrent_backups: 3
 
@@ -59,7 +59,7 @@ server:
 
 | Setting | Type | Default | Description |
 |---------|------|---------|-------------|
-| `data_dir` | string | `~/.local/share/backupeer` | Directory for the embedded SQLite database, logs, and runtime data |
+| `data_dir` | string | `~/.local/share/jagad` | Directory for the embedded SQLite database, logs, and runtime data |
 | `log_level` | string | `info` | Log level: `debug`, `info`, `warn`, `error` |
 | `max_concurrent_backups` | int | `3` | Maximum number of backups to run simultaneously |
 
@@ -118,7 +118,7 @@ storage:
     provider_type: r2
     endpoint: https://<account-id>.r2.cloudflarestorage.com
     region: auto
-    bucket: backupeer-backups
+    bucket: jagad-backups
     access_key: "${R2_ACCESS_KEY_ID}"
     secret_key: "${R2_SECRET_ACCESS_KEY}"
     path_style: false
@@ -233,7 +233,7 @@ notifications:
 
 ```yaml
 encryption:
-  master_key: "${BACKUPEER_MASTER_KEY}"  # Master key for key derivation
+  master_key: "${JAGAD_MASTER_KEY}"  # Master key for key derivation
 ```
 
 | Setting | Type | Required | Description |
@@ -265,7 +265,7 @@ Here's a full configuration file covering all features:
 
 ```yaml
 # Global settings
-data_dir: /var/lib/backupeer
+data_dir: /var/lib/jagad
 log_level: info
 max_concurrent_backups: 3
 
@@ -275,7 +275,7 @@ connections:
     db_type: postgresql
     host: pg.example.com
     port: 5432
-    username: backupeer
+    username: jagad
     password: "${PG_PASSWORD}"
     ssl_mode: prefer
 
@@ -283,7 +283,7 @@ connections:
     db_type: mysql
     host: mysql.example.com
     port: 3306
-    username: backupeer
+    username: jagad
     password: "${MYSQL_PASSWORD}"
     ssl_mode: true
 
@@ -303,7 +303,7 @@ storage:
     provider_type: r2
     endpoint: https://<account-id>.r2.cloudflarestorage.com
     region: auto
-    bucket: backupeer-backups
+    bucket: jagad-backups
     access_key: "${R2_ACCESS_KEY_ID}"
     secret_key: "${R2_SECRET_ACCESS_KEY}"
     path_style: false
@@ -353,7 +353,7 @@ notifications:
 
 # Encryption
 encryption:
-  master_key: "${BACKUPEER_MASTER_KEY}"
+  master_key: "${JAGAD_MASTER_KEY}"
 
 # Web UI
 server:
@@ -363,15 +363,15 @@ server:
 
 ## Environment Variable Substitution
 
-Backupeer supports `${VAR_NAME}` syntax in configuration values. On startup, these are replaced with the corresponding environment variable values.
+Jagad supports `${VAR_NAME}` syntax in configuration values. On startup, these are replaced with the corresponding environment variable values.
 
 ```bash
 export DB_PASSWORD="my_secret_password"
 export AWS_ACCESS_KEY_ID="AKIAIOSFODNN7EXAMPLE"
 export AWS_SECRET_ACCESS_KEY="wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
-export BACKUPEER_MASTER_KEY="my-encryption-master-key"
+export JAGAD_MASTER_KEY="my-encryption-master-key"
 
-backupeer daemon --config backupeer.yaml
+jagad daemon --config jagad.yaml
 ```
 
 ## Configuration via CLI Flags
@@ -379,11 +379,11 @@ backupeer daemon --config backupeer.yaml
 All configuration options are also available as command-line flags for one-shot operations:
 
 ```bash
-backupeer backup \
+jagad backup \
   --db-type postgresql \
   --db-host localhost \
   --db-port 5432 \
-  --db-user backupeer \
+  --db-user jagad \
   --db-password "${DB_PASSWORD}" \
   --db-name myapp_production \
   --storage-endpoint https://s3.us-east-1.amazonaws.com \
@@ -398,7 +398,7 @@ backupeer backup \
 You can validate your configuration file without running any backups:
 
 ```bash
-backupeer validate --config backupeer.yaml
+jagad validate --config jagad.yaml
 ```
 
 This checks:

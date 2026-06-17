@@ -5,7 +5,7 @@ description: 'All storage providers in table format with connection strings, req
 
 # Storage Provider Reference
 
-Backupeer supports any **S3-compatible object storage** service. Storage providers are managed through the Web UI or API and support credential encryption at rest.
+Jagad supports any **S3-compatible object storage** service. Storage providers are managed through the Web UI or API and support credential encryption at rest.
 
 ## Provider Types
 
@@ -158,7 +158,7 @@ is_default: false
 
 ## Connection String Reference
 
-Backupeer does not use traditional connection strings for storage providers. Instead, providers are configured via the Web UI or API with the individual fields listed above.
+Jagad does not use traditional connection strings for storage providers. Instead, providers are configured via the Web UI or API with the individual fields listed above.
 
 For reference, the equivalent S3-style connection string for each service:
 
@@ -172,7 +172,7 @@ For reference, the equivalent S3-style connection string for each service:
 
 ## Storage Path Convention
 
-Backupeer stores backup files with the following path structure:
+Jagad stores backup files with the following path structure:
 
 ### Full Backups (pg_dump/mysqldump)
 
@@ -203,7 +203,7 @@ mariabackup/{connection_name}/{backup_dir}/{backup_id}/{backup_id}.tar.gz
 
 ## Credential Security
 
-- **At rest**: Access keys and secret keys are encrypted using AES-256-GCM with a key derived from the `BACKUPEER_MASTER_KEY`.
+- **At rest**: Access keys and secret keys are encrypted using AES-256-GCM with a key derived from the `JAGAD_MASTER_KEY`.
 - **In API responses**: Secret keys are masked with `••••••` for security.
 - **Internal usage**: The `GetDecrypted()` method returns raw credentials for backup/restore operations.
 

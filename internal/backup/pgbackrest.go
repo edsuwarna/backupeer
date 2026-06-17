@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 	"text/template"
 
-	"github.com/edsuwarna/backupeer/internal/connection"
+	"github.com/edsuwarna/jagad/internal/connection"
 )
 
 // PGBackRestEngine implements IncrementalEngine for PostgreSQL using pgBackRest.
@@ -120,7 +120,7 @@ func (e *PGBackRestEngine) runBackup(sch IncrementalSchedule, conn *connection.C
 	}
 
 	// Write config to temp file
-	configDir := filepath.Join(os.TempDir(), "backupeer", "pgbackrest", sch.ID)
+	configDir := filepath.Join(os.TempDir(), "jagad", "pgbackrest", sch.ID)
 	if err := os.MkdirAll(configDir, 0755); err != nil {
 		return nil, fmt.Errorf("create config dir: %w", err)
 	}

@@ -5,7 +5,7 @@ WORKDIR /app
 COPY go.mod go.sum ./
 RUN go mod download
 COPY . .
-RUN CGO_ENABLED=1 go build -ldflags="-s -w -X main.Version=$(cat VERSION 2>/dev/null || echo dev)" -o /app/backupeer ./cmd/backupeer
+RUN CGO_ENABLED=1 go build -ldflags="-s -w -X main.Version=$(cat VERSION 2>/dev/null || echo dev)" -o /app/jagad ./cmd/jagad
 
 # Base runtime: Debian + all DB tools (except Percona)
 FROM debian:bookworm-slim AS runtime-base
@@ -33,10 +33,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/* /tmp/percona.deb
 
 WORKDIR /app
-COPY --from=builder /app/backupeer .
+COPY --from=builder /app/jagad .
 VOLUME ["/data"]
 EXPOSE 8080
-ENV BACKUPEER_PORT=8080
-ENV BACKUPEER_DATA_DIR=/data
+ENV JAGAD_PORT=8080
+ENV JAGAD_DATA_DIR=/data
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 CMD wget -qO- http://localhost:8080/api/health || exit 1
-ENTRYPOINT ["/app/backupeer"]
+ENTRYPOINT ["/app/jagad"]

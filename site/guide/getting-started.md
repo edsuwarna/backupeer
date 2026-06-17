@@ -1,11 +1,11 @@
 ---
 title: 'Quick Start'
-description: 'Get started with Backupeer in under 5 minutes — download the binary, configure your database connection, and run your first backup.'
+description: 'Get started with Jagad in under 5 minutes — download the binary, configure your database connection, and run your first backup.'
 ---
 
 # Quick Start
 
-This guide will get you up and running with Backupeer in under 5 minutes. By the end, you'll have a working backup from one of your databases stored in S3-compatible object storage.
+This guide will get you up and running with Jagad in under 5 minutes. By the end, you'll have a working backup from one of your databases stored in S3-compatible object storage.
 
 ## Prerequisites
 
@@ -15,33 +15,33 @@ Before you begin, make sure you have:
 - **S3-compatible storage** (AWS S3, Cloudflare R2, MinIO, etc.) with access key and secret key
 - The database dump tool installed on your machine (`pg_dump`, `mysqldump`, or `mariadb-dump`)
 
-## Step 1: Download Backupeer
+## Step 1: Download Jagad
 
 Download the latest binary for your platform.
 
 **Linux (amd64):**
 ```bash
-curl -L -o backupeer https://github.com/edsuwarna/backupeer/releases/latest/download/backupeer-linux-amd64
-chmod +x backupeer
-sudo mv backupeer /usr/local/bin/
+curl -L -o jagad https://github.com/edsuwarna/jagad/releases/latest/download/jagad-linux-amd64
+chmod +x jagad
+sudo mv jagad /usr/local/bin/
 ```
 
 **macOS (arm64):**
 ```bash
-curl -L -o backupeer https://github.com/edsuwarna/backupeer/releases/latest/download/backupeer-darwin-arm64
-chmod +x backupeer
-sudo mv backupeer /usr/local/bin/
+curl -L -o jagad https://github.com/edsuwarna/jagad/releases/latest/download/jagad-darwin-arm64
+chmod +x jagad
+sudo mv jagad /usr/local/bin/
 ```
 
 Verify the installation:
 ```bash
-backupeer version
-# Should print version like: backupeer v0.1.0
+jagad version
+# Should print version like: jagad v0.1.0
 ```
 
 ## Step 2: Create a Configuration File
 
-Create a `backupeer.yaml` configuration file. Here's a minimal example:
+Create a `jagad.yaml` configuration file. Here's a minimal example:
 
 ```yaml
 # Database connection
@@ -82,15 +82,15 @@ schedules:
 
 ## Step 3: Run Your First Backup
 
-Start Backupeer in one-shot mode to run a backup immediately:
+Start Jagad in one-shot mode to run a backup immediately:
 
 ```bash
-backupeer backup --config backupeer.yaml
+jagad backup --config jagad.yaml
 ```
 
 Or specify everything inline:
 ```bash
-backupeer backup \
+jagad backup \
   --db-type postgresql \
   --db-host localhost \
   --db-port 5432 \
@@ -119,10 +119,10 @@ You'll see output like:
 
 ## Step 4: Start the Web UI (Optional)
 
-Backupeer includes a beautiful Stripe-inspired web dashboard. Start it with:
+Jagad includes a beautiful Stripe-inspired web dashboard. Start it with:
 
 ```bash
-backupeer serve --config backupeer.yaml
+jagad serve --config jagad.yaml
 ```
 
 Then open **http://localhost:8080** in your browser. From the dashboard you can:
@@ -135,10 +135,10 @@ Then open **http://localhost:8080** in your browser. From the dashboard you can:
 
 ## Step 5: Set Up Scheduled Backups
 
-Once you confirm manual backups work, let Backupeer run on a schedule:
+Once you confirm manual backups work, let Jagad run on a schedule:
 
 ```bash
-backupeer daemon --config backupeer.yaml
+jagad daemon --config jagad.yaml
 ```
 
 This runs the scheduler in the foreground. For production, use a process manager like systemd or run it as a Docker container.

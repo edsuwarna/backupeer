@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/edsuwarna/backupeer/internal/backup"
+	"github.com/edsuwarna/jagad/internal/backup"
 	"github.com/google/uuid"
 )
 

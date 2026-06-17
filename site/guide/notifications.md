@@ -1,11 +1,11 @@
 ---
 title: 'Notifications'
-description: 'Configure multi-channel notifications in Backupeer — Telegram, Discord, Slack, email, and webhook setup instructions with examples.'
+description: 'Configure multi-channel notifications in Jagad — Telegram, Discord, Slack, email, and webhook setup instructions with examples.'
 ---
 
 # Notifications
 
-Backupeer supports multi-channel notifications to keep you informed about backup results. You can receive alerts on success, failure, or both — delivered through your preferred messaging platforms.
+Jagad supports multi-channel notifications to keep you informed about backup results. You can receive alerts on success, failure, or both — delivered through your preferred messaging platforms.
 
 ## Supported Channels
 
@@ -110,7 +110,7 @@ ERROR: connection refused
 1. Go to your Discord server
 2. Open **Server Settings** → **Integrations** → **Webhooks**
 3. Click **Create Webhook**
-4. Name it (e.g., "Backupeer Backup Alerts") and select the channel
+4. Name it (e.g., "Jagad Backup Alerts") and select the channel
 5. Click **Copy Webhook URL**
 
 The URL looks like:
@@ -196,11 +196,11 @@ notifications:
       smtp_port: 587
       smtp_username: "alerts@example.com"
       smtp_password: "${SMTP_PASSWORD}"
-      from: "backupeer@example.com"
+      from: "jagad@example.com"
       to:
         - "admin@example.com"
         - "ops-team@example.com"
-      subject_template: "[Backupeer] {{.Status}} - {{.Database}} ({{.DBType}})"
+      subject_template: "[Jagad] {{.Status}} - {{.Database}} ({{.DBType}})"
 ```
 
 | Field | Type | Required | Description |
@@ -218,7 +218,7 @@ notifications:
 ### Setup Steps
 
 1. Set up an HTTP endpoint that accepts JSON POST requests
-2. Configure the URL in Backupeer
+2. Configure the URL in Jagad
 
 ### Configuration
 
@@ -230,7 +230,7 @@ notifications:
       url: "https://hooks.example.com/backup-alerts"
       headers:
         Authorization: "Bearer ${WEBHOOK_SECRET}"
-        X-Source: "backupeer"
+        X-Source: "jagad"
       method: "POST"
 ```
 
@@ -315,8 +315,8 @@ Backup notifications include:
 | Bot token invalid | Verify the bot token with @BotFather |
 | Chat ID wrong | Send a message to your bot first, then check `/getUpdates` |
 | Webhook URL expired | Discord/Slack webhooks can be revoked — regenerate |
-| Network blocked | Ensure Backupeer can reach the API endpoints (no firewall/proxy issues) |
-| Rate limited | Telegram/Discord have rate limits; Backupeer sends sequentially |
+| Network blocked | Ensure Jagad can reach the API endpoints (no firewall/proxy issues) |
+| Rate limited | Telegram/Discord have rate limits; Jagad sends sequentially |
 | SMTP auth failure | Double-check SMTP username and password |
 | Schedule not linked | Verify `notifications` list references the correct target names |
 | Notify flags disabled | Check `notify_on_success` and `notify_on_failure` are set to `true` |

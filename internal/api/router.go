@@ -4,13 +4,13 @@ package api
 import (
 	"net/http"
 
-	"github.com/edsuwarna/backupeer/internal/backup"
-	"github.com/edsuwarna/backupeer/internal/connection"
-	"github.com/edsuwarna/backupeer/internal/notification"
-	"github.com/edsuwarna/backupeer/internal/restore"
-	"github.com/edsuwarna/backupeer/internal/schedule"
-	"github.com/edsuwarna/backupeer/internal/settings"
-	"github.com/edsuwarna/backupeer/internal/storage"
+	"github.com/edsuwarna/jagad/internal/backup"
+	"github.com/edsuwarna/jagad/internal/connection"
+	"github.com/edsuwarna/jagad/internal/notification"
+	"github.com/edsuwarna/jagad/internal/restore"
+	"github.com/edsuwarna/jagad/internal/schedule"
+	"github.com/edsuwarna/jagad/internal/settings"
+	"github.com/edsuwarna/jagad/internal/storage"
 )
 
 // Router composes all domain routes into a single http.Handler.

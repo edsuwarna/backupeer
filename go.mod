@@ -1,4 +1,4 @@
-module github.com/edsuwarna/backupeer
+module github.com/edsuwarna/jagad
 
 go 1.25.0
 

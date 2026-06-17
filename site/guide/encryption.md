@@ -5,7 +5,7 @@ description: 'AES-256-GCM streaming encryption — how it works, key management,
 
 # Encryption
 
-Backupeer provides **end-to-end encryption** for backup data at rest using **AES-256-GCM** with **Argon2id** key derivation. Every backup can be encrypted before it leaves the server, ensuring that data stored in S3-compatible object storage is unreadable without the encryption key.
+Jagad provides **end-to-end encryption** for backup data at rest using **AES-256-GCM** with **Argon2id** key derivation. Every backup can be encrypted before it leaves the server, ensuring that data stored in S3-compatible object storage is unreadable without the encryption key.
 
 ## Architecture
 
@@ -16,7 +16,7 @@ The encryption system is built on two layers:
 
 ## AES-256-GCM
 
-Backupeer uses **AES-256-GCM** (Galois/Counter Mode) for all encryption operations:
+Jagad uses **AES-256-GCM** (Galois/Counter Mode) for all encryption operations:
 
 - **Algorithm**: AES with 256-bit key
 - **Mode**: GCM (Galois/Counter Mode) — provides both confidentiality and authentication
@@ -42,7 +42,7 @@ This means even if two backups use the same master key, they produce different e
 
 ## Streaming Encryption (Chunk-Level Framing)
 
-Backup data can be arbitrarily large (many GB or TB). To handle this without loading everything into memory, backupeer uses a **chunk-level framing** format that encrypts data in independent frames.
+Backup data can be arbitrarily large (many GB or TB). To handle this without loading everything into memory, jagad uses a **chunk-level framing** format that encrypts data in independent frames.
 
 ### Stream Format
 
@@ -122,13 +122,13 @@ For incremental backups via pgBackRest/XtraBackup/Mariabackup, encryption is han
 ### Via Environment Variable
 
 ```bash
-export BACKUPEER_ENCRYPTION_KEY="your-encryption-key-here"
+export JAGAD_ENCRYPTION_KEY="your-encryption-key-here"
 ```
 
 Or using a file:
 
 ```bash
-export BACKUPEER_ENCRYPTION_KEY=$(cat /etc/backupeer/encryption.key)
+export JAGAD_ENCRYPTION_KEY=$(cat /etc/jagad/encryption.key)
 ```
 
 ### Via Configuration File
@@ -152,15 +152,15 @@ encryption:
 
 ### Master Key
 
-The master key used for credential encryption is set via `BACKUPEER_MASTER_KEY` environment variable. If not provided, a default key is used (minimal security). **Always set a strong master key in production.**
+The master key used for credential encryption is set via `JAGAD_MASTER_KEY` environment variable. If not provided, a default key is used (minimal security). **Always set a strong master key in production.**
 
 ```bash
-export BACKUPEER_MASTER_KEY="your-strong-master-key"
+export JAGAD_MASTER_KEY="your-strong-master-key"
 ```
 
 ### Encryption Key
 
-The encryption key for backup data is set via `BACKUPEER_ENCRYPTION_KEY`. This key is used with Argon2id key derivation to produce the actual AES-256 key.
+The encryption key for backup data is set via `JAGAD_ENCRYPTION_KEY`. This key is used with Argon2id key derivation to produce the actual AES-256 key.
 
 ### Rotation
 

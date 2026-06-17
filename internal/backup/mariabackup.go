@@ -8,7 +8,7 @@ import (
 	"io"
 	"os/exec"
 
-	"github.com/edsuwarna/backupeer/internal/connection"
+	"github.com/edsuwarna/jagad/internal/connection"
 )
 
 // MariabackupEngine implements IncrementalEngine for MariaDB using Mariabackup.

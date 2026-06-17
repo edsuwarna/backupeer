@@ -1,8 +1,8 @@
 {
-  "name": "backupeer-site",
+  "name": "jagad-site",
   "version": "1.0.0",
   "type": "module",
-  "description": "Backupeer documentation & landing page",
+  "description": "Jagad documentation & landing page",
   "scripts": {
     "dev": "vitepress dev",
     "build": "vitepress build",

@@ -5,7 +5,7 @@ description: 'How to run backups manually, full backup vs incremental, one-shot 
 
 # Running Backups
 
-Backupeer supports multiple ways to run backups: **one-shot manual backups**, **scheduled backups** via cron expressions, and both **full** and **incremental** backup types. This page covers how to execute and monitor them.
+Jagad supports multiple ways to run backups: **one-shot manual backups**, **scheduled backups** via cron expressions, and both **full** and **incremental** backup types. This page covers how to execute and monitor them.
 
 ## Backup Types
 
@@ -29,7 +29,7 @@ pg_dump/mysqldump → count → gzip → SHA-256 → (encrypt) → S3
 
 ### Incremental Backup
 
-Incremental backups capture only changes since the last full backup, saving storage space and time. Backupeer uses battle-tested third-party tools:
+Incremental backups capture only changes since the last full backup, saving storage space and time. Jagad uses battle-tested third-party tools:
 
 | Database | Engine | Tool |
 |----------|--------|------|
@@ -39,7 +39,7 @@ Incremental backups capture only changes since the last full backup, saving stor
 
 Incremental backups also stream through gzip compression → S3, with no disk usage.
 
-> **Note**: For incremental backups to work, the corresponding tool must be installed on the Backupeer server and available in PATH.
+> **Note**: For incremental backups to work, the corresponding tool must be installed on the Jagad server and available in PATH.
 
 ## Running Backups Manually
 
@@ -184,7 +184,7 @@ STORAGE PROVIDER ERROR: no storage provider configured — add one in Settings >
 
 ### Backup Limitations
 
-- **Maximum concurrent backups**: 3 (configurable via `BACKUPEER_MAX_CONCURRENT`)
+- **Maximum concurrent backups**: 3 (configurable via `JAGAD_MAX_CONCURRENT`)
 - **List pagination**: Maximum 100 backups per request (default 50)
 - **Incremental prerequisites**: The corresponding engine tool must be installed
 

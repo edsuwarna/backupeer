@@ -5,7 +5,7 @@ description: 'Restore from full backup, restore from incremental chain, point-in
 
 # Restore
 
-Backupeer supports restoring backups to the original database server or to an alternative target. Both full and incremental backups can be restored, with integrity verification available before execution.
+Jagad supports restoring backups to the original database server or to an alternative target. Both full and incremental backups can be restored, with integrity verification available before execution.
 
 ## Restore Types
 
@@ -26,7 +26,7 @@ Incremental backup restore is handled by the underlying engine tools (pgBackRest
 - **pgBackRest**: Uses the stanza and WAL archive to replay to the desired point
 - **XtraBackup/Mariabackup**: Requires prepare (apply logs) on the full + incremental backups before restore
 
-> **Note**: Direct incremental restore via Backupeer API is currently limited to full backup restore. For incremental chain restore, use the engine's own tools (pgbackrest restore, xtrabackup --prepare, mariabackup --prepare).
+> **Note**: Direct incremental restore via Jagad API is currently limited to full backup restore. For incremental chain restore, use the engine's own tools (pgbackrest restore, xtrabackup --prepare, mariabackup --prepare).
 
 ### Point-in-Time Recovery (PITR)
 
@@ -114,7 +114,7 @@ If checksums match, the backup is verified intact — you can restore with confi
 
 ### Step-by-Step
 
-1. **Validate backup**: Backupeer checks that the backup has status `success` and exists
+1. **Validate backup**: Jagad checks that the backup has status `success` and exists
 2. **Resolve storage provider**: The provider used when the backup was created
 3. **Download from S3**: Streams the backup object into memory
 4. **Decrypt**: If encrypted, decrypts using AES-256-GCM
@@ -132,7 +132,7 @@ If checksums match, the backup is verified intact — you can restore with confi
 
 ## Restore to Alternative Target
 
-You can restore a backup to a different database server by specifying a `target_connection`. This must be a pre-configured connection in Backupeer. The target connection must be of the same database type (PostgreSQL backup → PostgreSQL server, MySQL backup → MySQL server).
+You can restore a backup to a different database server by specifying a `target_connection`. This must be a pre-configured connection in Jagad. The target connection must be of the same database type (PostgreSQL backup → PostgreSQL server, MySQL backup → MySQL server).
 
 This is useful for:
 

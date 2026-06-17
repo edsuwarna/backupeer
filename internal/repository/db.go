@@ -11,7 +11,7 @@ import (
 
 // Open opens the SQLite database and runs migrations.
 func Open(dataDir string, timeoutSec int) (*sql.DB, error) {
-	path := fmt.Sprintf("%s/backupeer.db", dataDir)
+	path := fmt.Sprintf("%s/jagad.db", dataDir)
 	db, err := sql.Open("sqlite3", fmt.Sprintf("%s?_journal_mode=WAL&_busy_timeout=%d", path, timeoutSec*1000))
 	if err != nil {
 		return nil, fmt.Errorf("open db: %w", err)

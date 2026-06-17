@@ -12,9 +12,9 @@ import (
 	"os/exec"
 	"time"
 
-	"github.com/edsuwarna/backupeer/internal/connection"
-	"github.com/edsuwarna/backupeer/internal/encryption"
-	"github.com/edsuwarna/backupeer/internal/storage"
+	"github.com/edsuwarna/jagad/internal/connection"
+	"github.com/edsuwarna/jagad/internal/encryption"
+	"github.com/edsuwarna/jagad/internal/storage"
 )
 
 // ProviderService interface for looking up storage providers.

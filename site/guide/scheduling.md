@@ -1,11 +1,11 @@
 ---
 title: 'Scheduling & Retention'
-description: 'Configure cron-based backup schedules and retention policies in Backupeer — cron expressions, retention tiers, and adaptive retention examples.'
+description: 'Configure cron-based backup schedules and retention policies in Jagad — cron expressions, retention tiers, and adaptive retention examples.'
 ---
 
 # Scheduling & Retention
 
-Backupeer uses standard cron expressions for scheduling and supports configurable retention policies to automatically manage backup lifecycle.
+Jagad uses standard cron expressions for scheduling and supports configurable retention policies to automatically manage backup lifecycle.
 
 ## How Scheduling Works
 
@@ -17,11 +17,11 @@ Each schedule defines:
 - **Retention limits** for automatic cleanup
 - **Notification targets** for alerts
 
-The scheduler runs all active jobs using `robfig/cron` v3. After each backup completes, Backupeer automatically enforces the retention policy — old backups beyond the configured limits are deleted.
+The scheduler runs all active jobs using `robfig/cron` v3. After each backup completes, Jagad automatically enforces the retention policy — old backups beyond the configured limits are deleted.
 
 ## Cron Expressions
 
-Backupeer uses standard 5-field cron expressions:
+Jagad uses standard 5-field cron expressions:
 
 ```
 ┌───────── minute (0 - 59)
@@ -77,7 +77,7 @@ schedules:
 
 ## Retention Policies
 
-Retention determines how many backups are kept before automatic deletion. After each backup completes, Backupeer deletes the oldest backups that exceed the configured limits.
+Retention determines how many backups are kept before automatic deletion. After each backup completes, Jagad deletes the oldest backups that exceed the configured limits.
 
 ### Retention Settings
 
@@ -89,7 +89,7 @@ Retention determines how many backups are kept before automatic deletion. After 
 ### How Retention Enforcement Works
 
 1. A backup completes successfully
-2. Backupeer counts existing backups for that schedule, grouped by type
+2. Jagad counts existing backups for that schedule, grouped by type
 3. If the count exceeds the retention limit, the oldest backups are deleted (from both metadata and S3)
 4. Only backups belonging to the same schedule are considered
 
@@ -235,7 +235,7 @@ schedules:
 You can trigger any schedule manually:
 
 ```bash
-backupeer run --schedule nightly-full --config backupeer.yaml
+jagad run --schedule nightly-full --config jagad.yaml
 ```
 
 This runs the backup immediately, bypassing the cron schedule, but still applies retention and notifications.

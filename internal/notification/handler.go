@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/edsuwarna/backupeer/internal/httputil"
+	"github.com/edsuwarna/jagad/internal/httputil"
 )
 
 // Handler handles HTTP requests for notification channel management.
@@ -119,7 +119,7 @@ func (h *Handler) handleTest(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	h.svc.NotifyBackupResult([]string{id}, n.ID, "test-db", "test", "success", 1048576, 5000, "Test notification from Backupeer")
+	h.svc.NotifyBackupResult([]string{id}, n.ID, "test-db", "test", "success", 1048576, 5000, "Test notification from Jagad")
 
 	httputil.WriteJSON(w, http.StatusOK, map[string]string{"status": "sent"})
 }

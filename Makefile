@@ -1,6 +1,6 @@
 .PHONY: build run clean deps docker-build docker-run
 
-BINARY=backupeer
+BINARY=jagad
 BUILD_DIR=dist
 VERSION=$(shell git describe --tags --always --dirty 2>/dev/null || echo "dev")
 
@@ -11,13 +11,13 @@ deps:
 
 build: deps
 	@mkdir -p $(BUILD_DIR)
-	CGO_ENABLED=1 go build -ldflags="-s -w -X main.Version=$(VERSION)" -o $(BUILD_DIR)/$(BINARY) ./cmd/backupeer
+	CGO_ENABLED=1 go build -ldflags="-s -w -X main.Version=$(VERSION)" -o $(BUILD_DIR)/$(BINARY) ./cmd/jagad
 
 run: build
-	BACKUPEER_DATA_DIR=./data ./$(BUILD_DIR)/$(BINARY)
+	JAGAD_DATA_DIR=./data ./$(BUILD_DIR)/$(BINARY)
 
 run-quick:
-	go run ./cmd/backupeer
+	go run ./cmd/jagad
 
 docker-build:
 	docker compose build
@@ -42,5 +42,5 @@ clean:
 
 dist: build
 	@echo "Building for multiple platforms..."
-	GOOS=linux GOARCH=amd64 CGO_ENABLED=1 go build -ldflags="-s -w -X main.Version=$(VERSION)" -o $(BUILD_DIR)/$(BINARY)-linux-amd64 ./cmd/backupeer
-	GOOS=linux GOARCH=arm64 CGO_ENABLED=1 go build -ldflags="-s -w -X main.Version=$(VERSION)" -o $(BUILD_DIR)/$(BINARY)-linux-arm64 ./cmd/backupeer
+	GOOS=linux GOARCH=amd64 CGO_ENABLED=1 go build -ldflags="-s -w -X main.Version=$(VERSION)" -o $(BUILD_DIR)/$(BINARY)-linux-amd64 ./cmd/jagad
+	GOOS=linux GOARCH=arm64 CGO_ENABLED=1 go build -ldflags="-s -w -X main.Version=$(VERSION)" -o $(BUILD_DIR)/$(BINARY)-linux-arm64 ./cmd/jagad

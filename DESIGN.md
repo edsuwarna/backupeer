@@ -1,6 +1,6 @@
 ---
 version: alpha
-name: Backupeer
+name: Jagad
 description: A dual-mode (dark/light) developer-tools design system built on a signature teal accent — database-backup infrastructure that feels precise, trustworthy, and modern.
 colors:
   # Brand
@@ -248,7 +248,7 @@ components:
 
 ## Overview
 
-Backupeer is a database backup management tool for sysadmins, DevOps engineers, and developers. The design system reflects its purpose: **precise, trustworthy, and modern**. The teal accent evokes data flow, reliability, and technical confidence — like a calm monitoring dashboard where every status indicator tells you exactly what you need to know.
+Jagad is a database backup management tool for sysadmins, DevOps engineers, and developers. The design system reflects its purpose: **precise, trustworthy, and modern**. The teal accent evokes data flow, reliability, and technical confidence — like a calm monitoring dashboard where every status indicator tells you exactly what you need to know.
 
 The system supports full dark and light modes. Dark mode is the default — a near-black canvas (`#0a0a0b`) that feels like a terminal or server console. Light mode uses a warm-white canvas (`#fafafa`) for environments where readability in bright conditions matters.
 

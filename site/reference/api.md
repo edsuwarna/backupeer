@@ -5,7 +5,7 @@ description: 'REST API endpoints: /api/backups, /api/connections, /api/schedules
 
 # API Reference
 
-Backupeer provides a comprehensive REST API for managing database connections, backups, schedules, restores, storage providers, notifications, and settings. All API endpoints return JSON responses.
+Jagad provides a comprehensive REST API for managing database connections, backups, schedules, restores, storage providers, notifications, and settings. All API endpoints return JSON responses.
 
 ## Base URL
 
