@@ -145,7 +145,7 @@ func testPostgreSQL(conn *Connection) error {
 
 func testMySQL(conn *Connection) error {
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/?tls=%s&timeout=5s",
-		conn.Username, conn.Password, conn.Host, conn.Port, conn.SSLMode)
+		conn.Username, conn.Password, conn.Host, conn.Port, mapMySQLTLS(conn.SSLMode))
 	db, err := sql.Open("mysql", dsn)
 	if err != nil {
 		return err
@@ -182,7 +182,7 @@ func discoverPostgreSQL(conn *Connection) ([]string, error) {
 
 func discoverMySQL(conn *Connection) ([]string, error) {
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/?tls=%s&timeout=5s",
-		conn.Username, conn.Password, conn.Host, conn.Port, conn.SSLMode)
+		conn.Username, conn.Password, conn.Host, conn.Port, mapMySQLTLS(conn.SSLMode))
 	db, err := sql.Open("mysql", dsn)
 	if err != nil {
 		return nil, err
@@ -211,4 +211,16 @@ func discoverMySQL(conn *Connection) ([]string, error) {
 		names = append(names, name)
 	}
 	return names, nil
+}
+
+// mapMySQLTLS maps PostgreSQL-style SSL modes to MySQL driver tls parameter values.
+func mapMySQLTLS(mode string) string {
+	switch mode {
+	case "disable", "allow":
+		return "false"
+	case "prefer", "require", "verify-ca", "verify-full":
+		return "skip-verify"
+	default:
+		return "skip-verify"
+	}
 }

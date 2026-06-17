@@ -277,7 +277,14 @@ func (c *Collector) queryActiveConnections(ctx context.Context, db *sql.DB, dbTy
 		return count
 	case "mysql", "mariadb":
 		var count int
-		err := db.QueryRowContext(ctx, `SELECT VARIABLE_VALUE FROM performance_schema.global_status WHERE VARIABLE_NAME = 'Threads_connected'`).Scan(&count)
+		schemaForThreads := "performance_schema"
+		if dbType == "mariadb" {
+			schemaForThreads = "information_schema"
+		}
+		err := db.QueryRowContext(ctx, fmt.Sprintf(
+			`SELECT VARIABLE_VALUE FROM %s.global_status WHERE UPPER(VARIABLE_NAME) LIKE UPPER('%%THREADS_CONNECTED%%')`,
+			schemaForThreads,
+		)).Scan(&count)
 		if err != nil {
 			// Fallback
 			_ = db.QueryRowContext(ctx, `SELECT COUNT(*) FROM information_schema.processlist`).Scan(&count)
@@ -386,7 +393,14 @@ func (c *Collector) collectMySQLMetrics(ctx context.Context, db *sql.DB, conn *c
 		).Scan(&m.DBSizeBytes)
 
 		// Connections total
-		_ = db.QueryRowContext(ctx, `SELECT VARIABLE_VALUE FROM performance_schema.global_status WHERE VARIABLE_NAME = 'Threads_connected'`).Scan(&m.ConnectionsTotal)
+		schemaForThreads := "performance_schema"
+		if conn.DBType == "mariadb" {
+			schemaForThreads = "information_schema"
+		}
+		_ = db.QueryRowContext(ctx, fmt.Sprintf(
+			`SELECT VARIABLE_VALUE FROM %s.global_status WHERE UPPER(VARIABLE_NAME) LIKE UPPER('%%THREADS_CONNECTED%%')`,
+			schemaForThreads,
+		)).Scan(&m.ConnectionsTotal)
 
 		// Max connections and usage percentage
 		_ = db.QueryRowContext(ctx, `SELECT @@max_connections`).Scan(&m.MaxConnections)
@@ -396,17 +410,21 @@ func (c *Collector) collectMySQLMetrics(ctx context.Context, db *sql.DB, conn *c
 
 		// Cache hit ratio (InnoDB buffer pool)
 		var hitRate sql.NullFloat64
-		err = db.QueryRowContext(ctx, `
-			SELECT 
-				CASE WHEN COALESCE(INNODB_BUFFER_POOL_READS, 0) > 0 
-					THEN ROUND((1 - (INNODB_BUFFER_POOL_READS / (INNODB_BUFFER_POOL_READ_REQUESTS + 1))) * 100, 2)
-					ELSE 100 
-				END
-			FROM (SELECT 
-				(SELECT VARIABLE_VALUE FROM performance_schema.global_status WHERE VARIABLE_NAME LIKE '%Innodb_buffer_pool_reads%' LIMIT 1)::INTEGER as INNODB_BUFFER_POOL_READS,
-				(SELECT VARIABLE_VALUE FROM performance_schema.global_status WHERE VARIABLE_NAME LIKE '%Innodb_buffer_pool_read_requests%' LIMIT 1)::INTEGER as INNODB_BUFFER_POOL_READ_REQUESTS
-			) stats`,
-		).Scan(&hitRate)
+		var schemaForStatus string
+		if conn.DBType == "mariadb" {
+			schemaForStatus = "information_schema"
+		} else {
+			schemaForStatus = "performance_schema"
+		}
+		q := fmt.Sprintf(`
+			SELECT
+				ROUND((1.0 - (
+					(SELECT VARIABLE_VALUE FROM %s.global_status WHERE UPPER(VARIABLE_NAME) LIKE UPPER('%%INNODB_BUFFER_POOL_READS%%')) + 0.0
+				) / (
+					(SELECT VARIABLE_VALUE FROM %s.global_status WHERE UPPER(VARIABLE_NAME) LIKE UPPER('%%INNODB_BUFFER_POOL_READ_REQUESTS%%')) + 1.0
+				)) * 100, 2
+			) AS hit_ratio`, schemaForStatus, schemaForStatus)
+		err = db.QueryRowContext(ctx, q).Scan(&hitRate)
 		if err == nil && hitRate.Valid {
 			m.CacheHitRatio = hitRate.Float64
 		}
@@ -954,9 +972,9 @@ func (c *Collector) collectMySQLTableMetrics(ctx context.Context, db *sql.DB, co
 			TABLE_SCHEMA,
 			TABLE_SCHEMA,
 			TABLE_NAME,
-			DATA_LENGTH,
-			INDEX_LENGTH,
-			DATA_LENGTH + INDEX_LENGTH,
+			CAST(DATA_LENGTH AS SIGNED),
+			CAST(INDEX_LENGTH AS SIGNED),
+			CAST(DATA_LENGTH AS SIGNED) + CAST(INDEX_LENGTH AS SIGNED),
 			TABLE_ROWS,
 			ENGINE,
 			TABLE_COLLATION
@@ -1032,15 +1050,24 @@ func openSourceDB(conn *connsvc.Connection) (*sql.DB, error) {
 		return sql.Open("pgx", dsn)
 	case "mysql":
 		dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/?tls=%s&timeout=5s&charset=utf8mb4",
-			conn.Username, conn.Password, conn.Host, conn.Port, conn.SSLMode)
+			conn.Username, conn.Password, conn.Host, conn.Port, tlsModeForMySQL(conn.SSLMode))
 		return sql.Open("mysql", dsn)
 	case "mariadb":
 		// MariaDB is MySQL-compatible with go-sql-driver
 		dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/?tls=%s&timeout=5s&charset=utf8mb4&multiStatements=true",
-			conn.Username, conn.Password, conn.Host, conn.Port, conn.SSLMode)
+			conn.Username, conn.Password, conn.Host, conn.Port, tlsModeForMySQL(conn.SSLMode))
 		return sql.Open("mysql", dsn)
 	default:
 		return nil, fmt.Errorf("unsupported database type: %s", conn.DBType)
+	}
+}
+
+func tlsModeForMySQL(mode string) string {
+	switch mode {
+	case "disable", "allow":
+		return "false"
+	default:
+		return "skip-verify"
 	}
 }
 
