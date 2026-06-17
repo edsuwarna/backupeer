@@ -46,7 +46,7 @@ func (s *Service) UpdateBatch(settings map[string]string) error {
 	}
 	defer tx.Rollback()
 
-	stmt, err := tx.Prepare(`INSERT OR REPLACE INTO app_settings (key, value) VALUES (?, ?)`)
+	stmt, err := tx.Prepare(`INSERT INTO app_settings (key, value) VALUES ($1, $2) ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value`)
 	if err != nil {
 		return fmt.Errorf("prepare: %w", err)
 	}

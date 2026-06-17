@@ -1,4 +1,4 @@
-package repository
+package postgres
 
 import (
 	"database/sql"
@@ -9,7 +9,7 @@ import (
 	"github.com/google/uuid"
 )
 
-// NotificationRepo implements notification.NotificationRepository using SQLite.
+// NotificationRepo implements notification.NotificationRepository using PostgreSQL.
 type NotificationRepo struct {
 	db *sql.DB
 }
@@ -39,7 +39,7 @@ func (r *NotificationRepo) List() ([]notification.Notification, error) {
 
 func (r *NotificationRepo) GetByID(id string) (*notification.Notification, error) {
 	n, err := scanNotificationRow(r.db.QueryRow(`SELECT id, name, notif_type, config_json,
-		created_at, updated_at FROM notifications WHERE id = ?`, id))
+		created_at, updated_at FROM notifications WHERE id = $1`, id))
 	if err == sql.ErrNoRows {
 		return nil, nil
 	}
@@ -56,7 +56,7 @@ func (r *NotificationRepo) Create(n *notification.Notification) error {
 
 	_, err := r.db.Exec(`INSERT INTO notifications
 		(id, name, notif_type, config_json, created_at, updated_at)
-		VALUES (?, ?, ?, ?, ?, ?)`,
+		VALUES ($1, $2, $3, $4, $5, $6)`,
 		n.ID, n.Name, n.NotifType, n.ConfigJSON, n.CreatedAt, n.UpdatedAt)
 	if err != nil {
 		return fmt.Errorf("create notification: %w", err)
@@ -68,7 +68,7 @@ func (r *NotificationRepo) Update(n *notification.Notification) error {
 	n.UpdatedAt = time.Now()
 
 	_, err := r.db.Exec(`UPDATE notifications SET
-		name=?, notif_type=?, config_json=?, updated_at=? WHERE id=?`,
+		name=$1, notif_type=$2, config_json=$3, updated_at=$4 WHERE id=$5`,
 		n.Name, n.NotifType, n.ConfigJSON, n.UpdatedAt, n.ID)
 	if err != nil {
 		return fmt.Errorf("update notification %s: %w", n.ID, err)
@@ -77,7 +77,7 @@ func (r *NotificationRepo) Update(n *notification.Notification) error {
 }
 
 func (r *NotificationRepo) Delete(id string) error {
-	_, err := r.db.Exec(`DELETE FROM notifications WHERE id = ?`, id)
+	_, err := r.db.Exec(`DELETE FROM notifications WHERE id = $1`, id)
 	if err != nil {
 		return fmt.Errorf("delete notification %s: %w", id, err)
 	}

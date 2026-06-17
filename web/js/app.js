@@ -239,6 +239,10 @@ function renderApp() {
             <span class="icon"><i data-lucide="activity" size="16"></i></span>
             Activity
           </a>
+          <a class="sidebar-link ${page === 'monitoring' ? 'active' : ''}" data-page="monitoring" onclick="navigate('monitoring')">
+            <span class="icon"><i data-lucide="heart-pulse" size="16"></i></span>
+            Monitoring
+          </a>
           <a class="sidebar-link ${page === 'settings' ? 'active' : ''}" data-page="settings" onclick="navigate('settings')">
             <span class="icon"><i data-lucide="settings" size="16"></i></span>
             Settings
@@ -323,7 +327,7 @@ function renderPage(page) {
   const el = document.getElementById('page-content');
   if (!el) return;
 
-  const titles = { dashboard: 'Dashboard', connections: 'Connections', backups: 'Backups', schedules: 'Schedules', restores: 'Restores', storage: 'Storage', notifications: 'Notifications', activity: 'Activity', settings: 'Settings' };
+  const titles = { dashboard: 'Dashboard', connections: 'Connections', backups: 'Backups', schedules: 'Schedules', restores: 'Restores', storage: 'Storage', notifications: 'Notifications', activity: 'Activity', monitoring: 'Monitoring', settings: 'Settings' };
   const titleEl = document.getElementById('page-title-breadcrumb');
   if (titleEl) titleEl.textContent = titles[page] || 'Dashboard';
 
@@ -335,8 +339,9 @@ function renderPage(page) {
     case 'storage': renderStorage(el); break;
     case 'notifications': renderNotifications(el); break;
     case 'restores': renderRestores(el); break;
-    case 'settings': renderSettings(el); break;
     case 'activity': renderActivity(el); break;
+    case 'settings': renderSettings(el); break;
+    case 'monitoring': renderMonitoring(el); break;
     default: el.innerHTML = '<div class="empty-state"><div class="empty-state-icon"><i data-lucide="file-x" size="24"></i></div><h3>Page not found</h3></div>'; lucide.createIcons();
   }
 }
@@ -764,26 +769,42 @@ async function renderConnections(el) {
   `;
 
   try {
-    const conns = await API.get('/api/connections');
+    const [conns, healthData] = await Promise.all([
+      API.get('/api/connections'),
+      API.get('/api/monitoring/health?limit=200').catch(() => []),
+    ]);
     state.connections = conns;
+
+    // Get latest health per connection
+    const healthByConn = {};
+    (healthData || []).forEach(h => {
+      if (!healthByConn[h.connection_id] || new Date(h.time) > new Date(healthByConn[h.connection_id].time)) {
+        healthByConn[h.connection_id] = h;
+      }
+    });
+
     const tbody = document.getElementById('conn-table-body');
     if (conns.length === 0) {
       tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state"><p>No connections added yet</p></div></td></tr>';
     } else {
-      tbody.innerHTML = conns.map(c => `
-        <tr>
+      tbody.innerHTML = conns.map(c => {
+        const health = healthByConn[c.id];
+        const statusClass = health ? health.status : 'unknown';
+        const statusDot = statusClass === 'healthy' ? 'green' : statusClass === 'degraded' ? 'amber' : statusClass === 'down' ? 'red' : 'gray';
+        const statusLabel = health ? (statusClass.charAt(0).toUpperCase() + statusClass.slice(1)) : 'Pending';
+        return `<tr>
           <td><strong style="color:var(--text-primary);">${escHtml(c.name)}</strong></td>
           <td><span class="db-badge ${getDbBadgeClass(c.db_type)}">${c.db_type.toUpperCase()}</span></td>
           <td class="mono">${escHtml(c.host)}:${c.port}</td>
           <td>${c.db_count || '—'}</td>
-          <td><span class="status-pill connected">Connected</span></td>
+          <td><span class="status-pill ${statusClass === 'healthy' ? 'connected' : statusClass === 'degraded' ? 'partially' : statusClass === 'down' ? 'disconnected' : ''}"><span class="status-dot ${statusDot}"></span> ${statusLabel}</span></td>
           <td>
             <button class="btn btn-sm" onclick="discoverConn('${c.id}')" title="Discover databases"><i data-lucide="search" size="13"></i></button>
             <button class="btn btn-sm" onclick="showBackupConn('${c.id}')" title="Run backup"><i data-lucide="play" size="13"></i></button>
             <button class="btn btn-sm btn-danger" onclick="deleteConn('${c.id}')" title="Delete"><i data-lucide="trash-2" size="13"></i></button>
           </td>
-        </tr>
-      `).join('');
+        </tr>`;
+      }).join('');
     }
   } catch (err) {
     document.getElementById('conn-table-body').innerHTML = `<tr><td colspan="6" style="color:var(--error);padding:20px;">Error: ${escHtml(err.message)}</td></tr>`;
@@ -2335,6 +2356,413 @@ async function renderActivity(el) {
   // Load data
   renderActivityContent('all');
 }
+
+// ══════════════════════════════════════
+// MONITORING
+// ══════════════════════════════════════
+let monitoringPollTimer = null;
+
+function stopMonitoringPoll() {
+  if (monitoringPollTimer) {
+    clearInterval(monitoringPollTimer);
+    monitoringPollTimer = null;
+  }
+}
+
+async function renderMonitoring(el) {
+  stopMonitoringPoll();
+
+  el.innerHTML = `
+    <div class="page-header">
+      <h1>Monitoring</h1>
+      <p>Database health, metrics & performance</p>
+    </div>
+
+    <!-- Freshness Alert -->
+    <div id="mon-freshness-banner" style="display:none;margin-bottom:var(--space-lg);"></div>
+
+    <!-- Refresh Controls -->
+    <div class="mon-refresh-bar">
+      <span class="mon-refresh-status" id="mon-last-refresh">Checking...</span>
+      <button class="btn btn-sm" id="mon-refresh-btn" onclick="refreshMonitoring()">
+        <i data-lucide="refresh-cw" size="13"></i> Refresh
+      </button>
+      <button class="btn btn-sm" id="mon-autorefresh-btn" onclick="toggleMonAutoRefresh()" style="margin-left:4px;">
+        <i data-lucide="activity" size="13"></i> Auto-refresh: ON
+      </button>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="mon-summary" id="mon-summary">
+      <div class="stat-card-v2"><div class="stat-top"><span class="stat-label">Monitored</span></div><div class="stat-value blue" id="mon-total">—</div></div>
+      <div class="stat-card-v2"><div class="stat-top"><span class="stat-label">Healthy</span></div><div class="stat-value green" id="mon-healthy">—</div></div>
+      <div class="stat-card-v2"><div class="stat-top"><span class="stat-label">Degraded</span></div><div class="stat-value amber" id="mon-degraded">—</div></div>
+      <div class="stat-card-v2"><div class="stat-top"><span class="stat-label">Down</span></div><div class="stat-value red" id="mon-down">—</div></div>
+    </div>
+
+    <!-- Connection Health Table -->
+    <div class="section-header-v2">
+      <h3><i data-lucide="heart-pulse" size="14" style="margin-right:6px;"></i> Connection Health</h3>
+    </div>
+    <div class="table-card">
+      <table>
+        <thead><tr><th>Name</th><th>Type</th><th>Status</th><th>Response Time</th><th>Active</th><th>Usage %</th><th>Last Checked</th><th>Actions</th></tr></thead>
+        <tbody id="mon-health-table"></tbody>
+      </table>
+    </div>
+
+    <!-- DB Size Chart -->
+    <div class="section-header-v2">
+      <h3><i data-lucide="bar-chart-3" size="14" style="margin-right:6px;"></i> Database Size</h3>
+    </div>
+    <div class="mon-chart-card" id="mon-chart-card">
+      <div class="empty-state-v2"><p>No data yet — collector runs every 60s</p></div>
+    </div>
+
+    <!-- Backup Analytics -->
+    <div class="section-header-v2">
+      <h3><i data-lucide="bar-chart-4" size="14" style="margin-right:6px;"></i> Backup Analytics</h3>
+    </div>
+    <div class="mon-chart-card" id="mon-backup-analytics">
+      <div class="empty-state-v2"><p>No backup data yet</p></div>
+    </div>
+
+    <!-- Slowest Backups -->
+    <div class="section-header-v2">
+      <h3><i data-lucide="clock" size="14" style="margin-right:6px;"></i> Slowest Backups (Top 10)</h3>
+    </div>
+    <div class="table-card">
+      <table>
+        <thead><tr><th>Connection</th><th>Database</th><th>Type</th><th>Duration</th><th>Size</th><th>Date</th></tr></thead>
+        <tbody id="mon-slowest-table"></tbody>
+      </table>
+    </div>
+
+    <!-- Slow Queries -->
+    <div class="section-header-v2">
+      <h3><i data-lucide="timer" size="14" style="margin-right:6px;"></i> Slow Queries (Top 10)</h3>
+    </div>
+    <div class="table-card">
+      <table>
+        <thead><tr><th>Connection</th><th>Type</th><th>Query</th><th>Mean Time</th><th>Calls</th><th>Avg Rows</th></tr></thead>
+        <tbody id="mon-slow-query-table"></tbody>
+      </table>
+    </div>
+  `;
+  lucide.createIcons();
+
+  // Expose auto-refresh toggle
+  window.monAutoRefresh = true;
+  window.monAutoRefreshTimer = null;
+
+  window.toggleMonAutoRefresh = function() {
+    window.monAutoRefresh = !window.monAutoRefresh;
+    const btn = document.getElementById('mon-autorefresh-btn');
+    if (btn) {
+      btn.innerHTML = window.monAutoRefresh
+        ? '<i data-lucide="activity" size="13"></i> Auto-refresh: ON'
+        : '<i data-lucide="activity" size="13"></i> Auto-refresh: OFF';
+      lucide.createIcons();
+    }
+    if (window.monAutoRefresh) {
+      startMonAutoRefresh();
+    } else {
+      if (window.monAutoRefreshTimer) {
+        clearInterval(window.monAutoRefreshTimer);
+        window.monAutoRefreshTimer = null;
+      }
+    }
+  };
+
+  function startMonAutoRefresh() {
+    if (window.monAutoRefreshTimer) clearInterval(window.monAutoRefreshTimer);
+    window.monAutoRefreshTimer = setInterval(() => {
+      if (window.monAutoRefresh && document.getElementById('mon-health-table')) {
+        loadMonitoringData();
+      }
+    }, 30000);
+  }
+
+  // Load initial data
+  loadMonitoringData();
+  startMonAutoRefresh();
+}
+
+// Exposed for Refresh button
+window.refreshMonitoring = function() {
+  loadMonitoringData();
+};
+
+async function loadMonitoringData() {
+  const refreshStatus = document.getElementById('mon-last-refresh');
+  if (refreshStatus) refreshStatus.textContent = 'Refreshing...';
+
+  try {
+    const [conns, healthData, metricData, perfData, trendsData, slowestData, freshnessData] = await Promise.all([
+      API.get('/api/connections').catch(() => []),
+      API.get('/api/monitoring/health?limit=100').catch(() => []),
+      API.get('/api/monitoring/metrics?limit=100').catch(() => []),
+      API.get('/api/monitoring/performance?limit=10').catch(() => []),
+      API.get('/api/backups/analytics/trends?days=14').catch(() => null),
+      API.get('/api/backups/analytics/slowest?limit=10').catch(() => null),
+      API.get('/api/backups/analytics/freshness?hours=24').catch(() => null),
+    ]);
+
+    if (refreshStatus) refreshStatus.textContent = 'Last updated: ' + new Date().toLocaleTimeString();
+
+    // Build connection name map
+    const connMap = {};
+    (conns || []).forEach(c => { connMap[c.id] = c; });
+
+    // Process health data — get latest per connection
+    const healthByConn = {};
+    (healthData || []).forEach(h => {
+      if (!healthByConn[h.connection_id] || new Date(h.time) > new Date(healthByConn[h.connection_id].time)) {
+        healthByConn[h.connection_id] = h;
+      }
+    });
+
+    // Stats
+    const total = Object.keys(healthByConn).length;
+    let healthy = 0, degraded = 0, down = 0;
+    Object.values(healthByConn).forEach(h => {
+      if (h.status === 'healthy') healthy++;
+      else if (h.status === 'degraded') degraded++;
+      else down++;
+    });
+
+    document.getElementById('mon-total').textContent = total || (conns ? conns.length : 0);
+    document.getElementById('mon-healthy').textContent = healthy;
+    document.getElementById('mon-degraded').textContent = degraded;
+    document.getElementById('mon-down').textContent = down;
+
+    // Health table
+    const healthTbody = document.getElementById('mon-health-table');
+    if (!healthTbody) return;
+
+    if (Object.keys(healthByConn).length === 0) {
+      healthTbody.innerHTML = '<tr><td colspan="8"><div class="empty-state-v2"><p>Waiting for collector data...</p><div class="sub">Collector runs every 60 seconds</div></div></td></tr>';
+    } else {
+      healthTbody.innerHTML = Object.values(healthByConn).map(h => {
+        const conn = connMap[h.connection_id] || {};
+        const statusClass = h.status || 'unknown';
+        const statusDot = statusClass === 'healthy' ? 'green' : statusClass === 'degraded' ? 'amber' : 'red';
+        const dbBadge = conn.db_type ? getDbBadgeClass(conn.db_type) : '';
+        const badgeHtml = conn.db_type ? `<span class="badge badge-${dbBadge}">${conn.db_type.toUpperCase().slice(0,2)}</span>` : '';
+        const responseTime = h.response_time_ms != null ? h.response_time_ms + 'ms' : '—';
+        const activeConns = h.active_connections != null ? h.active_connections : '—';
+        const lastCheck = h.time ? timeAgo(h.time) : '—';
+        const name = conn.name || h.connection_id.slice(0, 8);
+        // Get latest metric for this connection
+        const latestMetrics = (metricData || []).filter(m => m.connection_id === h.connection_id);
+        const latestMetric = latestMetrics.length > 0 ? latestMetrics.reduce((a, b) => new Date(a.time) > new Date(b.time) ? a : b) : null;
+        const usagePct = latestMetric && latestMetric.conn_usage_percent != null ? latestMetric.conn_usage_percent : null;
+        const usageHtml = usagePct !== null
+          ? `<span style="color:${usagePct > 80 ? 'var(--accent-red)' : usagePct > 60 ? 'var(--accent-amber)' : 'inherit'}">${usagePct.toFixed(1)}%</span>`
+          : '—';
+        return `<tr>
+          <td><strong>${escHtml(name)}</strong></td>
+          <td>${badgeHtml}</td>
+          <td><span class="status-pill ${statusClass}"><span class="status-dot ${statusDot}"></span> ${statusClass}</span></td>
+          <td class="mono">${responseTime}</td>
+          <td class="mono">${activeConns}</td>
+          <td class="mono">${usageHtml}</td>
+          <td style="color:var(--text-tertiary);font-size:12px;">${lastCheck}</td>
+          <td><button class="btn btn-sm" onclick="liveHealthCheck('${h.connection_id}')" title="Check now"><i data-lucide="zap" size="13"></i></button></td>
+        </tr>`;
+      }).join('');
+    }
+
+    // DB Size Chart
+    const chartCard = document.getElementById('mon-chart-card');
+    if (metricData && metricData.length > 0) {
+      // Group by connection, get latest size per db_name
+      const sizeByConn = {};
+      (metricData || []).forEach(m => {
+        if (m.db_size_bytes > 0) {
+          const key = m.connection_id + ':' + (m.db_name || '');
+          if (!sizeByConn[key] || new Date(m.time) > new Date(sizeByConn[key].time)) {
+            sizeByConn[key] = m;
+          }
+        }
+      });
+
+      const sizeEntries = Object.values(sizeByConn);
+      if (sizeEntries.length > 0) {
+        // Sort by size descending, take top 10
+        sizeEntries.sort((a, b) => b.db_size_bytes - a.db_size_bytes);
+        const topSizes = sizeEntries.slice(0, 10);
+        const maxSize = topSizes[0].db_size_bytes || 1;
+
+        chartCard.innerHTML = '<div class="mon-chart-inner">' + topSizes.map(m => {
+          const conn = connMap[m.connection_id] || {};
+          const label = conn.name ? escHtml(conn.name) + '/' + escHtml(m.db_name || '') : (m.db_name || m.connection_id.slice(0,8));
+          const pct = Math.max((m.db_size_bytes / maxSize) * 100, 2);
+          const sizeStr = formatBytes(m.db_size_bytes);
+          const barColor = m.db_type === 'postgresql' ? '#336791' : m.db_type === 'mysql' ? '#00758f' : '#1889b4';
+          return `<div class="mon-chart-row">
+            <span class="mon-chart-label">${label}</span>
+            <div class="mon-chart-bar-wrap">
+              <div class="mon-chart-bar" style="width:${pct}%;background:${barColor};"></div>
+            </div>
+            <span class="mon-chart-value">${sizeStr}</span>
+          </div>`;
+        }).join('') + '</div>';
+      } else {
+        chartCard.innerHTML = '<div class="empty-state-v2"><p>No database size data yet</p></div>';
+      }
+    } else {
+      chartCard.innerHTML = '<div class="empty-state-v2"><p>No database size data yet</p><div class="sub">Collector runs every 60 seconds</div></div>';
+    }
+
+    // Slow Queries Table
+    const perfTbody = document.getElementById('mon-slow-query-table');
+    if (!perfTbody) return;
+
+    if (!perfData || perfData.length === 0) {
+      perfTbody.innerHTML = '<tr><td colspan="6"><div class="empty-state-v2"><p>No slow queries detected</p><div class="sub">Requires pg_stat_statements (PostgreSQL) or performance_schema (MySQL)</div></div></td></tr>';
+    } else {
+      perfTbody.innerHTML = (perfData || []).map(p => {
+        const conn = connMap[p.connection_id] || {};
+        const name = conn.name || p.connection_id.slice(0, 8);
+        const dbBadge = conn.db_type ? getDbBadgeClass(conn.db_type) : '';
+        const badgeHtml = conn.db_type ? `<span class="badge badge-${dbBadge}">${conn.db_type.toUpperCase().slice(0,2)}</span>` : '';
+        const queryText = (p.query_text || '').substring(0, 80) + ((p.query_text || '').length > 80 ? '...' : '');
+        const meanTime = p.mean_time_ms != null ? (p.mean_time_ms / 1000).toFixed(2) + 's' : '—';
+        return `<tr>
+          <td>${escHtml(name)}</td>
+          <td>${badgeHtml}</td>
+          <td class="mono" style="max-width:350px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${escHtml(p.query_text || '')}">${escHtml(queryText)}</td>
+          <td class="mono" style="color:${p.mean_time_ms > 1000 ? 'var(--accent-red)' : p.mean_time_ms > 500 ? 'var(--accent-amber)' : 'inherit'}">${meanTime}</td>
+          <td class="mono">${p.calls || 0}</td>
+          <td class="mono">${p.rows_avg != null ? Math.round(p.rows_avg) : 0}</td>
+        </tr>`;
+      }).join('');
+    }
+
+    // ── Backup Analytics ──
+    const analyticsEl = document.getElementById('mon-backup-analytics');
+    if (analyticsEl) {
+      if (trendsData && trendsData.length > 0) {
+        const totalDays = trendsData.length;
+        const lastDay = trendsData[trendsData.length - 1];
+        const avgDuration = trendsData.reduce((s, t) => s + t.avg_duration_ms, 0) / totalDays;
+        const totalSize = trendsData.reduce((s, t) => s + t.total_size_bytes, 0);
+        const totalBackups = trendsData.reduce((s, t) => s + t.total_backups, 0);
+        const totalSuccess = trendsData.reduce((s, t) => s + t.success_count, 0);
+        const successRate = totalBackups > 0 ? (totalSuccess / totalBackups * 100).toFixed(1) : 0;
+
+        analyticsEl.innerHTML = `
+          <div class="mon-chart-inner" style="margin-bottom:var(--space-md);">
+            <div style="display:flex;gap:var(--space-md);margin-bottom:var(--space-lg);">
+              <div class="stat-card-v2" style="flex:1;"><div class="stat-top"><span class="stat-label">Success Rate</span></div><div class="stat-value green">${successRate}%</div></div>
+              <div class="stat-card-v2" style="flex:1;"><div class="stat-top"><span class="stat-label">Avg Duration</span></div><div class="stat-value blue">${(avgDuration / 1000).toFixed(1)}s</div></div>
+              <div class="stat-card-v2" style="flex:1;"><div class="stat-top"><span class="stat-label">Total Stored</span></div><div class="stat-value amber">${formatBytes(totalSize)}</div></div>
+            </div>
+            <div style="font-size:13px;font-weight:500;color:var(--text-secondary);margin-bottom:var(--space-sm);">Daily Backups (last ${totalDays} days)</div>
+            ${trendsData.slice(-7).map(t => {
+              const maxBackups = Math.max(...trendsData.slice(-7).map(x => x.total_backups), 1);
+              const barPct = Math.max((t.total_backups / maxBackups) * 100, 3);
+              const successPct = t.total_backups > 0 ? (t.success_count / t.total_backups * 100) : 0;
+              return `<div class="mon-chart-row" style="margin-bottom:3px;">
+                <span class="mon-chart-label" style="width:50px;font-size:11px;">${t.date.slice(5)}</span>
+                <div class="mon-chart-bar-wrap" style="height:16px;">
+                  <div class="mon-chart-bar" style="width:${barPct}%;background:var(--accent-green);opacity:${0.4 + successPct/100 * 0.6};"></div>
+                </div>
+                <span class="mon-chart-value" style="font-size:11px;">${t.total_backups} (${successPct.toFixed(0)}%)</span>
+              </div>`;
+            }).join('')}
+          </div>`;
+      } else {
+        analyticsEl.innerHTML = '<div class="empty-state-v2"><p>No backup data yet — run a backup first</p></div>';
+      }
+    }
+
+    // ── Slowest Backups ──
+    const slowestTbody = document.getElementById('mon-slowest-table');
+    if (slowestTbody) {
+      if (slowestData && slowestData.length > 0) {
+        slowestTbody.innerHTML = slowestData.map(b => {
+          const conn = connMap[b.connection_id] || {};
+          const name = conn.name || b.connection_id.slice(0, 8);
+          const dbBadge = conn.db_type ? getDbBadgeClass(conn.db_type) : '';
+          const badgeHtml = conn.db_type ? `<span class="badge badge-${dbBadge}">${conn.db_type.toUpperCase().slice(0,2)}</span>` : '';
+          const dur = b.duration_ms != null ? b.duration_ms : 0;
+          const durStr = dur >= 60000 ? (dur/60000).toFixed(1) + 'm' : dur >= 1000 ? (dur/1000).toFixed(1) + 's' : dur + 'ms';
+          const durColor = dur > 300000 ? 'var(--accent-red)' : dur > 120000 ? 'var(--accent-amber)' : 'inherit';
+          const dateStr = b.completed_at || b.created_at ? new Date(b.completed_at || b.created_at).toLocaleDateString() : '—';
+          return `<tr>
+            <td>${escHtml(name)}</td>
+            <td>${escHtml(b.database_id ? b.database_id.slice(0, 8) : '—')}</td>
+            <td>${badgeHtml}</td>
+            <td class="mono" style="color:${durColor}">${durStr}</td>
+            <td class="mono">${b.size_bytes ? formatBytes(b.size_bytes) : '—'}</td>
+            <td style="font-size:12px;color:var(--text-tertiary);">${dateStr}</td>
+          </tr>`;
+        }).join('');
+      } else {
+        slowestTbody.innerHTML = '<tr><td colspan="6"><div class="empty-state-v2"><p>No backup data yet</p></div></td></tr>';
+      }
+    }
+
+    // ── Freshness Alert ──
+    const freshnessBanner = document.getElementById('mon-freshness-banner');
+    if (freshnessBanner) {
+      if (freshnessData && freshnessData.length > 0) {
+        const count = freshnessData.length;
+        freshnessBanner.style.display = 'block';
+        freshnessBanner.innerHTML = `
+          <div class="card" style="border-left:3px solid var(--accent-amber);background:rgba(251,146,60,0.06);padding:var(--space-md) var(--space-lg);">
+            <div style="display:flex;align-items:center;gap:var(--space-sm);margin-bottom:var(--space-sm);">
+              <i data-lucide="alert-triangle" size="16" style="color:var(--accent-amber);flex-shrink:0;"></i>
+              <strong style="color:var(--accent-amber);">${count} database${count > 1 ? 's' : ''} not backed up in 24h+</strong>
+            </div>
+            <div style="font-size:13px;color:var(--text-tertiary);">
+              ${freshnessData.map(a => `${escHtml(a.connection_name || a.connection_id.slice(0,8))}/${escHtml(a.database_name)} (${a.hours_since_backup ? Math.round(a.hours_since_backup) + 'h ago' : 'never'})`).join(', ')}
+            </div>
+          </div>`;
+        lucide.createIcons(freshnessBanner);
+      } else {
+        freshnessBanner.style.display = 'none';
+      }
+    }
+
+    lucide.createIcons();
+  } catch (err) {
+    if (refreshStatus) refreshStatus.textContent = 'Error: ' + err.message;
+  }
+}
+
+// Live health check for a specific connection
+window.liveHealthCheck = async function(connId) {
+  const btn = event?.target?.closest?.('button');
+  if (btn) { btn.disabled = true; btn.innerHTML = '<i data-lucide="loader" size="13" class="loading-spinner"></i>'; lucide.createIcons(); }
+
+  try {
+    const result = await API.get('/api/connections/' + connId + '/health');
+    const status = result.status || 'unknown';
+    const statusIcon = status === 'healthy' ? '✅' : status === 'degraded' ? '⚠️' : '❌';
+    showModal('Live Health Check', `
+      <div style="text-align:center;padding:var(--space-lg) 0;">
+        <div style="font-size:48px;margin-bottom:var(--space-md);">${statusIcon}</div>
+        <h3 style="margin-bottom:var(--space-sm);">${status.charAt(0).toUpperCase() + status.slice(1)}</h3>
+        <table class="restore-review-table" style="margin:0 auto;">
+          <tr><td>Connection</td><td><strong>${escHtml(result.name || '')}</strong></td></tr>
+          <tr><td>Type</td><td>${(result.db_type || '').toUpperCase()}</td></tr>
+          <tr><td>Host</td><td class="mono">${result.host || ''}:${result.port || ''}</td></tr>
+          <tr><td>Response Time</td><td class="mono">${result.response_time_ms || '—'}ms</td></tr>
+          <tr><td>Active Connections</td><td class="mono">${result.active_connections || '—'}</td></tr>
+          <tr><td>Checked At</td><td style="font-size:12px;color:var(--text-tertiary);">${result.time || '—'}</td></tr>
+        </table>
+        ${result.error ? '<p style="color:var(--accent-red);margin-top:var(--space-lg);">Error: ' + escHtml(result.error) + '</p>' : ''}
+      </div>
+    `);
+  } catch (err) {
+    alert('Health check failed: ' + err.message);
+  }
+
+  if (btn) { btn.disabled = false; btn.innerHTML = '<i data-lucide="zap" size="13"></i>'; lucide.createIcons(); }
+};
 
 // ══════════════════════════════════════
 // UTILITIES

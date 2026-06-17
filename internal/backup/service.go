@@ -590,6 +590,21 @@ func (s *Service) Stats() (*StatsResponse, error) {
 	return stats, nil
 }
 
+// Trends returns daily backup aggregation for specified number of days.
+func (s *Service) Trends(days int) ([]BackupTrend, error) {
+	return s.repo.ListTrends(days)
+}
+
+// SlowestBackups returns the top N slowest successful backups.
+func (s *Service) SlowestBackups(limit int) ([]Backup, error) {
+	return s.repo.ListSlowest(limit)
+}
+
+// Freshness returns connections/databases not backed up within the given hours.
+func (s *Service) Freshness(hours int) ([]StaleBackupAlert, error) {
+	return s.repo.ListStaleConnections(hours)
+}
+
 // StartVerification kicks off async backup verification.
 func (s *Service) StartVerification(id string) error {
 	b, err := s.repo.GetByID(id)

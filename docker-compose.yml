@@ -1,4 +1,22 @@
 services:
+  timescaledb:
+    image: timescale/timescaledb-ha:pg16
+    container_name: jagad-db
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_PASSWORD=jagad_secret
+      - POSTGRES_DB=jagad
+    volumes:
+      - timescaledb_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+
   backend:
     build:
       context: .
@@ -7,11 +25,15 @@ services:
     restart: unless-stopped
     expose:
       - 8080
+    depends_on:
+      timescaledb:
+        condition: service_healthy
     volumes:
       - jagad_data:/data
     environment:
       - JAGAD_PORT=8080
       - JAGAD_DATA_DIR=/data
+      - JAGAD_DATABASE_URL=postgres://postgres:jagad_secret@timescaledb:5432/jagad?sslmode=disable
       - JAGAD_ADMIN_USER=admin
       - JAGAD_ADMIN_PASS=admin123
       - JAGAD_SECRET_KEY=change-me-in-production
@@ -43,3 +65,4 @@ services:
 
 volumes:
   jagad_data:
+  timescaledb_data:

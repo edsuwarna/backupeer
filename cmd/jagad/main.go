@@ -19,8 +19,9 @@ import (
 	"github.com/edsuwarna/jagad/internal/config"
 	connsvc "github.com/edsuwarna/jagad/internal/connection"
 	"github.com/edsuwarna/jagad/internal/encryption"
+	"github.com/edsuwarna/jagad/internal/monitoring"
 	notifsvc "github.com/edsuwarna/jagad/internal/notification"
-	"github.com/edsuwarna/jagad/internal/repository"
+	"github.com/edsuwarna/jagad/internal/repository/postgres"
 	restsvc "github.com/edsuwarna/jagad/internal/restore"
 	schsvc "github.com/edsuwarna/jagad/internal/schedule"
 	"github.com/edsuwarna/jagad/internal/settings"
@@ -35,20 +36,26 @@ func main() {
 	slog.SetDefault(slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelInfo})))
 	slog.Info("starting jagad", "version", Version)
 
-	// Initialize SQLite
-	db, err := repository.Open(cfg.DataDir, 5)
+	// PostgreSQL is required
+	if cfg.DatabaseURL == "" {
+		slog.Error("JAGAD_DATABASE_URL is required")
+		os.Exit(1)
+	}
+
+	slog.Info("connecting to PostgreSQL")
+	db, err := postgres.Open(cfg.DatabaseURL)
 	if err != nil {
-		slog.Error("failed to open database", "error", err)
+		slog.Error("failed to open postgres database", "error", err)
 		os.Exit(1)
 	}
 	defer db.Close()
 
 	// Initialize repositories
-	connRepo := repository.NewConnectionRepo(db)
-	backupRepo := repository.NewBackupRepo(db)
-	scheduleRepo := repository.NewScheduleRepo(db)
-	restoreRepo := repository.NewRestoreRepo(db)
-	storageProvRepo := repository.NewStorageProviderRepo(db)
+	connRepo := postgres.NewConnectionRepo(db)
+	backupRepo := postgres.NewBackupRepo(db)
+	scheduleRepo := postgres.NewScheduleRepo(db)
+	restoreRepo := postgres.NewRestoreRepo(db)
+	storageProvRepo := postgres.NewStorageProviderRepo(db)
 
 	// Initialize storage provider service (manages S3/R2 config from UI)
 	provSvc := storage.NewProviderService(storageProvRepo, cfg.MasterKey)
@@ -58,23 +65,6 @@ func main() {
 	if cfg.EncryptionKey != "" {
 		encSvc = encryption.NewAESGCMService([]byte(cfg.EncryptionKey))
 		slog.Info("encryption enabled (AES-256-GCM)")
-	}
-
-	// Also try to create the legacy env-based storage client for backward compat
-	var legacyStorageErr error
-	if cfg.StorageEndpoint != "" && cfg.StorageAccessKey != "" {
-		storageCfg := storage.Config{
-			Endpoint:  cfg.StorageEndpoint,
-			Region:    cfg.StorageRegion,
-			Bucket:    cfg.StorageBucket,
-			AccessKey: cfg.StorageAccessKey,
-			SecretKey: cfg.StorageSecretKey,
-			PathStyle: cfg.StoragePathStyle,
-		}
-		_, legacyStorageErr = storage.NewS3Client(storageCfg)
-		if legacyStorageErr == nil {
-			slog.Info("legacy env-based storage configured — consider migrating to UI-based storage")
-		}
 	}
 
 	// Check for required tools
@@ -121,7 +111,7 @@ func main() {
 	storageProvHandler := storage.NewProviderHandler(provSvc)
 
 	// Initialize notification service
-	notifRepo := repository.NewNotificationRepo(db)
+	notifRepo := postgres.NewNotificationRepo(db)
 	notifSvc := notifsvc.NewService(notifRepo)
 	notifHandler := notifsvc.NewHandler(notifSvc)
 
@@ -141,8 +131,16 @@ func main() {
 	settingsSvc := settings.NewService(db)
 	settingsHandler := settings.NewHandler(settingsSvc, Version)
 
+	// Initialize monitoring (PostgreSQL)
+	monStore := monitoring.NewPGStore(db)
+	monitoringHandler := monitoring.NewHandler(monStore)
+
+	// Initialize monitoring collector (queries source DBs for metrics)
+	monCollector := monitoring.NewCollector(connRepo, monStore, 60*time.Second)
+	monitoringHandler.SetCollector(monCollector)
+
 	// Build api router (protected routes)
-	apiRouter := api.NewRouter(connHandler, backupHandler, scheduleHandler, restoreHandler, storageProvHandler, notifHandler, settingsHandler)
+	apiRouter := api.NewRouter(connHandler, backupHandler, scheduleHandler, restoreHandler, storageProvHandler, notifHandler, settingsHandler, monitoringHandler)
 	protected := authSvc.Middleware(apiRouter.Handler())
 
 	// Top-level mux
@@ -158,11 +156,11 @@ func main() {
 	mux.HandleFunc("GET /api/health", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		health := map[string]interface{}{
-			"status":         "ok",
-			"version":        Version,
-			"encryption":     encSvc != nil,
-			"providers":      true,
-			"legacy_storage": legacyStorageErr == nil,
+			"status":     "ok",
+			"version":    Version,
+			"database":   "postgresql",
+			"encryption": encSvc != nil,
+			"providers":  true,
 		}
 		json.NewEncoder(w).Encode(health)
 	})
@@ -172,6 +170,9 @@ func main() {
 
 	// Apply CORS middleware
 	handler := api.Middleware(mux)
+
+	monCollector.Start(context.Background())
+	slog.Info("monitoring collector scheduled", "interval", "60s")
 
 	// Start server
 	addr := fmt.Sprintf(":%s", cfg.Port)
@@ -187,6 +188,7 @@ func main() {
 		<-sigCh
 		slog.Info("shutting down gracefully...")
 
+		monCollector.Stop()
 		scheduler.Stop()
 
 		ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)

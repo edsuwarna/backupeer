@@ -1,4 +1,4 @@
-package repository
+package postgres
 
 import (
 	"database/sql"
@@ -9,7 +9,7 @@ import (
 	"github.com/google/uuid"
 )
 
-// ConnectionRepo implements connection.Repository using SQLite.
+// ConnectionRepo implements connection.Repository using PostgreSQL.
 type ConnectionRepo struct {
 	db *sql.DB
 }
@@ -38,7 +38,7 @@ func (r *ConnectionRepo) List() ([]connection.Connection, error) {
 
 func (r *ConnectionRepo) GetByID(id string) (*connection.Connection, error) {
 	var c connection.Connection
-	err := r.db.QueryRow(`SELECT id, name, db_type, host, port, username, password, ssl_mode, created_at, updated_at FROM connections WHERE id = ?`, id).
+	err := r.db.QueryRow(`SELECT id, name, db_type, host, port, username, password, ssl_mode, created_at, updated_at FROM connections WHERE id = $1`, id).
 		Scan(&c.ID, &c.Name, &c.DBType, &c.Host, &c.Port, &c.Username, &c.Password, &c.SSLMode, &c.CreatedAt, &c.UpdatedAt)
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -54,7 +54,7 @@ func (r *ConnectionRepo) Create(c *connection.Connection) error {
 	c.CreatedAt = time.Now()
 	c.UpdatedAt = c.CreatedAt
 
-	_, err := r.db.Exec(`INSERT INTO connections (id, name, db_type, host, port, username, password, ssl_mode, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+	_, err := r.db.Exec(`INSERT INTO connections (id, name, db_type, host, port, username, password, ssl_mode, created_at, updated_at) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
 		c.ID, c.Name, c.DBType, c.Host, c.Port, c.Username, c.Password, c.SSLMode, c.CreatedAt, c.UpdatedAt)
 	if err != nil {
 		return fmt.Errorf("create connection: %w", err)
@@ -64,7 +64,7 @@ func (r *ConnectionRepo) Create(c *connection.Connection) error {
 
 func (r *ConnectionRepo) Update(c *connection.Connection) error {
 	c.UpdatedAt = time.Now()
-	_, err := r.db.Exec(`UPDATE connections SET name=?, host=?, port=?, username=?, password=?, ssl_mode=?, updated_at=? WHERE id=?`,
+	_, err := r.db.Exec(`UPDATE connections SET name=$1, host=$2, port=$3, username=$4, password=$5, ssl_mode=$6, updated_at=$7 WHERE id=$8`,
 		c.Name, c.Host, c.Port, c.Username, c.Password, c.SSLMode, c.UpdatedAt, c.ID)
 	if err != nil {
 		return fmt.Errorf("update connection %s: %w", c.ID, err)
@@ -73,7 +73,7 @@ func (r *ConnectionRepo) Update(c *connection.Connection) error {
 }
 
 func (r *ConnectionRepo) Delete(id string) error {
-	_, err := r.db.Exec(`DELETE FROM connections WHERE id = ?`, id)
+	_, err := r.db.Exec(`DELETE FROM connections WHERE id = $1`, id)
 	if err != nil {
 		return fmt.Errorf("delete connection %s: %w", id, err)
 	}
@@ -81,7 +81,7 @@ func (r *ConnectionRepo) Delete(id string) error {
 }
 
 func (r *ConnectionRepo) ListDatabases(connectionID string) ([]connection.ConnectionDatabase, error) {
-	rows, err := r.db.Query(`SELECT id, connection_id, db_name, is_selected, COALESCE(size_bytes, 0), created_at FROM connection_databases WHERE connection_id = ? ORDER BY db_name`, connectionID)
+	rows, err := r.db.Query(`SELECT id, connection_id, db_name, is_selected, COALESCE(size_bytes, 0), created_at FROM connection_databases WHERE connection_id = $1 ORDER BY db_name`, connectionID)
 	if err != nil {
 		return nil, fmt.Errorf("list databases: %w", err)
 	}
@@ -100,7 +100,7 @@ func (r *ConnectionRepo) ListDatabases(connectionID string) ([]connection.Connec
 
 func (r *ConnectionRepo) GetDatabase(id string) (*connection.ConnectionDatabase, error) {
 	var db connection.ConnectionDatabase
-	err := r.db.QueryRow(`SELECT id, connection_id, db_name, is_selected, COALESCE(size_bytes, 0), created_at FROM connection_databases WHERE id = ?`, id).
+	err := r.db.QueryRow(`SELECT id, connection_id, db_name, is_selected, COALESCE(size_bytes, 0), created_at FROM connection_databases WHERE id = $1`, id).
 		Scan(&db.ID, &db.ConnectionID, &db.DBName, &db.IsSelected, &db.SizeBytes, &db.CreatedAt)
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -118,7 +118,7 @@ func (r *ConnectionRepo) UpsertDatabases(dbs []connection.ConnectionDatabase) er
 	}
 	defer func() { _ = tx.Rollback() }()
 
-	stmt, err := tx.Prepare(`INSERT INTO connection_databases (id, connection_id, db_name, is_selected, size_bytes, created_at) VALUES (?, ?, ?, ?, ?, ?) ON CONFLICT(connection_id, db_name) DO UPDATE SET is_selected=excluded.is_selected, size_bytes=excluded.size_bytes`)
+	stmt, err := tx.Prepare(`INSERT INTO connection_databases (id, connection_id, db_name, is_selected, size_bytes, created_at) VALUES ($1, $2, $3, $4, $5, $6) ON CONFLICT(connection_id, db_name) DO UPDATE SET is_selected=EXCLUDED.is_selected, size_bytes=EXCLUDED.size_bytes`)
 	if err != nil {
 		return fmt.Errorf("prepare upsert: %w", err)
 	}
@@ -148,7 +148,7 @@ func (r *ConnectionRepo) UpdateDatabaseSelection(id string, selected bool) error
 	if selected {
 		s = 1
 	}
-	_, err := r.db.Exec(`UPDATE connection_databases SET is_selected = ? WHERE id = ?`, s, id)
+	_, err := r.db.Exec(`UPDATE connection_databases SET is_selected = $1 WHERE id = $2`, s, id)
 	if err != nil {
 		return fmt.Errorf("update db selection %s: %w", id, err)
 	}

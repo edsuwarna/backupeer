@@ -1,4 +1,4 @@
-package repository
+package postgres
 
 import (
 	"database/sql"
@@ -9,7 +9,7 @@ import (
 	"github.com/google/uuid"
 )
 
-// StorageProviderRepo implements storage.ProviderRepository using SQLite.
+// StorageProviderRepo implements storage.ProviderRepository using PostgreSQL.
 type StorageProviderRepo struct {
 	db *sql.DB
 }
@@ -41,7 +41,7 @@ func (r *StorageProviderRepo) List() ([]storage.Provider, error) {
 func (r *StorageProviderRepo) GetByID(id string) (*storage.Provider, error) {
 	p, err := scanProviderRow(r.db.QueryRow(`SELECT id, name, provider_type, endpoint, region, bucket,
 		access_key_encrypted, secret_key_encrypted, path_style, is_default,
-		created_at, updated_at FROM storage_providers WHERE id = ?`, id))
+		created_at, updated_at FROM storage_providers WHERE id = $1`, id))
 	if err == sql.ErrNoRows {
 		return nil, nil
 	}
@@ -81,9 +81,9 @@ func (r *StorageProviderRepo) Create(p *storage.Provider) error {
 	_, err := r.db.Exec(`INSERT INTO storage_providers
 		(id, name, provider_type, endpoint, region, bucket,
 		 access_key_encrypted, secret_key_encrypted, path_style, is_default, created_at, updated_at)
-		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)`,
 		p.ID, p.Name, p.ProviderType, p.Endpoint, p.Region, p.Bucket,
-		[]byte(p.AccessKey), []byte(p.SecretKey), // stored encrypted by service layer
+		[]byte(p.AccessKey), []byte(p.SecretKey),
 		pathStyle, isDefault, p.CreatedAt, p.UpdatedAt)
 	if err != nil {
 		return fmt.Errorf("create provider: %w", err)
@@ -104,11 +104,11 @@ func (r *StorageProviderRepo) Update(p *storage.Provider) error {
 	}
 
 	_, err := r.db.Exec(`UPDATE storage_providers SET
-		name=?, provider_type=?, endpoint=?, region=?, bucket=?,
-		access_key_encrypted=?, secret_key_encrypted=?, path_style=?, is_default=?, updated_at=?
-		WHERE id=?`,
+		name=$1, provider_type=$2, endpoint=$3, region=$4, bucket=$5,
+		access_key_encrypted=$6, secret_key_encrypted=$7, path_style=$8, is_default=$9, updated_at=$10
+		WHERE id=$11`,
 		p.Name, p.ProviderType, p.Endpoint, p.Region, p.Bucket,
-		[]byte(p.AccessKey), []byte(p.SecretKey), // stored encrypted
+		[]byte(p.AccessKey), []byte(p.SecretKey),
 		pathStyle, isDefault, p.UpdatedAt, p.ID)
 	if err != nil {
 		return fmt.Errorf("update provider %s: %w", p.ID, err)
@@ -117,7 +117,7 @@ func (r *StorageProviderRepo) Update(p *storage.Provider) error {
 }
 
 func (r *StorageProviderRepo) Delete(id string) error {
-	_, err := r.db.Exec(`DELETE FROM storage_providers WHERE id = ?`, id)
+	_, err := r.db.Exec(`DELETE FROM storage_providers WHERE id = $1`, id)
 	if err != nil {
 		return fmt.Errorf("delete provider %s: %w", id, err)
 	}
@@ -125,14 +125,13 @@ func (r *StorageProviderRepo) Delete(id string) error {
 }
 
 func (r *StorageProviderRepo) ClearDefault(excludeID string) error {
-	_, err := r.db.Exec(`UPDATE storage_providers SET is_default = 0 WHERE id != ?`, excludeID)
+	_, err := r.db.Exec(`UPDATE storage_providers SET is_default = 0 WHERE id != $1`, excludeID)
 	if err != nil {
 		return fmt.Errorf("clear default: %w", err)
 	}
 	return nil
 }
 
-// scanProviderRow scans a single row into a Provider.
 func scanProviderRow(row *sql.Row) (storage.Provider, error) {
 	var p storage.Provider
 	var pathStyle, isDefault int
@@ -150,7 +149,6 @@ func scanProviderRow(row *sql.Row) (storage.Provider, error) {
 	return p, nil
 }
 
-// scanProvider scans from rows iterator.
 func scanProvider(rows *sql.Rows) (storage.Provider, error) {
 	var p storage.Provider
 	var pathStyle, isDefault int

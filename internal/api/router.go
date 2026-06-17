@@ -6,6 +6,7 @@ import (
 
 	"github.com/edsuwarna/jagad/internal/backup"
 	"github.com/edsuwarna/jagad/internal/connection"
+	"github.com/edsuwarna/jagad/internal/monitoring"
 	"github.com/edsuwarna/jagad/internal/notification"
 	"github.com/edsuwarna/jagad/internal/restore"
 	"github.com/edsuwarna/jagad/internal/schedule"
@@ -26,6 +27,7 @@ func NewRouter(
 	storageProvHandler *storage.ProviderHandler,
 	notifHandler *notification.Handler,
 	settingsHandler *settings.Handler,
+	monitoringHandler *monitoring.Handler,
 ) *Router {
 	mux := http.NewServeMux()
 
@@ -43,6 +45,7 @@ func NewRouter(
 	storageProvHandler.RegisterRoutes(mux)
 	notifHandler.RegisterRoutes(mux)
 	settingsHandler.RegisterRoutes(mux)
+	monitoringHandler.RegisterRoutes(mux)
 
 	// Static files (Web UI)
 	mux.Handle("/", http.FileServer(http.Dir("./web")))

@@ -26,6 +26,9 @@ func (h *Handler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("GET /api/backups/{id}/download", h.handleDownload)
 	mux.HandleFunc("POST /api/backups/{id}/verify", h.handleVerify)
 	mux.HandleFunc("GET /api/backups/stats", h.handleStats)
+	mux.HandleFunc("GET /api/backups/analytics/trends", h.handleTrends)
+	mux.HandleFunc("GET /api/backups/analytics/slowest", h.handleSlowest)
+	mux.HandleFunc("GET /api/backups/analytics/freshness", h.handleFreshness)
 }
 
 // handleStats returns aggregate backup statistics.
@@ -36,6 +39,60 @@ func (h *Handler) handleStats(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	httputil.WriteJSON(w, http.StatusOK, stats)
+}
+
+// handleTrends returns daily backup aggregation for analytics charts.
+func (h *Handler) handleTrends(w http.ResponseWriter, r *http.Request) {
+	daysStr := r.URL.Query().Get("days")
+	days := 30
+	if daysStr != "" {
+		if d, err := strconv.Atoi(daysStr); err == nil && d > 0 && d <= 365 {
+			days = d
+		}
+	}
+
+	trends, err := h.svc.Trends(days)
+	if err != nil {
+		httputil.WriteError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+	httputil.WriteJSON(w, http.StatusOK, trends)
+}
+
+// handleSlowest returns the top N slowest successful backups.
+func (h *Handler) handleSlowest(w http.ResponseWriter, r *http.Request) {
+	limitStr := r.URL.Query().Get("limit")
+	limit := 10
+	if limitStr != "" {
+		if l, err := strconv.Atoi(limitStr); err == nil && l > 0 && l <= 100 {
+			limit = l
+		}
+	}
+
+	backups, err := h.svc.SlowestBackups(limit)
+	if err != nil {
+		httputil.WriteError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+	httputil.WriteJSON(w, http.StatusOK, backups)
+}
+
+// handleFreshness returns databases not backed up within the given threshold.
+func (h *Handler) handleFreshness(w http.ResponseWriter, r *http.Request) {
+	hoursStr := r.URL.Query().Get("hours")
+	hours := 24
+	if hoursStr != "" {
+		if hh, err := strconv.Atoi(hoursStr); err == nil && hh > 0 {
+			hours = hh
+		}
+	}
+
+	alerts, err := h.svc.Freshness(hours)
+	if err != nil {
+		httputil.WriteError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+	httputil.WriteJSON(w, http.StatusOK, alerts)
 }
 
 // handleDownload streams a backup file from storage to the client.

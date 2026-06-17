@@ -11,6 +11,7 @@ import (
 type Config struct {
 	Port              string
 	DataDir           string
+	DatabaseURL       string
 	AdminUser         string
 	AdminPass         string
 	SecretKey         string
@@ -31,6 +32,7 @@ func Load() *Config {
 	return &Config{
 		Port:              getEnv("JAGAD_PORT", "8080"),
 		DataDir:           getEnv("JAGAD_DATA_DIR", "/data"),
+		DatabaseURL:       getEnv("JAGAD_DATABASE_URL", ""),
 		AdminUser:         getEnv("JAGAD_ADMIN_USER", "admin"),
 		AdminPass:         getEnv("JAGAD_ADMIN_PASS", "admin123"),
 		SecretKey:         getEnv("JAGAD_SECRET_KEY", "change-me-in-production"),

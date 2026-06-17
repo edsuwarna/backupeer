@@ -1,9 +1,14 @@
 package connection
 
 import (
+	"database/sql"
 	"encoding/json"
+	"fmt"
 	"net/http"
+	"time"
 
+	_ "github.com/go-sql-driver/mysql"
+	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/edsuwarna/jagad/internal/httputil"
 )
 
@@ -23,6 +28,7 @@ func (h *Handler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("PUT /api/connections/{id}", h.handleUpdate)
 	mux.HandleFunc("DELETE /api/connections/{id}", h.handleDelete)
 	mux.HandleFunc("POST /api/connections/{id}/test", h.handleTest)
+	mux.HandleFunc("GET /api/connections/{id}/health", h.handleHealth)
 	mux.HandleFunc("GET /api/connections/{id}/databases", h.handleListDatabases)
 	mux.HandleFunc("POST /api/connections/{id}/discover", h.handleDiscover)
 	mux.HandleFunc("PUT /api/connections/databases/{id}", h.handleUpdateDatabase)
@@ -126,6 +132,107 @@ func (h *Handler) handleTest(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	httputil.WriteJSON(w, http.StatusOK, map[string]bool{"success": true})
+}
+
+// handleHealth returns a detailed live health check for a connection.
+func (h *Handler) handleHealth(w http.ResponseWriter, r *http.Request) {
+	id := r.PathValue("id")
+
+	conn, err := h.svc.Get(id)
+	if err != nil || conn == nil {
+		httputil.WriteError(w, http.StatusNotFound, "connection not found")
+		return
+	}
+
+	// Use the monitoring-style health check logic
+	now := time.Now()
+	result := map[string]interface{}{
+		"connection_id": conn.ID,
+		"name":          conn.Name,
+		"db_type":       conn.DBType,
+		"host":          conn.Host,
+		"port":          conn.Port,
+		"time":          now.Format(time.RFC3339),
+	}
+
+	sourceDB, err := openSourceDB(conn)
+	if err != nil {
+		result["status"] = "down"
+		result["error"] = err.Error()
+		httputil.WriteJSON(w, http.StatusOK, result)
+		return
+	}
+	defer sourceDB.Close()
+
+	pingStart := time.Now()
+	err = sourceDB.Ping()
+	responseTimeMs := time.Since(pingStart).Milliseconds()
+	result["response_time_ms"] = responseTimeMs
+
+	if err != nil {
+		result["status"] = "down"
+		result["error"] = err.Error()
+		httputil.WriteJSON(w, http.StatusOK, result)
+		return
+	}
+
+	// Get active connections
+	activeConns := queryActiveConns(sourceDB, conn.DBType)
+	result["active_connections"] = activeConns
+
+	// Determine status
+	if responseTimeMs < 1000 {
+		result["status"] = "healthy"
+	} else if responseTimeMs < 5000 {
+		result["status"] = "degraded"
+	} else {
+		result["status"] = "down"
+		result["error"] = fmt.Sprintf("high response time: %dms", responseTimeMs)
+	}
+
+	httputil.WriteJSON(w, http.StatusOK, result)
+}
+
+// openSourceDB opens a connection to a source database for monitoring/health checks.
+func openSourceDB(conn *Connection) (*sql.DB, error) {
+	switch conn.DBType {
+	case "postgresql":
+		dsn := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=postgres sslmode=%s connect_timeout=5",
+			conn.Host, conn.Port, conn.Username, conn.Password, conn.SSLMode)
+		return sql.Open("pgx", dsn)
+	case "mysql":
+		dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/?tls=%s&timeout=5s&charset=utf8mb4",
+			conn.Username, conn.Password, conn.Host, conn.Port, conn.SSLMode)
+		return sql.Open("mysql", dsn)
+	case "mariadb":
+		dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/?tls=%s&timeout=5s&charset=utf8mb4&multiStatements=true",
+			conn.Username, conn.Password, conn.Host, conn.Port, conn.SSLMode)
+		return sql.Open("mysql", dsn)
+	default:
+		return nil, fmt.Errorf("unsupported database type: %s", conn.DBType)
+	}
+}
+
+// queryActiveConns returns the number of active connections for a source DB.
+func queryActiveConns(db *sql.DB, dbType string) int {
+	switch dbType {
+	case "postgresql":
+		var count int
+		err := db.QueryRow(`SELECT count(*) FROM pg_stat_activity WHERE state = 'active'`).Scan(&count)
+		if err != nil {
+			return 0
+		}
+		return count
+	case "mysql", "mariadb":
+		var count int
+		err := db.QueryRow(`SELECT VARIABLE_VALUE FROM performance_schema.global_status WHERE VARIABLE_NAME = 'Threads_connected'`).Scan(&count)
+		if err != nil {
+			_ = db.QueryRow(`SELECT COUNT(*) FROM information_schema.processlist`).Scan(&count)
+		}
+		return count
+	default:
+		return 0
+	}
 }
 
 func (h *Handler) handleListDatabases(w http.ResponseWriter, r *http.Request) {

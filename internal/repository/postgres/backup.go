@@ -1,4 +1,4 @@
-package repository
+package postgres
 
 import (
 	"database/sql"
@@ -10,7 +10,7 @@ import (
 	"github.com/google/uuid"
 )
 
-// BackupRepo implements backup.Repository using SQLite.
+// BackupRepo implements backup.Repository using PostgreSQL.
 type BackupRepo struct {
 	db *sql.DB
 }
@@ -27,17 +27,20 @@ const backupCols = `id, connection_id, database_id, schedule_id, backup_type, st
 func (r *BackupRepo) List(connectionID, databaseID string, limit, offset int) ([]backup.Backup, error) {
 	query := `SELECT ` + backupCols + ` FROM backups WHERE 1=1`
 	var args []interface{}
+	argIdx := 1
 
 	if connectionID != "" {
-		query += fmt.Sprintf(" AND connection_id = ?%d", len(args)+1)
+		query += fmt.Sprintf(" AND connection_id = $%d", argIdx)
 		args = append(args, connectionID)
+		argIdx++
 	}
 	if databaseID != "" {
-		query += fmt.Sprintf(" AND database_id = ?%d", len(args)+1)
+		query += fmt.Sprintf(" AND database_id = $%d", argIdx)
 		args = append(args, databaseID)
+		argIdx++
 	}
 
-	query += " ORDER BY created_at DESC LIMIT ? OFFSET ?"
+	query += fmt.Sprintf(" ORDER BY created_at DESC LIMIT $%d OFFSET $%d", argIdx, argIdx+1)
 	args = append(args, limit, offset)
 
 	rows, err := r.db.Query(query, args...)
@@ -64,7 +67,7 @@ func (r *BackupRepo) GetByID(id string) (*backup.Backup, error) {
 	var notifIDs string
 	var notifOnSuccess, notifOnFailure int
 
-	err := r.db.QueryRow(`SELECT `+backupCols+` FROM backups WHERE id = ?`, id).
+	err := r.db.QueryRow(`SELECT `+backupCols+` FROM backups WHERE id = $1`, id).
 		Scan(&b.ID, &b.ConnectionID, &b.DatabaseID, &scheduleID, &b.BackupType, &b.Status,
 			&b.StoragePath, &storageProviderID, &sizeBytes, &encryptedSize, &b.EncryptionAlgo, &encKeyID,
 			&b.Checksum, &b.EncryptedChecksum, &verifiedAt, &b.VerifyStatus,
@@ -105,7 +108,7 @@ func (r *BackupRepo) Create(b *backup.Backup) error {
 		storage_path, storage_provider_id, size_bytes, encrypted_size_bytes, encryption_algo, encryption_key_id,
 		checksum, encrypted_checksum, verify_status, duration_ms, started_at, completed_at,
 		notif_target_ids, notify_on_success, notify_on_failure, created_at)
-		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22)`,
 		b.ID, b.ConnectionID, b.DatabaseID, nullableStr(b.ScheduleID), b.BackupType, b.Status,
 		b.StoragePath, nullableStr(b.StorageProviderID), nullableInt64(b.SizeBytes), nullableInt64(b.EncryptedSizeBytes),
 		b.EncryptionAlgo, nullableStr(b.EncryptionKeyID),
@@ -119,10 +122,10 @@ func (r *BackupRepo) Create(b *backup.Backup) error {
 }
 
 func (r *BackupRepo) Update(b *backup.Backup) error {
-	_, err := r.db.Exec(`UPDATE backups SET status=?, storage_path=?, storage_provider_id=?, size_bytes=?, encrypted_size_bytes=?,
-		checksum=?, encrypted_checksum=?, verified_at=?, verify_status=?,
-		duration_ms=?, log_output=?, completed_at=?
-		WHERE id=?`,
+	_, err := r.db.Exec(`UPDATE backups SET status=$1, storage_path=$2, storage_provider_id=$3, size_bytes=$4, encrypted_size_bytes=$5,
+		checksum=$6, encrypted_checksum=$7, verified_at=$8, verify_status=$9,
+		duration_ms=$10, log_output=$11, completed_at=$12
+		WHERE id=$13`,
 		b.Status, b.StoragePath, nullableStr(b.StorageProviderID), nullableInt64(b.SizeBytes), nullableInt64(b.EncryptedSizeBytes),
 		b.Checksum, b.EncryptedChecksum, nullableTime(b.VerifiedAt), b.VerifyStatus,
 		nullableInt64(b.DurationMs), b.LogOutput, nullableTime(b.CompletedAt), b.ID)
@@ -133,16 +136,15 @@ func (r *BackupRepo) Update(b *backup.Backup) error {
 }
 
 func (r *BackupRepo) Delete(id string) error {
-	_, err := r.db.Exec(`DELETE FROM backups WHERE id = ?`, id)
+	_, err := r.db.Exec(`DELETE FROM backups WHERE id = $1`, id)
 	if err != nil {
 		return fmt.Errorf("delete backup %s: %w", id, err)
 	}
 	return nil
 }
 
-// ListBySchedule returns backups for a given schedule, ordered oldest first.
 func (r *BackupRepo) ListBySchedule(scheduleID string) ([]backup.Backup, error) {
-	rows, err := r.db.Query(`SELECT `+backupCols+` FROM backups WHERE schedule_id = ? AND status = 'success' ORDER BY created_at ASC`, scheduleID)
+	rows, err := r.db.Query(`SELECT `+backupCols+` FROM backups WHERE schedule_id = $1 AND status = 'success' ORDER BY created_at ASC`, scheduleID)
 	if err != nil {
 		return nil, fmt.Errorf("list backups by schedule: %w", err)
 	}
@@ -159,9 +161,8 @@ func (r *BackupRepo) ListBySchedule(scheduleID string) ([]backup.Backup, error) 
 	return bs, nil
 }
 
-// ListOldestByBackupType returns the oldest backup IDs of a given type for a specific schedule.
 func (r *BackupRepo) ListOldestByBackupType(scheduleID, backupType string, keepCount int) ([]backup.Backup, error) {
-	rows, err := r.db.Query(`SELECT `+backupCols+` FROM backups WHERE schedule_id = ? AND backup_type = ? AND status = 'success'
+	rows, err := r.db.Query(`SELECT `+backupCols+` FROM backups WHERE schedule_id = $1 AND backup_type = $2 AND status = 'success'
 		ORDER BY created_at ASC`, scheduleID, backupType)
 	if err != nil {
 		return nil, fmt.Errorf("list oldest backups: %w", err)
@@ -186,14 +187,17 @@ func (r *BackupRepo) ListOldestByBackupType(scheduleID, backupType string, keepC
 func (r *BackupRepo) Count(connectionID, databaseID string) (int, error) {
 	query := `SELECT COUNT(*) FROM backups WHERE 1=1`
 	var args []interface{}
+	argIdx := 1
 
 	if connectionID != "" {
-		query += " AND connection_id = ?"
+		query += fmt.Sprintf(" AND connection_id = $%d", argIdx)
 		args = append(args, connectionID)
+		argIdx++
 	}
 	if databaseID != "" {
-		query += " AND database_id = ?"
+		query += fmt.Sprintf(" AND database_id = $%d", argIdx)
 		args = append(args, databaseID)
+		argIdx++
 	}
 
 	var count int
@@ -204,7 +208,102 @@ func (r *BackupRepo) Count(connectionID, databaseID string) (int, error) {
 	return count, nil
 }
 
-// scanBackup scans a single row from rows iterator.
+func (r *BackupRepo) ListTrends(days int) ([]backup.BackupTrend, error) {
+	query := `SELECT
+		DATE(created_at) as day,
+		COUNT(*) as total,
+		COUNT(*) FILTER (WHERE status = 'success') as successes,
+		COUNT(*) FILTER (WHERE status = 'failed') as failures,
+		COALESCE(AVG(duration_ms) FILTER (WHERE duration_ms IS NOT NULL), 0) as avg_duration,
+		COALESCE(SUM(size_bytes), 0) as total_size
+	FROM backups
+	WHERE created_at > NOW() - ($1 || ' days')::INTERVAL
+	GROUP BY DATE(created_at)
+	ORDER BY day ASC`
+
+	rows, err := r.db.Query(query, fmt.Sprintf("%d", days))
+	if err != nil {
+		return nil, fmt.Errorf("list trends: %w", err)
+	}
+	defer rows.Close()
+
+	var trends []backup.BackupTrend
+	for rows.Next() {
+		var t backup.BackupTrend
+		if err := rows.Scan(&t.Date, &t.TotalBackups, &t.SuccessCount, &t.FailedCount, &t.AvgDurationMs, &t.TotalSizeBytes); err != nil {
+			return nil, fmt.Errorf("scan trend: %w", err)
+		}
+		trends = append(trends, t)
+	}
+	if trends == nil {
+		trends = []backup.BackupTrend{}
+	}
+	return trends, nil
+}
+
+func (r *BackupRepo) ListSlowest(limit int) ([]backup.Backup, error) {
+	query := `SELECT ` + backupCols + ` FROM backups
+		WHERE duration_ms IS NOT NULL AND status = 'success'
+		ORDER BY duration_ms DESC
+		LIMIT $1`
+
+	rows, err := r.db.Query(query, limit)
+	if err != nil {
+		return nil, fmt.Errorf("list slowest: %w", err)
+	}
+	defer rows.Close()
+
+	var bs []backup.Backup
+	for rows.Next() {
+		b, err := scanBackup(rows)
+		if err != nil {
+			return nil, err
+		}
+		bs = append(bs, b)
+	}
+	if bs == nil {
+		bs = []backup.Backup{}
+	}
+	return bs, nil
+}
+
+func (r *BackupRepo) ListStaleConnections(hours int) ([]backup.StaleBackupAlert, error) {
+	query := `SELECT
+		c.id,
+		c.name,
+		c.db_type,
+		cd.id,
+		cd.db_name,
+		MAX(b.completed_at) as last_backup,
+		EXTRACT(EPOCH FROM NOW() - MAX(b.completed_at)) / 3600 as hours_since
+	FROM connections c
+	JOIN connection_databases cd ON cd.connection_id = c.id AND cd.is_selected = 1
+	LEFT JOIN backups b ON b.connection_id = c.id AND b.database_id = cd.id AND b.status = 'success'
+	GROUP BY c.id, c.name, c.db_type, cd.id, cd.db_name
+	HAVING MAX(b.completed_at) IS NULL
+		OR EXTRACT(EPOCH FROM NOW() - MAX(b.completed_at)) / 3600 > $1
+	ORDER BY hours_since DESC NULLS FIRST`
+
+	rows, err := r.db.Query(query, hours)
+	if err != nil {
+		return nil, fmt.Errorf("list stale connections: %w", err)
+	}
+	defer rows.Close()
+
+	var alerts []backup.StaleBackupAlert
+	for rows.Next() {
+		var a backup.StaleBackupAlert
+		if err := rows.Scan(&a.ConnectionID, &a.ConnectionName, &a.DBType, &a.DatabaseID, &a.DatabaseName, &a.LastBackupAt, &a.HoursSinceBackup); err != nil {
+			return nil, fmt.Errorf("scan stale alert: %w", err)
+		}
+		alerts = append(alerts, a)
+	}
+	if alerts == nil {
+		alerts = []backup.StaleBackupAlert{}
+	}
+	return alerts, nil
+}
+
 func scanBackup(rows *sql.Rows) (backup.Backup, error) {
 	b := backup.Backup{}
 	var storageProviderID, scheduleID, encKeyID, encryptedSize, sizeBytes, duration sql.NullString
@@ -237,7 +336,8 @@ func scanBackup(rows *sql.Rows) (backup.Backup, error) {
 	return b, nil
 }
 
-// Helper functions for nullable SQL fields.
+// Helper functions shared across postgres repos.
+
 func nullableStr(s *string) interface{} {
 	if s == nil {
 		return nil

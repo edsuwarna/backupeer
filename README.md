@@ -75,30 +75,39 @@ http://localhost:8085
 
 ## Architecture
 
+Jagad supports **two database backends**:
+
+| Backend | Use Case |
+|---------|----------|
+| **SQLite** (default) | Single-server, zero-config — no external dependencies |
+| **PostgreSQL + TimescaleDB** | Production, monitoring, multi-server — enables DB health metrics |
+
+When `JAGAD_DATABASE_URL` is set, Jagad uses PostgreSQL with TimescaleDB for both config data AND monitoring hypertables. When unset, it falls back to SQLite.
+
 ```
-┌─────────────────────────────────────────────┐
-│         Docker Compose                       │
-│                                              │
-│  ┌──────────────┐     ┌────────────────┐     │
-│  │  Nginx (UI)  │────▶│  Go Backend    │     │
-│  │  :8085       │     │  :8080         │     │
-│  │  web/ static │     │  REST API      │     │
-│  └──────────────┘     │  + Scheduler   │     │
-│                       │  + Backup Exec │     │
-│                       └───────┬────────┘     │
-│                               │               │
-│                       ┌───────▼────────┐     │
-│                       │   SQLite        │     │
-│                       │   (config +     │     │
-│                       │    history)     │     │
-│                       └────────────────┘     │
-└─────────────────────────────────────────────┘
-           │
-     ┌─────▼──────┬──────────┬──────────┐
-     │            │          │          │
-  ┌──▼──┐   ┌────▼───┐ ┌───▼────┐ ┌───▼───┐
-  │ S3  │   │  R2    │ │ MinIO  │ │ B2    │
-  └─────┘   └────────┘ └────────┘ └───────┘
+┌──────────────────────────────────────────────────────┐
+│                 Docker Compose                        │
+│                                                       │
+│  ┌──────────────┐     ┌────────────────┐              │
+│  │  Nginx (UI)  │────▶│  Go Backend    │              │
+│  │  :8085       │     │  :8080         │              │
+│  │  web/ static │     │  REST API      │              │
+│  └──────────────┘     │  + Scheduler   │              │
+│                       │  + Backup Exec │              │
+│                       └───────┬────────┘              │
+│                              │                        │
+│                       ┌──────▼───────┐               │
+│                       │  PostgreSQL  │               │
+│                       │  +TimescaleDB│               │
+│                       │  (or SQLite) │               │
+│                       └──────┬───────┘               │
+└──────────────────────────────┼───────────────────────┘
+                               │
+        ┌──────────────────────┼──────────────────────┐
+        │                      │                       │
+   ┌────▼────┐          ┌─────▼─────┐          ┌──────▼───┐
+   │  S3     │          │  R2 / B2  │          │  MinIO   │
+   └─────────┘          └───────────┘          └──────────┘
 ```
 
 ### Tech Stack
@@ -106,7 +115,8 @@ http://localhost:8085
 | Layer | Technology |
 |---|---|
 | Backend | Go 1.25 |
-| Database | SQLite |
+| Database | SQLite (default) or PostgreSQL + TimescaleDB |
+| Monitoring | TimescaleDB hypertables (health_checks, db_metrics, perf_metrics) |
 | Frontend | Vanilla JS SPA + Lucide Icons |
 | Scheduler | robfig/cron |
 | Storage SDK | MinIO (S3-compatible) |
@@ -152,6 +162,9 @@ http://localhost:8085
 | `DELETE` | `/api/storage-providers/{id}` | Delete storage |
 | `POST` | `/api/storage-providers/{id}/test` | Test storage |
 | `POST` | `/api/storage-providers/{id}/set-default` | Set default |
+| `GET` | `/api/monitoring/health` | Health check history (PG only) |
+| `GET` | `/api/monitoring/metrics` | Database metrics (PG only) |
+| `GET` | `/api/monitoring/performance` | Performance metrics (PG only) |
 
 ---
 
@@ -163,10 +176,33 @@ Environment variables:
 |---|---|---|
 | `JAGAD_PORT` | `8080` | API server port |
 | `JAGAD_DATA_DIR` | `/data` | SQLite + temp data directory |
+| `JAGAD_DATABASE_URL` | *(none)* | PostgreSQL DSN (set to use PG+TimescaleDB instead of SQLite) |
 | `JAGAD_ADMIN_USER` | `admin` | Admin username |
 | `JAGAD_ADMIN_PASS` | `admin123` | Admin password |
 | `JAGAD_SECRET_KEY` | *(auto)* | Session secret key |
 | `JAGAD_ENCRYPTION_KEY` | *(none)* | Master key for AES-256-GCM |
+
+## Migration from SQLite to PostgreSQL
+
+To migrate existing data from SQLite to PostgreSQL:
+
+```bash
+# 1. Start TimescaleDB + migrate data
+docker compose up -d timescaledb
+go run cmd/migrate-sqlite/main.go \
+  -dsn "postgres://postgres:jagad_secret@localhost:5432/jagad?sslmode=disable" \
+  -data-dir /path/to/your/data
+
+# 2. Dry-run first to see what will be migrated
+go run cmd/migrate-sqlite/main.go \
+  -dsn "postgres://postgres:jagad_secret@localhost:5432/jagad?sslmode=disable" \
+  -data-dir /path/to/your/data \
+  -dry-run
+
+# 3. Set env and restart
+export JAGAD_DATABASE_URL="postgres://postgres:jagad_secret@localhost:5432/jagad?sslmode=disable"
+docker compose up -d
+```
 
 ---
 
@@ -222,7 +258,8 @@ jagad/
 - [x] Phase 2: Backup Engine (Full backup, S3 storage, encryption)
 - [x] Phase 3: Scheduling & Restore (Cron, retention, restore)
 - [x] Phase 4: UI MVP (Dashboard, connections, schedules, dark/light)
-- [ ] Phase 5: Polish (CI/CD, docs, error handling)
+- [x] Phase 5: PostgreSQL + TimescaleDB (Config & monitoring in single DB)
+- [x] Phase 6: Monitoring API (Health checks, DB metrics, performance)
 - [ ] v1.1: Incremental backup engine (pgBackRest, XtraBackup, Mariabackup)
 - [ ] v1.2: Notifications (Email, Telegram, Slack)
 - [ ] v2.0: Multi-user, schedule templates, compression settings
