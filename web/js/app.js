@@ -2818,6 +2818,21 @@ async function showRestoreLog(restoreId) {
 // ══════════════════════════════════════
 async function renderActivity(el) {
   let currentFilter = 'all';
+  let displayCount = 50;
+  let expandedId = null;
+
+  function getDateGroup(ts) {
+    if (!ts) return 'Older';
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const yesterday = new Date(today.getTime() - 86400000);
+    const weekAgo = new Date(today.getTime() - 7 * 86400000);
+    const d = new Date(ts);
+    if (d >= today) return 'Today';
+    if (d >= yesterday) return 'Yesterday';
+    if (d >= weekAgo) return 'This Week';
+    return 'Older';
+  }
 
   function renderActivityContent(filter) {
     const container = document.getElementById('activity-main-content');
@@ -2827,7 +2842,7 @@ async function renderActivity(el) {
     container.innerHTML = '<div class="activity-loading"><div class="loading-spinner"></div><p>Loading activity...</p></div>';
 
     Promise.all([
-      API.get('/api/backups?limit=50'),
+      API.get('/api/backups?limit=200'),
       API.get('/api/schedules'),
       API.get('/api/connections'),
       API.get('/api/restores').catch(() => []),
@@ -2846,6 +2861,7 @@ async function renderActivity(el) {
         const icons = { success: '✓', failed: '✗', running: '🔄' };
         const labels = { success: 'Backup completed', failed: 'Backup failed', running: 'Backup running' };
         items.push({
+          id: 'b_' + (b.id || Math.random().toString(36).slice(2)),
           status, badge,
           title: `${icons[status] || ''} ${labels[status] || 'Backup'} — <strong>${escHtml(dbLabel)}</strong>`,
           meta: `${badge} ${sizeStr} ${durStr}`,
@@ -2854,19 +2870,22 @@ async function renderActivity(el) {
           ts: b.created_at ? new Date(b.created_at).getTime() : 0,
           type: 'backup',
           subType: status,
+          raw: b,
         });
       });
 
       // Connect events
-      (conns || []).slice(0, 5).forEach(c => {
+      (conns || []).forEach(c => {
         const ct = c.db_type || '';
         const badge = ct ? `<span class="badge badge-${getDbBadgeClass(ct)}">${ct.toUpperCase().slice(0,2)}</span>` : '';
         items.push({
+          id: 'c_' + (c.id || Math.random().toString(36).slice(2)),
           status: 'info',
           badge,
           title: `🔌 Connection added — <strong>${escHtml(c.name || c.host)}</strong>`,
           meta: `${badge} ${c.host || ''}${c.port ? ':' + c.port : ''}`,
           detail: escHtml(c.name || '') + ' — ' + (c.db_type || '').toUpperCase(),
+          raw: null,
           time: c.created_at ? timeAgo(c.created_at) : '',
           ts: c.created_at ? new Date(c.created_at).getTime() : 0,
           type: 'connection',
@@ -2879,10 +2898,12 @@ async function renderActivity(el) {
         const status = r.status === 'success' ? 'success' : r.status === 'failed' ? 'failed' : 'running';
         const icons = { success: '✅', failed: '❌', running: '🔄' };
         items.push({
+          id: 'r_' + (r.id || Math.random().toString(36).slice(2)),
           status,
           title: `${icons[status] || ''} Restore ${status}`,
           meta: `Backup: ${(r.backup_id || '').slice(0,8)}`,
           detail: r.duration_ms ? `Duration: ${(r.duration_ms/1000).toFixed(1)}s` : '',
+          raw: null,
           time: r.created_at ? timeAgo(r.created_at) : '',
           ts: r.created_at ? new Date(r.created_at).getTime() : 0,
           type: 'restore',
@@ -2921,23 +2942,97 @@ async function renderActivity(el) {
       }).join('');
       document.getElementById('as-recent-list').innerHTML = recentItems;
 
-      // Render timeline
-      container.innerHTML = filtered.map(i => {
-        const dotIcons = { success: '✓', failed: '✗', running: '🔄', info: '●' };
-        return `
-          <div class="activity-tl-item">
-            <div class="activity-tl-dot ${i.subType === 'success' ? 'success' : i.subType === 'failed' ? 'failed' : i.subType === 'running' ? 'running' : 'info'}">${dotIcons[i.subType] || '●'}</div>
-            <div class="activity-tl-content">
-              <div class="activity-tl-title">${i.title}</div>
-              <div class="activity-tl-meta">${i.meta || ''}${i.time ? '<span class="activity-tl-time">' + i.time + '</span>' : ''}</div>
-              ${i.detail ? '<div class="activity-tl-detail">' + i.detail + '</div>' : ''}
+      // ── DATE GROUPING ──
+      const visibleItems = filtered.slice(0, displayCount);
+      const hasMore = displayCount < filtered.length;
+
+      const groups = {};
+      visibleItems.forEach(i => {
+        const g = getDateGroup(i.ts);
+        if (!groups[g]) groups[g] = [];
+        groups[g].push(i);
+      });
+
+      const groupOrder = ['Today', 'Yesterday', 'This Week', 'Older'];
+      const dotIcons = { success: '✓', failed: '✗', running: '🔄', info: '●' };
+
+      let tlHtml = '';
+      groupOrder.forEach(g => {
+        if (!groups[g]) return;
+        tlHtml += `<div class="activity-section-header">${g}</div>`;
+        tlHtml += groups[g].map(i => {
+          const isClickable = i.type === 'backup';
+          const dotClass = i.subType === 'success' ? 'success' : i.subType === 'failed' ? 'failed' : i.subType === 'running' ? 'running' : 'info';
+          const detailContent = isClickable ? renderBackupDetail(i.raw) : '';
+          return `
+            <div class="activity-tl-item${isClickable ? ' clickable' : ''}" data-tl-id="${i.id}">
+              <div class="activity-tl-dot ${dotClass}">${dotIcons[i.subType] || '●'}</div>
+              <div class="activity-tl-content">
+                <div class="activity-tl-title">${i.title}</div>
+                <div class="activity-tl-meta">${i.meta || ''}${i.time ? '<span class="activity-tl-time">' + i.time + '</span>' : ''}</div>
+                ${i.detail ? '<div class="activity-tl-detail">' + i.detail + '</div>' : ''}
+                <div class="activity-tl-expanded" id="tl-expand-${i.id}"${expandedId === i.id ? ' style="display:block;"' : ''}>${detailContent}</div>
+              </div>
             </div>
-          </div>
-        `;
-      }).join('');
+          `;
+        }).join('');
+      });
+
+      if (hasMore) {
+        tlHtml += `<div class="activity-load-more"><button class="btn btn-ghost btn-sm" onclick="window.loadMoreActivity()">Show 50 more <span class="load-more-count">(${displayCount} of ${filtered.length})</span></button></div>`;
+      }
+
+      container.innerHTML = tlHtml;
+
+      // Attach expand click handlers
+      container.querySelectorAll('.activity-tl-item.clickable').forEach(el => {
+        el.addEventListener('click', function(e) {
+          if (e.target.closest('.activity-tl-expanded')) return;
+          const id = this.dataset.tlId;
+          const expandEl = document.getElementById('tl-expand-' + id);
+          if (!expandEl) return;
+          container.querySelectorAll('.activity-tl-expanded').forEach(ex => {
+            if (ex.id !== 'tl-expand-' + id) {
+              ex.style.display = 'none';
+              ex.closest('.activity-tl-item').classList.remove('expanded');
+            }
+          });
+          const show = expandEl.style.display !== 'block';
+          expandEl.style.display = show ? 'block' : 'none';
+          this.classList.toggle('expanded', show);
+          expandedId = show ? id : null;
+        });
+      });
+
+      lucide.createIcons();
     }).catch(err => {
       container.innerHTML = `<div class="empty-state-v2" style="color:var(--accent-red);"><p>Error loading activity: ${escHtml(err.message)}</p></div>`;
     });
+  }
+
+  // Helper: render backup expand detail
+  function renderBackupDetail(b) {
+    if (!b) return '';
+    const statusIcon = b.status === 'success' ? '✅ Completed' : b.status === 'failed' ? '❌ Failed' : '🔄 Running';
+    const dbLabel = b.database_label || b.database_id || 'Unknown';
+    const dbType = b.db_type || '—';
+    const sizeStr = b.size_bytes ? formatBytes(b.size_bytes) : '—';
+    const durStr = b.duration_ms ? `${(b.duration_ms/1000).toFixed(1)}s` : '—';
+    const origSize = b.original_size_bytes ? formatBytes(b.original_size_bytes) : null;
+    const compressedSize = b.compressed_size_bytes ? formatBytes(b.compressed_size_bytes) : null;
+    const backupType = (b.backup_type || 'full').toUpperCase();
+    const errorMsg = b.error_message ? escHtml(b.error_message) : null;
+
+    return `
+      <div class="activity-expand-card">
+        <div class="aec-row"><span class="aec-label">Status</span><span class="aec-value ${b.status === 'success' ? 'green' : b.status === 'failed' ? 'red' : ''}">${statusIcon}</span></div>
+        <div class="aec-row"><span class="aec-label">Database</span><span class="aec-value">${escHtml(dbLabel)}</span></div>
+        <div class="aec-row"><span class="aec-label">Type</span><span class="aec-value">${dbType} · ${backupType}</span></div>
+        <div class="aec-row"><span class="aec-label">Duration</span><span class="aec-value">${durStr}</span></div>
+        <div class="aec-row"><span class="aec-label">Size</span><span class="aec-value">${sizeStr}${origSize ? ` (orig: ${origSize})` : ''}${compressedSize ? ` → ${compressedSize}` : ''}</span></div>
+        ${errorMsg ? `<div class="aec-row"><span class="aec-label">Error</span><span class="aec-value red">${errorMsg}</span></div>` : ''}
+      </div>
+    `;
   }
 
   el.innerHTML = `
@@ -2979,9 +3074,16 @@ async function renderActivity(el) {
   `;
 
   // Expose filter function
+  window.loadMoreActivity = function() {
+    displayCount += 50;
+    renderActivityContent(currentFilter);
+  };
+
   window.applyActivityFilter = function(filter, btn) {
     document.querySelectorAll('.activity-filter-btn').forEach(b => b.classList.remove('active'));
     if (btn) btn.classList.add('active');
+    displayCount = 50;
+    expandedId = null;
     renderActivityContent(filter);
   };
 

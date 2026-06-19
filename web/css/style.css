@@ -1779,6 +1779,67 @@ tbody tr.status-running td:first-child { border-left: 3px solid var(--blue); }
   color: var(--text-tertiary);
 }
 
+/* Activity section header (date grouping) */
+.activity-section-header {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-quaternary);
+  padding: var(--space-lg) 0 var(--space-sm);
+  border-bottom: 1px solid var(--border-subtle);
+  margin-bottom: var(--space-sm);
+  margin-top: var(--space-lg);
+}
+.activity-section-header:first-child { margin-top: 0; }
+
+/* Clickable timeline items (backups) */
+.activity-tl-item.clickable {
+  cursor: pointer;
+  transition: background 0.15s;
+  border-radius: var(--radius-md);
+  margin: 0 calc(-1 * var(--space-sm));
+  padding: var(--space-sm);
+}
+.activity-tl-item.clickable:hover { background: var(--accent-subtle); }
+.activity-tl-item.clickable.expanded { background: var(--accent-subtle); }
+
+/* Expanded backup detail card */
+.activity-tl-expanded {
+  display: none;
+  margin-top: var(--space-sm);
+}
+.activity-expand-card {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  padding: var(--space-md);
+  font-size: 12px;
+  animation: fadeSlideIn 0.2s ease;
+}
+@keyframes fadeSlideIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.aec-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 4px 0;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.aec-row:last-child { border-bottom: none; }
+.aec-label { color: var(--text-tertiary); }
+.aec-value { color: var(--text-primary); font-weight: 500; text-align: right; }
+.aec-value.green { color: var(--green); }
+.aec-value.red { color: var(--red); }
+
+/* Load more */
+.activity-load-more {
+  text-align: center;
+  padding: var(--space-lg) 0;
+}
+.load-more-count { font-weight: 400; color: var(--text-tertiary); }
+
 /* ═══════════════════════════════════════════════
    MONITORING REVAMP — v3 Mockup
    ═══════════════════════════════════════════════ */
