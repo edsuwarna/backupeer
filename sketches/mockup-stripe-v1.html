@@ -1,0 +1,1168 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jagad — Monitoring Mockup v1 (Stripe)</title>
+<link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@300;400;500;600;700&family=Source+Code+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --canvas: #0A2540;
+  --surface: #0F2B47;
+  --elevated: #1a3a5c;
+  --accent: #635BFF;
+  --accent-hover: #5850EC;
+  --accent-light: #7a73ff;
+  --text-primary: rgba(255,255,255,0.95);
+  --text-secondary: rgba(255,255,255,0.65);
+  --text-tertiary: rgba(255,255,255,0.4);
+  --text-sidebar: rgba(255,255,255,0.45);
+  --border: rgba(255,255,255,0.08);
+  --border-hover: rgba(255,255,255,0.15);
+  --border-accent: rgba(99,91,255,0.3);
+  --green: #22d66a;
+  --green-bg: rgba(34,214,106,0.1);
+  --green-border: rgba(34,214,106,0.2);
+  --yellow: #f5a623;
+  --yellow-bg: rgba(245,166,35,0.1);
+  --yellow-border: rgba(245,166,35,0.2);
+  --red: #ef4444;
+  --red-bg: rgba(239,68,68,0.1);
+  --red-border: rgba(239,68,68,0.2);
+  --blue: #3b82f6;
+  --blue-bg: rgba(59,130,246,0.1);
+  --shadow-card: rgba(50,50,93,0.25) 0px 30px 45px -30px, rgba(0,0,0,0.1) 0px 18px 36px -18px;
+  --shadow-elevated: rgba(3,3,39,0.25) 0px 14px 21px -14px, rgba(0,0,0,0.1) 0px 8px 17px -8px;
+  --font: 'Source Sans 3', -apple-system, system-ui, sans-serif;
+  --mono: 'Source Code Pro', 'JetBrains Mono', monospace;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 12px;
+  --sidebar-w: 240px;
+}
+body { font-family: var(--font); background: var(--canvas); color: var(--text-primary); display: flex; min-height: 100vh; -webkit-font-smoothing: antialiased; }
+
+/* ═══ SIDEBAR ═══ */
+.sidebar { width: var(--sidebar-w); background: var(--surface); border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 20px 12px; flex-shrink: 0; }
+.sidebar-brand { display: flex; align-items: center; gap: 10px; padding: 8px 12px; margin-bottom: 24px; }
+.sidebar-logo { width: 32px; height: 32px; background: linear-gradient(135deg, var(--accent), var(--accent-hover)); border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; color: #fff; }
+.sidebar-brand-text { font-size: 16px; font-weight: 700; background: linear-gradient(135deg, #c4b5fd, var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.sidebar-section { padding: 16px 12px 6px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-tertiary); }
+.sidebar-item { display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-radius: var(--radius-sm); color: var(--text-sidebar); font-size: 14px; font-weight: 400; cursor: pointer; transition: all .15s; text-decoration: none; }
+.sidebar-item:hover { background: rgba(255,255,255,0.04); color: var(--text-primary); }
+.sidebar-item.active { background: rgba(99,91,255,0.15); color: var(--accent); }
+.sidebar-item svg { width: 18px; height: 18px; flex-shrink: 0; }
+.sidebar-badge { margin-left: auto; background: var(--accent); color: #fff; font-size: 10px; font-weight: 600; padding: 2px 6px; border-radius: 10px; }
+.sidebar-count { margin-left: auto; color: var(--text-tertiary); font-size: 12px; }
+
+/* ═══ MAIN ═══ */
+.main { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+.topbar { display: flex; align-items: center; justify-content: space-between; padding: 16px 32px; border-bottom: 1px solid var(--border); }
+.topbar-left { display: flex; align-items: center; gap: 16px; }
+.topbar-title { font-size: 20px; font-weight: 300; letter-spacing: -0.3px; }
+.topbar-subtitle { font-size: 12px; color: var(--text-tertiary); margin-left: 8px; }
+.topbar-right { display: flex; align-items: center; gap: 12px; }
+
+/* ═══ ENGINE TABS ═══ */
+.engine-tabs { display: flex; gap: 4px; background: var(--surface); padding: 3px; border-radius: var(--radius-md); }
+.engine-tab { padding: 6px 16px; font-size: 12px; font-weight: 400; color: var(--text-secondary); border-radius: var(--radius-sm); cursor: pointer; transition: all .15s; border: none; background: none; font-family: var(--font); }
+.engine-tab:hover { color: var(--text-primary); }
+.engine-tab.active { background: var(--accent); color: #fff; }
+
+/* ═══ CONTENT ═══ */
+.content { flex: 1; overflow-y: auto; padding: 24px 32px 40px; }
+.page-header { margin-bottom: 24px; }
+.page-header h2 { font-size: 18px; font-weight: 300; letter-spacing: -0.3px; color: var(--text-primary); }
+.page-header p { font-size: 13px; font-weight: 400; color: var(--text-tertiary); margin-top: 2px; }
+
+/* ═══ PAGES (hidden by default) ═══ */
+.page { display: none; }
+.page.active { display: block; }
+
+/* ═══ KPI ROW ═══ */
+.kpi-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; margin-bottom: 24px; }
+.kpi-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 20px; box-shadow: var(--shadow-card); }
+.kpi-label { font-size: 12px; font-weight: 400; color: var(--text-tertiary); margin-bottom: 4px; letter-spacing: 0.02em; }
+.kpi-value { font-size: 28px; font-weight: 300; line-height: 1.1; letter-spacing: -0.5px; }
+.kpi-delta { font-size: 12px; margin-top: 6px; display: flex; align-items: center; gap: 4px; }
+.kpi-delta.up { color: var(--green); }
+.kpi-delta.down { color: var(--red); }
+.kpi-delta.neutral { color: var(--text-tertiary); }
+
+/* ═══ SECTION CARD ═══ */
+.section-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 20px; margin-bottom: 20px; box-shadow: var(--shadow-card); }
+.section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+.section-header h3 { font-size: 14px; font-weight: 300; letter-spacing: -0.2px; color: var(--text-secondary); }
+.section-header .actions { display: flex; gap: 8px; }
+
+/* ═══ TABLES ═══ */
+table { width: 100%; border-collapse: collapse; }
+th { text-align: left; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-tertiary); padding: 8px 12px; border-bottom: 1px solid var(--border); }
+td { font-size: 13px; font-weight: 400; padding: 10px 12px; border-bottom: 1px solid rgba(255,255,255,0.04); color: var(--text-primary); }
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: rgba(255,255,255,0.02); }
+.mono { font-family: var(--mono); font-size: 12px; }
+
+/* ═══ STATUS PILLS ═══ */
+.status-pill { display: inline-flex; align-items: center; gap: 6px; padding: 2px 10px; border-radius: var(--radius-sm); font-size: 11px; font-weight: 500; }
+.status-pill.healthy { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-border); }
+.status-pill.degraded { background: var(--yellow-bg); color: var(--yellow); border: 1px solid var(--yellow-border); }
+.status-pill.down { background: var(--red-bg); color: var(--red); border: 1px solid var(--red-border); }
+.status-dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; }
+.status-dot.green { background: var(--green); }
+.status-dot.amber { background: var(--yellow); }
+.status-dot.red { background: var(--red); }
+.status-dot.gray { background: var(--text-tertiary); }
+
+/* ═══ BADGES ═══ */
+.badge { display: inline-block; padding: 1px 8px; border-radius: var(--radius-sm); font-size: 10px; font-weight: 600; letter-spacing: 0.03em; }
+.badge-pg { background: rgba(51,103,145,0.2); color: #7bb8e0; border: 1px solid rgba(51,103,145,0.3); }
+.badge-mysql { background: rgba(0,117,143,0.2); color: #5fa8c7; border: 1px solid rgba(0,117,143,0.3); }
+.badge-mariadb { background: rgba(24,137,180,0.2); color: #72c4e3; border: 1px solid rgba(24,137,180,0.3); }
+
+/* ═══ BUTTONS ═══ */
+.btn { display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: var(--radius-sm); font-size: 12px; font-weight: 400; cursor: pointer; transition: all .15s; border: none; font-family: var(--font); }
+.btn-primary { background: var(--accent); color: #fff; }
+.btn-primary:hover { background: var(--accent-hover); }
+.btn-ghost { background: transparent; border: 1px solid var(--border); color: var(--text-secondary); }
+.btn-ghost:hover { border-color: var(--border-hover); color: var(--text-primary); }
+.btn-sm { padding: 4px 10px; font-size: 11px; }
+
+/* ═══ ENGINE SUMMARY CARDS ═══ */
+.engine-summary { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 24px; }
+.engine-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 20px; box-shadow: var(--shadow-card); }
+.engine-card-title { font-size: 13px; font-weight: 400; color: var(--text-secondary); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+.engine-dots { display: flex; gap: 6px; margin-bottom: 8px; flex-wrap: wrap; }
+.engine-dot { width: 10px; height: 10px; border-radius: 50%; }
+.engine-dot.green { background: var(--green); }
+.engine-dot.amber { background: var(--yellow); }
+.engine-dot.red { background: var(--red); }
+.engine-stats { font-size: 12px; color: var(--text-tertiary); }
+
+/* ═══ MONO GRID ═══ */
+.mono-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 12px; }
+.mono-item { background: rgba(0,0,0,0.2); border-radius: var(--radius-sm); padding: 8px 12px; }
+.mono-label { font-size: 10px; color: var(--text-tertiary); font-weight: 400; }
+.mono-value { font-family: var(--mono); font-size: 14px; font-weight: 400; color: var(--text-primary); margin-top: 2px; }
+
+/* ═══ TWO COLUMN ═══ */
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+
+/* ═══ BUTTON SIZE ═══ */
+.btn-xs { padding: 2px 8px; font-size: 10px; border-radius: var(--radius-sm); }
+.btn-icon { padding: 4px; background: transparent; border: 1px solid var(--border); border-radius: var(--radius-sm); cursor: pointer; color: var(--text-secondary); display: inline-flex; align-items: center; justify-content: center; }
+.btn-icon:hover { border-color: var(--border-hover); color: var(--text-primary); }
+
+| ═══ CONNECTION SELECTOR ═══ */
+.conn-selector { position: relative; display: inline-flex; }
+.conn-selector-btn { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; background: rgba(0,0,0,0.2); border: 1px solid var(--border); border-radius: var(--radius-sm); cursor: pointer; color: var(--text-primary); font-size: 12px; font-family: var(--font); transition: all .15s; }
+.conn-selector-btn:hover { border-color: var(--border-hover); }
+.conn-selector-btn svg { width: 14px; height: 14px; flex-shrink: 0; }
+.conn-selector-btn .chevron { margin-left: 4px; color: var(--text-tertiary; }
+.conn-dropdown { display: none; position: absolute; top: calc(100% + 4px); left: 0; min-width: 240px; background: var(--elevated); border: 1px solid var(--border); border-radius: var(--radius-md); box-shadow: var(--shadow-elevated); z-index: 100; padding: 4px; }
+.conn-dropdown.open { display: block; }
+.conn-option { padding: 6px 10px; font-size: 12px; border-radius: var(--radius-sm); cursor: pointer; display: flex; align-items: center; gap: 8px; color: var(--text-secondary); transition: all .1s; }
+.conn-option:hover { background: rgba(255,255,255,0.04); color: var(--text-primary); }
+.conn-option.active { background: rgba(99,91,255,0.15); color: var(--accent); }
+.conn-option .host { font-size: 11px; color: var(--text-tertiary); margin-left: auto; font-family: var(--mono); }
+.conn-option .dot { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
+.conn-option .dot.green { background: var(--green); }
+.conn-option .dot.amber { background: var(--yellow); }
+.conn-option .dot.red { background: var(--red); }
+.conn-divider { height: 1px; background: var(--border); margin: 4px 8px; }
+
+| ═══ TIME FILTER ═══ */
+.time-pills { display: flex; gap: 2px; background: rgba(0,0,0,0.2); padding: 2px; border-radius: var(--radius-sm); }
+.time-pill { padding: 3px 10px; font-size: 11px; border-radius: 3px; cursor: pointer; border: none; background: none; color: var(--text-tertiary); font-family: var(--font); }
+.time-pill.active { background: var(--elevated); color: var(--text-primary); }
+
+/* ═══ ANALYTICS CHARTS ═══ */
+.chart-area { height: 200px; background: rgba(0,0,0,0.15); border-radius: var(--radius-sm); display: flex; align-items: flex-end; padding: 16px; gap: 4px; }
+.chart-bar { flex: 1; border-radius: 2px 2px 0 0; min-height: 4px; transition: all .3s; }
+.chart-bar:hover { opacity: 0.8; }
+
+/* ═══ FILTER PILLS ═══ */
+.filter-pills { display: flex; gap: 4px; flex-wrap: wrap; }
+.filter-pill { padding: 4px 12px; font-size: 11px; border-radius: var(--radius-sm); cursor: pointer; border: 1px solid var(--border); background: transparent; color: var(--text-tertiary); font-family: var(--font); transition: all .15s; }
+.filter-pill:hover { border-color: var(--border-hover); color: var(--text-primary); }
+.filter-pill.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+/* ═══ HISTORICAL ═══ */
+.historical-controls { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
+.search-input { flex: 1; min-width: 200px; background: rgba(0,0,0,0.2); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 8px 12px; color: var(--text-primary); font-size: 13px; font-family: var(--font); outline: none; }
+.search-input:focus { border-color: var(--accent); }
+.search-input::placeholder { color: var(--text-tertiary); }
+
+/* ═══ PAGINATION ═══ */
+.pagination { display: flex; align-items: center; gap: 4px; margin-top: 16px; justify-content: center; }
+.page-btn { padding: 4px 10px; font-size: 12px; border-radius: var(--radius-sm); border: 1px solid var(--border); background: transparent; color: var(--text-secondary); cursor: pointer; font-family: var(--mono); }
+.page-btn:hover { border-color: var(--border-hover); color: var(--text-primary); }
+.page-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+.page-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+/* ═══ TABLES INSIDE CARDS ═══ */
+.table-wrap { overflow-x: auto; }
+.section-card table { margin: -20px; width: calc(100% + 40px); }
+.section-card th { padding: 8px 20px; }
+.section-card td { padding: 10px 20px; }
+
+.highlight { color: var(--accent); font-weight: 500; }
+
+/* ═══ SPARKLINE ═══ */
+.spark { display: inline-flex; align-items: flex-end; gap: 1px; height: 20px; margin-left: 8px; }
+.spark-bar { width: 3px; border-radius: 1px; background: var(--text-tertiary); min-height: 2px; }
+
+/* scrollbar */
+.content::-webkit-scrollbar { width: 6px; }
+.content::-webkit-scrollbar-track { background: transparent; }
+.content::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<!-- ═══ SIDEBAR ═══ -->
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <div class="sidebar-logo">J</div>
+    <span class="sidebar-brand-text">Jagad</span>
+  </div>
+
+  <div class="sidebar-section">Main</div>
+  <a class="sidebar-item" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg> Dashboard</a>
+  <a class="sidebar-item" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20h16"/><path d="M4 20V4"/><path d="M8 16V8"/><path d="M12 16v-4"/><path d="M16 16v-2"/></svg> Connections <span class="sidebar-count">12</span></a>
+  <a class="sidebar-item" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V7"/><path d="M3 7l9 6 9-6"/></svg> Backups</a>
+  <a class="sidebar-item" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg> Schedules</a>
+
+  <div class="sidebar-section">Monitoring</div>
+  <a class="sidebar-item active" href="#" onclick="switchPage('overview')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20h16"/><path d="M4 20V4"/><path d="M8 16V8"/><path d="M12 16v-4"/><path d="M16 16v-2"/></svg> Overview</a>
+  <a class="sidebar-item" href="#" onclick="switchPage('postgresql')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg> PostgreSQL <span class="sidebar-count">5</span></a>
+  <a class="sidebar-item" href="#" onclick="switchPage('mysql')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg> MySQL <span class="sidebar-count">10</span></a>
+  <a class="sidebar-item" href="#" onclick="switchPage('mariadb')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg> MariaDB <span class="sidebar-count">10</span></a>
+  <a class="sidebar-item" href="#" onclick="switchPage('analytics')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 16l4-8 4 4 4-6"/></svg> Analytics</a>
+  <a class="sidebar-item" href="#" onclick="switchPage('reports')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg> Reports</a>
+  <a class="sidebar-item" href="#" onclick="switchPage('historical')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg> Historical</a>
+
+  <div class="sidebar-section">System</div>
+  <a class="sidebar-item" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg> Activity</a>
+  <a class="sidebar-item" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg> Settings</a>
+</aside>
+
+<!-- ═══ MAIN ═══ -->
+<div class="main">
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="topbar-left">
+    <span class="topbar-title">Monitoring</span>
+    <span class="topbar-subtitle">Last updated: 2m ago</span>
+  </div>
+  <div class="topbar-right">
+    <div class="time-pills">
+      <button class="time-pill">15m</button>
+      <button class="time-pill active">1h</button>
+      <button class="time-pill">6h</button>
+      <button class="time-pill">24h</button>
+      <button class="time-pill">7d</button>
+      <button class="time-pill">30d</button>
+    </div>
+    <button class="btn btn-ghost btn-sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg> Refresh</button>
+  </div>
+</div>
+
+<div class="content">
+
+<!-- ════ PAGE: OVERVIEW ════ -->
+<div id="page-overview" class="page active">
+  <div class="page-header">
+    <h2>Overview</h2>
+    <p>Cross-engine health summary for all monitored databases</p>
+  </div>
+
+  <!-- KPI Row -->
+  <div class="kpi-row">
+    <div class="kpi-card">
+      <div class="kpi-label">Monitored Servers</div>
+      <div class="kpi-value" style="color:#fff;">25</div>
+      <div class="kpi-delta up">▲ +2 this week</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Healthy</div>
+      <div class="kpi-value" style="color:var(--green);">21</div>
+      <div class="kpi-delta up">▲ 84% uptime</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Avg Response</div>
+      <div class="kpi-value" style="color:#fff;">2.3ms</div>
+      <div class="kpi-delta up">▲ -0.4ms from last week</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Cache Hit Ratio</div>
+      <div class="kpi-value" style="color:var(--green);">97.2%</div>
+      <div class="kpi-delta up">▲ +0.3%</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Total QPS</div>
+      <div class="kpi-value" style="color:#fff;">1.2K</div>
+      <div class="kpi-delta neutral">— stable</div>
+    </div>
+  </div>
+
+  <!-- Engine Summary -->
+  <div class="engine-summary">
+    <div class="engine-card">
+      <div class="engine-card-title"><span class="badge badge-pg">PG</span> PostgreSQL <span style="margin-left:auto;color:var(--text-tertiary);font-size:12px;">5 servers</span></div>
+      <div class="engine-dots">
+        <span class="engine-dot green"></span><span class="engine-dot green"></span><span class="engine-dot green"></span><span class="engine-dot green"></span><span class="engine-dot red"></span>
+      </div>
+      <div class="engine-stats">4 healthy, 1 down · Avg QPS: 450 · Avg Cache Hit: 96.8%</div>
+    </div>
+    <div class="engine-card">
+      <div class="engine-card-title"><span class="badge badge-mysql">MY</span> MySQL <span style="margin-left:auto;color:var(--text-tertiary);font-size:12px;">10 servers</span></div>
+      <div class="engine-dots">
+        <span class="engine-dot green"></span><span class="engine-dot green"></span><span class="engine-dot green"></span><span class="engine-dot green"></span><span class="engine-dot green"></span>
+        <span class="engine-dot green"></span><span class="engine-dot green"></span><span class="engine-dot amber"></span><span class="engine-dot amber"></span><span class="engine-dot green"></span>
+      </div>
+      <div class="engine-stats">8 healthy, 2 degraded · Avg QPS: 1.2K · Avg InnoDB Hit: 98.1%</div>
+    </div>
+    <div class="engine-card">
+      <div class="engine-card-title"><span class="badge badge-mariadb">MA</span> MariaDB <span style="margin-left:auto;color:var(--text-tertiary);font-size:12px;">10 servers</span></div>
+      <div class="engine-dots">
+        <span class="engine-dot green"></span><span class="engine-dot green"></span><span class="engine-dot green"></span><span class="engine-dot green"></span><span class="engine-dot green"></span>
+        <span class="engine-dot green"></span><span class="engine-dot green"></span><span class="engine-dot green"></span><span class="engine-dot green"></span><span class="engine-dot green"></span>
+      </div>
+      <div class="engine-stats">10 healthy · Avg QPS: 800 · Avg Thread Pool Active: 12</div>
+    </div>
+  </div>
+
+  <!-- Health Table -->
+  <div class="section-card">
+    <div class="section-header">
+      <h3>Connection Health</h3>
+      <div class="actions">
+        <div class="filter-pills">
+          <button class="filter-pill active">All</button>
+          <button class="filter-pill">Healthy</button>
+          <button class="filter-pill">Degraded</button>
+          <button class="filter-pill">Down</button>
+        </div>
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Name</th><th>Type</th><th>Status</th><th>Response</th><th>Active</th><th>Usage %</th><th>Last Checked</th></tr></thead>
+        <tbody>
+          <tr><td><strong>prod-db-01</strong></td><td><span class="badge badge-pg">PG</span></td><td><span class="status-pill healthy"><span class="status-dot green"></span> Healthy</span></td><td class="mono">1.2ms</td><td class="mono">34</td><td class="mono" style="color:var(--green);">42.5%</td><td style="color:var(--text-tertiary);font-size:12px;">2m ago</td></tr>
+          <tr><td><strong>prod-db-02</strong></td><td><span class="badge badge-pg">PG</span></td><td><span class="status-pill healthy"><span class="status-dot green"></span> Healthy</span></td><td class="mono">0.8ms</td><td class="mono">56</td><td class="mono" style="color:var(--yellow);">70.0%</td><td style="color:var(--text-tertiary);font-size:12px;">2m ago</td></tr>
+          <tr><td><strong>prod-mysql-01</strong></td><td><span class="badge badge-mysql">MY</span></td><td><span class="status-pill healthy"><span class="status-dot green"></span> Healthy</span></td><td class="mono">2.1ms</td><td class="mono">128</td><td class="mono" style="color:var(--green);">32.0%</td><td style="color:var(--text-tertiary);font-size:12px;">1m ago</td></tr>
+          <tr><td><strong>prod-mysql-02</strong></td><td><span class="badge badge-mysql">MY</span></td><td><span class="status-pill degraded"><span class="status-dot amber"></span> Degraded</span></td><td class="mono">2.8s</td><td class="mono">245</td><td class="mono" style="color:var(--red);">81.7%</td><td style="color:var(--text-tertiary);font-size:12px;">1m ago</td></tr>
+          <tr><td><strong>prod-maria-01</strong></td><td><span class="badge badge-mariadb">MA</span></td><td><span class="status-pill healthy"><span class="status-dot green"></span> Healthy</span></td><td class="mono">1.5ms</td><td class="mono">18</td><td class="mono" style="color:var(--green);">28.1%</td><td style="color:var(--text-tertiary);font-size:12px;">2m ago</td></tr>
+          <tr><td><strong>staging-pg-01</strong></td><td><span class="badge badge-pg">PG</span></td><td><span class="status-pill down"><span class="status-dot red"></span> Down</span></td><td class="mono">—</td><td class="mono">—</td><td class="mono">—</td><td style="color:var(--text-tertiary);font-size:12px;">5m ago</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- TimescaleDB Panel + Incidents -->
+  <div class="two-col">
+    <div class="section-card">
+      <div class="section-header"><h3>TimescaleDB Status</h3></div>
+      <div class="mono-grid">
+        <div class="mono-item"><div class="mono-label">Storage Used</div><div class="mono-value">2.4 GB</div></div>
+        <div class="mono-item"><div class="mono-label">Data Points</div><div class="mono-value">1.2M</div></div>
+        <div class="mono-item"><div class="mono-label">Retention</div><div class="mono-value">90 days</div></div>
+        <div class="mono-item"><div class="mono-label">Compression</div><div class="mono-value">87%</div></div>
+      </div>
+    </div>
+    <div class="section-card">
+      <div class="section-header"><h3>Recent Incidents</h3></div>
+      <table>
+        <thead><tr><th>Server</th><th>Event</th><th>Duration</th><th>Time</th></tr></thead>
+        <tbody>
+          <tr><td>staging-pg-01</td><td><span class="status-pill down"><span class="status-dot red"></span> Down</span></td><td class="mono">>5m</td><td style="font-size:12px;color:var(--text-tertiary);">5m ago</td></tr>
+          <tr><td>prod-mysql-02</td><td><span class="status-pill degraded"><span class="status-dot amber"></span> High Latency</span></td><td class="mono">12m</td><td style="font-size:12px;color:var(--text-tertiary);">18m ago</td></tr>
+          <tr><td>prod-db-01</td><td style="color:var(--green);">Recovered</td><td class="mono">—</td><td style="font-size:12px;color:var(--text-tertiary);">2h ago</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ════ PAGE: POSTGRESQL ════ -->
+<div id="page-postgresql" class="page">
+  <div class="page-header">
+    <h2>PostgreSQL</h2>
+    <p>5 servers monitored · 4 healthy, 1 down</p>
+  </div>
+
+  <!-- Connection Selector Bar -->
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+    <div class="conn-selector">
+      <button class="conn-selector-btn" onclick="toggleConnDropdown(this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="8" rx="2"/><rect x="2" y="14" width="20" height="8" rx="2"/><path d="M6 6h.01M6 18h.01"/></svg>
+        <span>All Connections (5)</span>
+        <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+      </button>
+      <div class="conn-dropdown">
+        <div class="conn-option active" onclick="selectConn(this,'All Connections (5)')"><span class="dot green"></span>All Connections <span class="host">5 servers</span></div>
+        <div class="conn-option" onclick="selectConn(this,'prod-db-1')"><span class="dot green"></span>prod-db-1 <span class="host">pg01.example.com</span></div>
+        <div class="conn-option" onclick="selectConn(this,'prod-db-2')"><span class="dot green"></span>prod-db-2 <span class="host">pg02.example.com</span></div>
+        <div class="conn-option" onclick="selectConn(this,'staging-pg')"><span class="dot green"></span>staging-pg <span class="host">stg.example.com</span></div>
+        <div class="conn-option" onclick="selectConn(this,'analytics-pg')"><span class="dot green"></span>analytics-pg <span class="host">etl.example.com</span></div>
+        <div class="conn-divider"></div>
+        <div class="conn-option" onclick="selectConn(this,'archive-pg')"><span class="dot red"></span>archive-pg <span class="host">arc.example.com</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- KPI Row -->
+  <div class="kpi-row">
+    <div class="kpi-card"><div class="kpi-label">QPS</div><div class="kpi-value" style="color:#fff;">450</div><div class="kpi-delta up">▲ +12%</div></div>
+    <div class="kpi-card"><div class="kpi-label">Active Connections</div><div class="kpi-value" style="color:#fff;">156</div><div class="kpi-delta up">▲ -8 from peak</div></div>
+    <div class="kpi-card"><div class="kpi-label">Cache Hit %</div><div class="kpi-value" style="color:var(--green);">96.8%</div><div class="kpi-delta neutral">— stable</div></div>
+    <div class="kpi-card"><div class="kpi-label">Dead Tuple %</div><div class="kpi-value" style="color:var(--yellow);">3.1%</div><div class="kpi-delta down">▼ +0.4%</div></div>
+    <div class="kpi-card"><div class="kpi-label">WAL Size</div><div class="kpi-value" style="color:#fff;">2.1 GB</div><div class="kpi-delta up">▲ -300 MB</div></div>
+  </div>
+
+  <!-- Query Analytics + Autovacuum -->
+  <div class="two-col">
+    <div class="section-card">
+      <div class="section-header"><h3>Query Analytics</h3><button class="btn btn-ghost btn-xs">View All</button></div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Query</th><th>Mean Time</th><th>Total</th><th>Calls</th><th>%</th></tr></thead>
+          <tbody>
+            <tr><td style="font-family:var(--mono);font-size:11px;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">SELECT * FROM orders WHERE ...</td><td class="mono">245ms</td><td class="mono">12.4s</td><td class="mono">51</td><td class="mono">32%</td></tr>
+            <tr><td style="font-family:var(--mono);font-size:11px;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">UPDATE users SET last_login = ...</td><td class="mono">182ms</td><td class="mono">8.2s</td><td class="mono">45</td><td class="mono">21%</td></tr>
+            <tr><td style="font-family:var(--mono);font-size:11px;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">INSERT INTO audit_log ...</td><td class="mono">98ms</td><td class="mono">5.1s</td><td class="mono">52</td><td class="mono">13%</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="section-card">
+      <div class="section-header"><h3>Autovacuum</h3><button class="btn btn-ghost btn-xs">View All</button></div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Table</th><th>Dead %</th><th>Last Vacuum</th><th>Size</th></tr></thead>
+          <tbody>
+            <tr><td style="font-family:var(--mono);font-size:12px;">orders</td><td class="mono" style="color:var(--yellow);">8.2%</td><td style="font-size:12px;color:var(--text-tertiary);">2h ago</td><td class="mono">2.4 GB</td></tr>
+            <tr><td style="font-family:var(--mono);font-size:12px;">users</td><td class="mono" style="color:var(--green);">1.1%</td><td style="font-size:12px;color:var(--text-tertiary);">15m ago</td><td class="mono">1.8 GB</td></tr>
+            <tr><td style="font-family:var(--mono);font-size:12px;">audit_log</td><td class="mono" style="color:var(--green);">0.4%</td><td style="font-size:12px;color:var(--text-tertiary);">5m ago</td><td class="mono">12 GB</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Locks + Replication -->
+  <div class="two-col">
+    <div class="section-card">
+      <div class="section-header"><h3>Lock Conflicts</h3><span class="badge badge-pg" style="background:var(--red-bg);color:var(--red);border:1px solid var(--red-border);">2 active</span></div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Blocked PID</th><th>Duration</th><th>Blocking PID</th><th>Lock Type</th></tr></thead>
+          <tbody>
+            <tr><td class="mono">24512</td><td class="mono" style="color:var(--yellow);">32s</td><td class="mono">24001</td><td>ExclusiveLock</td></tr>
+            <tr><td class="mono">24518</td><td class="mono" style="color:var(--yellow);">12s</td><td class="mono">24512</td><td>RowExclusive</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="section-card">
+      <div class="section-header"><h3>Replication</h3></div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>App</th><th>State</th><th>Write Lag</th><th>Replay Lag</th></tr></thead>
+          <tbody>
+            <tr><td class="mono">replica-1</td><td><span style="color:var(--green);">●</span> streaming</td><td class="mono">24ms</td><td class="mono">48ms</td></tr>
+            <tr><td class="mono">replica-2</td><td><span style="color:var(--green);">●</span> streaming</td><td class="mono">32ms</td><td class="mono">52ms</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Largest Tables + Checkpoints -->
+  <div class="two-col">
+    <div class="section-card">
+      <div class="section-header"><h3>Largest Tables</h3></div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Table</th><th>Size</th><th>Index</th><th>Total</th><th>Rows</th></tr></thead>
+          <tbody>
+            <tr><td class="mono">audit_log</td><td class="mono">8.2 GB</td><td class="mono">3.8 GB</td><td class="mono">12.0 GB</td><td class="mono">42M</td></tr>
+            <tr><td class="mono">orders</td><td class="mono">1.8 GB</td><td class="mono">0.6 GB</td><td class="mono">2.4 GB</td><td class="mono">8.2M</td></tr>
+            <tr><td class="mono">users</td><td class="mono">1.2 GB</td><td class="mono">0.6 GB</td><td class="mono">1.8 GB</td><td class="mono">5.1M</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="section-card">
+      <div class="section-header"><h3>Checkpoints & Temp Files</h3></div>
+      <div class="mono-grid" style="grid-template-columns:repeat(2,1fr);">
+        <div class="mono-item"><div class="mono-label">Checkpoints/h</div><div class="mono-value">2.4</div></div>
+        <div class="mono-item"><div class="mono-label">WAL/Checkpoint</div><div class="mono-value">384 MB</div></div>
+        <div class="mono-item"><div class="mono-label">Temp Files</div><div class="mono-value">245 MB</div></div>
+        <div class="mono-item"><div class="mono-label">Temp/s per DB</div><div class="mono-value">12 MB</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Index Usage -->
+  <div class="section-card">
+    <div class="section-header"><h3>Index Usage</h3><button class="btn btn-ghost btn-xs">View All</button></div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Index</th><th>Table</th><th>Scans</th><th>Size</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr><td class="mono">idx_orders_created_at</td><td class="mono">orders</td><td class="mono">12,450</td><td class="mono">128 MB</td><td style="color:var(--green);">● Used</td></tr>
+          <tr><td class="mono">idx_users_email_old</td><td class="mono">users</td><td class="mono">2</td><td class="mono">64 MB</td><td style="color:var(--red);">● Unused</td></tr>
+          <tr><td class="mono">idx_audit_type</td><td class="mono">audit_log</td><td class="mono">8,912</td><td class="mono">96 MB</td><td style="color:var(--green);">● Used</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ════ PAGE: MYSQL ════ -->
+<div id="page-mysql" class="page">
+  <div class="page-header">
+    <h2>MySQL</h2>
+    <p>10 servers monitored · 8 healthy, 2 degraded</p>
+  </div>
+
+  <!-- Connection Selector Bar -->
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+    <div class="conn-selector">
+      <button class="conn-selector-btn" onclick="toggleConnDropdown(this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="8" rx="2"/><rect x="2" y="14" width="20" height="8" rx="2"/><path d="M6 6h.01M6 18h.01"/></svg>
+        <span>All Connections (10)</span>
+        <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+      </button>
+      <div class="conn-dropdown">
+        <div class="conn-option active" onclick="selectConn(this,'All Connections (10)')"><span class="dot green"></span>All Connections <span class="host">10 servers</span></div>
+        <div class="conn-option" onclick="selectConn(this,'prod-mysql-1')"><span class="dot green"></span>prod-mysql-1 <span class="host">mysql01.example.com</span></div>
+        <div class="conn-option" onclick="selectConn(this,'prod-mysql-2')"><span class="dot green"></span>prod-mysql-2 <span class="host">mysql02.example.com</span></div>
+        <div class="conn-option" onclick="selectConn(this,'staging-mysql')"><span class="dot green"></span>staging-mysql <span class="host">stg.example.com</span></div>
+        <div class="conn-option" onclick="selectConn(this,'analytics-mysql')"><span class="dot green"></span>analytics-mysql <span class="host">etl.example.com</span></div>
+        <div class="conn-divider"></div>
+        <div class="conn-option" onclick="selectConn(this,'legacy-mysql')"><span class="dot amber"></span>legacy-mysql <span class="host">old.example.com</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="kpi-row">
+    <div class="kpi-card"><div class="kpi-label">QPS</div><div class="kpi-value" style="color:#fff;">1.2K</div><div class="kpi-delta up">▲ +5%</div></div>
+    <div class="kpi-card"><div class="kpi-label">Threads Connected</div><div class="kpi-value" style="color:#fff;">342</div><div class="kpi-delta up">▲ -12 from peak</div></div>
+    <div class="kpi-card"><div class="kpi-label">InnoDB BP Hit %</div><div class="kpi-value" style="color:var(--green);">98.1%</div><div class="kpi-delta neutral">— stable</div></div>
+    <div class="kpi-card"><div class="kpi-label">Aborted Conn %</div><div class="kpi-value" style="color:var(--yellow);">2.3%</div><div class="kpi-delta down">▼ +0.5%</div></div>
+    <div class="kpi-card"><div class="kpi-label">Binlog Size</div><div class="kpi-value" style="color:#fff;">4.8 GB</div><div class="kpi-delta neutral">— stable</div></div>
+  </div>
+
+  <div class="two-col">
+    <div class="section-card">
+      <div class="section-header"><h3>InnoDB Buffer Pool</h3></div>
+      <div style="display:flex;gap:20px;align-items:center;">
+        <div style="width:100px;height:100px;border-radius:50%;background:conic-gradient(var(--accent) 0deg 288deg, rgba(255,255,255,0.08) 288deg 360deg);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <div style="width:70px;height:70px;border-radius:50%;background:var(--surface);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:300;letter-spacing:-0.3px;">80%</div>
+        </div>
+        <div style="flex:1;">
+          <div class="mono-grid" style="grid-template-columns:repeat(2,1fr);margin-top:0;">
+            <div class="mono-item"><div class="mono-label">Total Pool</div><div class="mono-value">8.0 GB</div></div>
+            <div class="mono-item"><div class="mono-label">Used</div><div class="mono-value">6.4 GB</div></div>
+            <div class="mono-item"><div class="mono-label">Hit Ratio</div><div class="mono-value">98.1%</div></div>
+            <div class="mono-item"><div class="mono-label">Pages Read/s</div><div class="mono-value">2,450</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="section-card">
+      <div class="section-header"><h3>Slow Queries</h3></div>
+      <table>
+        <thead><tr><th>Fingerprint</th><th>Exec</th><th>Mean</th><th>Total</th></tr></thead>
+        <tbody>
+          <tr><td style="font-family:var(--mono);font-size:11px;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">SELECT * FROM orders WHERE ...</td><td class="mono">245</td><td class="mono">1.2s</td><td class="mono">294s</td></tr>
+          <tr><td style="font-family:var(--mono);font-size:11px;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">UPDATE inventory SET qty = ...</td><td class="mono">89</td><td class="mono">0.8s</td><td class="mono">71s</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="two-col">
+    <div class="section-card">
+      <div class="section-header"><h3>Replication</h3></div>
+      <table>
+        <thead><tr><th>Host</th><th>IO Thread</th><th>SQL Thread</th><th>Behind</th></tr></thead>
+        <tbody>
+          <tr><td class="mono">replica-1</td><td style="color:var(--green);">● Yes</td><td style="color:var(--green);">● Yes</td><td class="mono">2s</td></tr>
+          <tr><td class="mono">replica-2</td><td style="color:var(--green);">● Yes</td><td style="color:var(--green);">● Yes</td><td class="mono">5s</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="section-card">
+      <div class="section-header"><h3>Metadata Locks</h3></div>
+      <table>
+        <thead><tr><th>Thread</th><th>Table</th><th>Wait Time</th></tr></thead>
+        <tbody>
+          <tr><td class="mono">1245</td><td class="mono">orders</td><td class="mono" style="color:var(--yellow);">12s</td></tr>
+          <tr><td class="mono">1248</td><td class="mono">inventory</td><td class="mono">4s</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="two-col">
+    <div class="section-card">
+      <div class="section-header"><h3>Binlog & Largest Tables</h3></div>
+      <table>
+        <thead><tr><th>File</th><th>Size</th><th>Position</th></tr></thead>
+        <tbody>
+          <tr><td class="mono">binlog.001245</td><td class="mono">512 MB</td><td class="mono">2456712</td></tr>
+          <tr><td class="mono">binlog.001244</td><td class="mono">512 MB</td><td class="mono">1073741824</td></tr>
+        </tbody>
+      </table>
+      <div style="margin-top:12px;">
+        <table>
+          <thead><tr><th>Table</th><th>Engine</th><th>Size</th><th>Rows</th></tr></thead>
+          <tbody>
+            <tr><td class="mono">orders</td><td>InnoDB</td><td class="mono">12 GB</td><td class="mono">8.2M</td></tr>
+            <tr><td class="mono">audit_log</td><td>InnoDB</td><td class="mono">8 GB</td><td class="mono">42M</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="section-card">
+      <div class="section-header"><h3>Index Usage</h3></div>
+      <table>
+        <thead><tr><th>Index</th><th>Scans</th><th>Size</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr><td class="mono">idx_orders_date</td><td class="mono">12K</td><td class="mono">128 MB</td><td style="color:var(--green);">● Used</td></tr>
+          <tr><td class="mono">idx_users_old</td><td class="mono">0</td><td class="mono">64 MB</td><td style="color:var(--red);">● Unused</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ════ PAGE: MARIADB ════ -->
+<div id="page-mariadb" class="page">
+  <div class="page-header">
+    <h2>MariaDB</h2>
+    <p>10 servers monitored · 10 healthy</p>
+  </div>
+
+  <!-- Connection Selector Bar -->
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+    <div class="conn-selector">
+      <button class="conn-selector-btn" onclick="toggleConnDropdown(this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="8" rx="2"/><rect x="2" y="14" width="20" height="8" rx="2"/><path d="M6 6h.01M6 18h.01"/></svg>
+        <span>All Connections (10)</span>
+        <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+      </button>
+      <div class="conn-dropdown">
+        <div class="conn-option active" onclick="selectConn(this,'All Connections (10)')"><span class="dot green"></span>All Connections <span class="host">10 servers</span></div>
+        <div class="conn-option" onclick="selectConn(this,'prod-maria-1')"><span class="dot green"></span>prod-maria-1 <span class="host">maria01.example.com</span></div>
+        <div class="conn-option" onclick="selectConn(this,'prod-maria-2')"><span class="dot green"></span>prod-maria-2 <span class="host">maria02.example.com</span></div>
+        <div class="conn-option" onclick="selectConn(this,'staging-maria')"><span class="dot green"></span>staging-maria <span class="host">stg.example.com</span></div>
+        <div class="conn-option" onclick="selectConn(this,'analytics-maria')"><span class="dot green"></span>analytics-maria <span class="host">etl.example.com</span></div>
+        <div class="conn-divider"></div>
+        <div class="conn-option" onclick="selectConn(this,'dev-maria')"><span class="dot green"></span>dev-maria <span class="host">dev.example.com</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="kpi-row">
+    <div class="kpi-card"><div class="kpi-label">QPS</div><div class="kpi-value" style="color:#fff;">800</div><div class="kpi-delta up">▲ +3%</div></div>
+    <div class="kpi-card"><div class="kpi-label">Thread Pool Active</div><div class="kpi-value" style="color:#fff;">12</div><div class="kpi-delta neutral">— stable</div></div>
+    <div class="kpi-card"><div class="kpi-label">Aria Cache Hit %</div><div class="kpi-value" style="color:var(--green);">99.2%</div><div class="kpi-delta neutral">— stable</div></div>
+    <div class="kpi-card"><div class="kpi-label">Aborted Conn %</div><div class="kpi-value" style="color:var(--green);">1.1%</div><div class="kpi-delta up">▲ -0.2%</div></div>
+    <div class="kpi-card"><div class="kpi-label">Binlog Size</div><div class="kpi-value" style="color:#fff;">2.1 GB</div><div class="kpi-delta up">▲ -200 MB</div></div>
+  </div>
+
+  <div class="two-col">
+    <div class="section-card">
+      <div class="section-header"><h3>Thread Pool</h3></div>
+      <div class="mono-grid" style="grid-template-columns:repeat(4,1fr);">
+        <div class="mono-item"><div class="mono-label">Total</div><div class="mono-value">24</div></div>
+        <div class="mono-item"><div class="mono-label">Active</div><div class="mono-value">12</div></div>
+        <div class="mono-item"><div class="mono-label">Waiting</div><div class="mono-value">8</div></div>
+        <div class="mono-item"><div class="mono-label">Stalled</div><div class="mono-value">0</div></div>
+      </div>
+    </div>
+    <div class="section-card">
+      <div class="section-header"><h3>Aria Page Cache</h3></div>
+      <div class="mono-grid" style="grid-template-columns:repeat(4,1fr);">
+        <div class="mono-item"><div class="mono-label">Hit Ratio</div><div class="mono-value">99.2%</div></div>
+        <div class="mono-item"><div class="mono-label">Pages Read</div><div class="mono-value">1.2M</div></div>
+        <div class="mono-item"><div class="mono-label">Pages Written</div><div class="mono-value">245K</div></div>
+        <div class="mono-item"><div class="mono-label">IO Saved</div><div class="mono-value">92%</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="two-col">
+    <div class="section-card">
+      <div class="section-header"><h3>Replication</h3></div>
+      <table>
+        <thead><tr><th>Host</th><th>IO Thread</th><th>SQL Thread</th><th>Behind</th></tr></thead>
+        <tbody>
+          <tr><td class="mono">replica-1</td><td style="color:var(--green);">● Yes</td><td style="color:var(--green);">● Yes</td><td class="mono">1s</td></tr>
+          <tr><td class="mono">replica-2</td><td style="color:var(--green);">● Yes</td><td style="color:var(--green);">● Yes</td><td class="mono">3s</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="section-card">
+      <div class="section-header"><h3>Slow Queries</h3></div>
+      <table>
+        <thead><tr><th>Fingerprint</th><th>Exec</th><th>Mean</th><th>Total</th></tr></thead>
+        <tbody>
+          <tr><td style="font-family:var(--mono);font-size:11px;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">SELECT p.* FROM products ...</td><td class="mono">124</td><td class="mono">0.9s</td><td class="mono">112s</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="two-col">
+    <div class="section-card">
+      <div class="section-header"><h3>Locks & Binlog</h3></div>
+      <table>
+        <thead><tr><th>File</th><th>Size</th><th>Position</th></tr></thead>
+        <tbody>
+          <tr><td class="mono">mariadb-bin.002341</td><td class="mono">512 MB</td><td class="mono">1245780</td></tr>
+        </tbody>
+      </table>
+      <div style="margin-top:8px;"><table>
+        <thead><tr><th>Thread</th><th>Table</th><th>Wait Time</th></tr></thead>
+        <tbody><tr><td class="mono">5621</td><td class="mono">products</td><td class="mono">3s</td></tr></tbody>
+      </table></div>
+    </div>
+    <div class="section-card">
+      <div class="section-header"><h3>Connections & Index Usage</h3></div>
+      <div class="mono-grid" style="grid-template-columns:repeat(2,1fr);">
+        <div class="mono-item"><div class="mono-label">Running</div><div class="mono-value">18</div></div>
+        <div class="mono-item"><div class="mono-label">Idle</div><div class="mono-value">6</div></div>
+        <div class="mono-item"><div class="mono-label">Aborted</div><div class="mono-value">1</div></div>
+        <div class="mono-item"><div class="mono-label">Total</div><div class="mono-value">24</div></div>
+      </div>
+      <div style="margin-top:12px;"><table>
+        <thead><tr><th>Index</th><th>Scans</th><th>Status</th></tr></thead>
+        <tbody><tr><td class="mono">idx_prod_cat</td><td class="mono">8K</td><td style="color:var(--green);">● Used</td></tr></tbody>
+      </table></div>
+    </div>
+  </div>
+</div>
+
+<!-- ════ PAGE: ANALYTICS ════ -->
+<div id="page-analytics" class="page">
+  <div class="page-header">
+    <h2>Analytics</h2>
+    <p>Cross-engine trend analysis & SLA reporting</p>
+  </div>
+
+  <!-- Connection Selector Bar -->
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+    <div class="conn-selector">
+      <button class="conn-selector-btn" onclick="toggleConnDropdown(this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="8" rx="2"/><rect x="2" y="14" width="20" height="8" rx="2"/><path d="M6 6h.01M6 18h.01"/></svg>
+        <span>All Connections (25)</span>
+        <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+      </button>
+      <div class="conn-dropdown">
+        <div class="conn-option active" onclick="selectConn(this,'All Connections (25)')"><span class="dot green"></span>All Connections <span class="host">25 servers</span></div>
+        <div class="conn-divider" style="margin:2px 8px;"></div>
+        <div style="padding:4px 10px;font-size:10px;color:var(--text-tertiary);font-weight:600;letter-spacing:0.05em;text-transform:uppercase;">PostgreSQL (5)</div>
+        <div class="conn-option" onclick="selectConn(this,'prod-db-1')"><span class="dot green"></span>prod-db-1 <span class="host">pg01</span></div>
+        <div class="conn-option" onclick="selectConn(this,'prod-db-2')"><span class="dot green"></span>prod-db-2 <span class="host">pg02</span></div>
+        <div style="padding:4px 10px;font-size:10px;color:var(--text-tertiary);font-weight:600;letter-spacing:0.05em;text-transform:uppercase;margin-top:2px;">MySQL (10)</div>
+        <div class="conn-option" onclick="selectConn(this,'prod-mysql-1')"><span class="dot green"></span>prod-mysql-1 <span class="host">mysql01</span></div>
+        <div style="padding:4px 10px;font-size:10px;color:var(--text-tertiary);font-weight:600;letter-spacing:0.05em;text-transform:uppercase;margin-top:2px;">MariaDB (10)</div>
+        <div class="conn-option" onclick="selectConn(this,'prod-maria-1')"><span class="dot green"></span>prod-maria-1 <span class="host">maria01</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="kpi-row" style="grid-template-columns:repeat(4,1fr);">
+    <div class="kpi-card"><div class="kpi-label">Uptime SLA (30d)</div><div class="kpi-value" style="color:var(--green);">99.82%</div><div class="kpi-delta up">▲ +0.04% vs last period</div></div>
+    <div class="kpi-card"><div class="kpi-label">Avg QPS Trend</div><div class="kpi-value" style="color:#fff;">2.4K</div><div class="kpi-delta down">▼ -8% vs last period</div></div>
+    <div class="kpi-card"><div class="kpi-label">Total Incidents</div><div class="kpi-value" style="color:var(--yellow);">12</div><div class="kpi-delta up">▲ -3 vs last period</div></div>
+    <div class="kpi-card"><div class="kpi-label">Avg Response</div><div class="kpi-value" style="color:#fff;">1.8ms</div><div class="kpi-delta up">▲ -0.3ms vs last period</div></div>
+  </div>
+
+  <div class="section-card">
+    <div class="section-header"><h3>QPS Trend (7 days)</h3><div class="time-pills"><button class="time-pill">7d</button><button class="time-pill active">14d</button><button class="time-pill">30d</button></div></div>
+    <div class="chart-area">
+      <div class="chart-bar" style="height:40%;background:var(--accent);"></div>
+      <div class="chart-bar" style="height:55%;background:var(--accent);"></div>
+      <div class="chart-bar" style="height:48%;background:var(--accent);"></div>
+      <div class="chart-bar" style="height:62%;background:var(--accent);"></div>
+      <div class="chart-bar" style="height:58%;background:var(--accent);"></div>
+      <div class="chart-bar" style="height:45%;background:var(--accent);"></div>
+      <div class="chart-bar" style="height:70%;background:var(--accent);"></div>
+      <div class="chart-bar" style="height:52%;background:var(--accent);"></div>
+      <div class="chart-bar" style="height:65%;background:var(--accent);"></div>
+      <div class="chart-bar" style="height:48%;background:var(--accent);"></div>
+      <div class="chart-bar" style="height:60%;background:var(--accent);"></div>
+      <div class="chart-bar" style="height:72%;background:var(--accent);"></div>
+      <div class="chart-bar" style="height:55%;background:var(--accent);"></div>
+      <div class="chart-bar" style="height:50%;background:var(--accent);"></div>
+    </div>
+  </div>
+
+  <div class="two-col">
+    <div class="section-card">
+      <div class="section-header"><h3>Incident Timeline</h3></div>
+      <table>
+        <thead><tr><th>Date</th><th>Server</th><th>Event</th><th>Duration</th></tr></thead>
+        <tbody>
+          <tr><td style="font-size:12px;color:var(--text-tertiary);">2026-06-18</td><td>staging-pg-01</td><td><span class="status-pill down"><span class="status-dot red"></span> Down</span></td><td>12m</td></tr>
+          <tr><td style="font-size:12px;color:var(--text-tertiary);">2026-06-17</td><td>prod-mysql-02</td><td><span class="status-pill degraded"><span class="status-dot amber"></span> High Latency</span></td><td>8m</td></tr>
+          <tr><td style="font-size:12px;color:var(--text-tertiary);">2026-06-16</td><td>prod-db-01</td><td style="color:var(--green);">Recovered</td><td>—</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="section-card">
+      <div class="section-header"><h3>Lock Contention Trend</h3></div>
+      <div class="chart-area" style="height:150px;">
+        <div class="chart-bar" style="height:20%;background:var(--yellow);"></div>
+        <div class="chart-bar" style="height:35%;background:var(--yellow);"></div>
+        <div class="chart-bar" style="height:18%;background:var(--yellow);"></div>
+        <div class="chart-bar" style="height:45%;background:var(--yellow);"></div>
+        <div class="chart-bar" style="height:30%;background:var(--yellow);"></div>
+        <div class="chart-bar" style="height:25%;background:var(--yellow);"></div>
+        <div class="chart-bar" style="height:40%;background:var(--yellow);"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="two-col">
+    <div class="section-card">
+      <div class="section-header"><h3>Bloat Tracking (PG)</h3></div>
+      <table>
+        <thead><tr><th>Table</th><th>Connection</th><th>Dead %</th><th>Trend</th></tr></thead>
+        <tbody>
+          <tr><td class="mono">orders</td><td>prod-db-01</td><td class="mono" style="color:var(--yellow);">8.2%</td><td class="mono" style="color:var(--red);">▲ +2.1%</td></tr>
+          <tr><td class="mono">audit_log</td><td>prod-db-02</td><td class="mono" style="color:var(--green);">1.2%</td><td class="mono" style="color:var(--green);">▼ -0.3%</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="section-card">
+      <div class="section-header"><h3>Uptime SLA (Daily)</h3></div>
+      <div class="chart-area" style="height:150px;">
+        <div class="chart-bar" style="height:98%;background:var(--green);"></div>
+        <div class="chart-bar" style="height:100%;background:var(--green);"></div>
+        <div class="chart-bar" style="height:100%;background:var(--green);"></div>
+        <div class="chart-bar" style="height:85%;background:var(--green);"></div>
+        <div class="chart-bar" style="height:100%;background:var(--green);"></div>
+        <div class="chart-bar" style="height:100%;background:var(--green);"></div>
+        <div class="chart-bar" style="height:92%;background:var(--green);"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════ PAGE: REPORTS ════ -->
+<div id="page-reports" class="page">
+  <div class="page-header">
+    <h2>Reports</h2>
+    <p>CAGG-based SLA, capacity forecast & performance reports</p>
+  </div>
+
+  <!-- Connection Selector Bar -->
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+    <div class="conn-selector">
+      <button class="conn-selector-btn" onclick="toggleConnDropdown(this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="8" rx="2"/><rect x="2" y="14" width="20" height="8" rx="2"/><path d="M6 6h.01M6 18h.01"/></svg>
+        <span>All Connections (25)</span>
+        <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+      </button>
+      <div class="conn-dropdown">
+        <div class="conn-option active" onclick="selectConn(this,'All Connections (25)')"><span class="dot green"></span>All Connections <span class="host">25 servers</span></div>
+        <div class="conn-divider" style="margin:2px 8px;"></div>
+        <div style="padding:4px 10px;font-size:10px;color:var(--text-tertiary);font-weight:600;letter-spacing:0.05em;text-transform:uppercase;">PostgreSQL (5)</div>
+        <div class="conn-option" onclick="selectConn(this,'prod-db-1')"><span class="dot green"></span>prod-db-1 <span class="host">pg01</span></div>
+        <div style="padding:4px 10px;font-size:10px;color:var(--text-tertiary);font-weight:600;letter-spacing:0.05em;text-transform:uppercase;margin-top:2px;">MySQL (10)</div>
+        <div class="conn-option" onclick="selectConn(this,'prod-mysql-1')"><span class="dot green"></span>prod-mysql-1 <span class="host">mysql01</span></div>
+        <div style="padding:4px 10px;font-size:10px;color:var(--text-tertiary);font-weight:600;letter-spacing:0.05em;text-transform:uppercase;margin-top:2px;">MariaDB (10)</div>
+        <div class="conn-option" onclick="selectConn(this,'prod-maria-1')"><span class="dot green"></span>prod-maria-1 <span class="host">maria01</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="kpi-row" style="grid-template-columns:repeat(4,1fr);">
+    <div class="kpi-card"><div class="kpi-label">Daily SLA</div><div class="kpi-value" style="color:var(--green);">99.82%</div><div class="kpi-delta up">▲ 99.9% target</div></div>
+    <div class="kpi-card"><div class="kpi-label">Weekly Query Perf</div><div class="kpi-value" style="color:var(--green);">98ms</div><div class="kpi-delta up">▲ -12ms</div></div>
+    <div class="kpi-card"><div class="kpi-label">Growth Forecast</div><div class="kpi-value" style="color:var(--yellow);">42 days</div><div class="kpi-delta neutral">until 80% capacity</div></div>
+    <div class="kpi-card"><div class="kpi-label">Backup Success</div><div class="kpi-value" style="color:var(--green);">98.5%</div><div class="kpi-delta up">▲ +0.8%</div></div>
+  </div>
+
+  <div class="two-col">
+    <div class="section-card">
+      <div class="section-header"><h3>Capacity Forecast</h3></div>
+      <div class="chart-area" style="height:180px;">
+        <div class="chart-bar" style="height:30%;background:var(--green);"></div>
+        <div class="chart-bar" style="height:35%;background:var(--green);"></div>
+        <div class="chart-bar" style="height:42%;background:var(--green);"></div>
+        <div class="chart-bar" style="height:48%;background:var(--green);"></div>
+        <div class="chart-bar" style="height:55%;background:var(--yellow);"></div>
+        <div class="chart-bar" style="height:62%;background:var(--yellow);"></div>
+        <div class="chart-bar" style="height:70%;background:var(--red);"></div>
+        <div class="chart-bar" style="height:78%;background:var(--red);"></div>
+        <div class="chart-bar" style="height:45%;background:var(--green);border:1px dashed var(--accent);opacity:0.5;"></div>
+        <div class="chart-bar" style="height:52%;background:var(--green);border:1px dashed var(--accent);opacity:0.5;"></div>
+        <div class="chart-bar" style="height:60%;background:var(--yellow);border:1px dashed var(--accent);opacity:0.5;"></div>
+        <div class="chart-bar" style="height:68%;background:var(--yellow);border:1px dashed var(--accent);opacity:0.5;"></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;margin-top:8px;font-size:10px;color:var(--text-tertiary);">
+        <span>Jun 1</span><span>Jun 15</span><span>Jul 1</span><span>Jul 15</span><span style="color:var(--accent);">→ Forecast</span>
+      </div>
+    </div>
+    <div class="section-card">
+      <div class="section-header"><h3>Bloat Report (PG)</h3></div>
+      <table>
+        <thead><tr><th>Table</th><th>Dead %</th><th>Growth</th><th>Est. Wasted</th></tr></thead>
+        <tbody>
+          <tr><td class="mono">orders</td><td class="mono" style="color:var(--red);">8.2%</td><td class="mono" style="color:var(--red);">▲ +2.1%/wk</td><td class="mono">198 MB</td></tr>
+          <tr><td class="mono">sessions</td><td class="mono" style="color:var(--yellow);">5.4%</td><td class="mono" style="color:var(--yellow);">▲ +0.8%/wk</td><td class="mono">64 MB</td></tr>
+          <tr><td class="mono">users</td><td class="mono" style="color:var(--green);">1.1%</td><td class="mono" style="color:var(--green);">▼ -0.2%/wk</td><td class="mono">12 MB</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="two-col">
+    <div class="section-card">
+      <div class="section-header"><h3>Lock Contention Report</h3></div>
+      <table>
+        <thead><tr><th>Connection</th><th>Blocked Sessions</th><th>Avg Duration</th><th>Most Blocked Query</th></tr></thead>
+        <tbody>
+          <tr><td>prod-db-01</td><td class="mono">12</td><td class="mono">24s</td><td style="font-family:var(--mono);font-size:11px;">UPDATE orders SET ...</td></tr>
+          <tr><td>prod-db-02</td><td class="mono">4</td><td class="mono">8s</td><td style="font-family:var(--mono);font-size:11px;">SELECT ... FOR UPDATE</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="section-card">
+      <div class="section-header"><h3>Backup Success Rate (30d)</h3></div>
+      <div class="mono-grid" style="grid-template-columns:repeat(3,1fr);">
+        <div class="mono-item"><div class="mono-label">Success Rate</div><div class="mono-value" style="color:var(--green);">98.5%</div></div>
+        <div class="mono-item"><div class="mono-label">Total Backups</div><div class="mono-value">124</div></div>
+        <div class="mono-item"><div class="mono-label">Failed</div><div class="mono-value" style="color:var(--red);">2</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════ PAGE: HISTORICAL ════ -->
+<div id="page-historical" class="page">
+  <div class="page-header">
+    <h2>Historical Data</h2>
+    <p>Raw hypertable browser — filter, search, and export monitoring data</p>
+  </div>
+
+  <!-- Connection Selector Bar -->
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+    <div class="conn-selector">
+      <button class="conn-selector-btn" onclick="toggleConnDropdown(this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="8" rx="2"/><rect x="2" y="14" width="20" height="8" rx="2"/><path d="M6 6h.01M6 18h.01"/></svg>
+        <span>All Connections (25)</span>
+        <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+      </button>
+      <div class="conn-dropdown" style="min-width:260px;">
+        <div class="conn-option active" onclick="selectConn(this,'All Connections (25)')"><span class="dot green"></span>All Connections <span class="host">25 servers</span></div>
+        <div class="conn-divider" style="margin:2px 8px;"></div>
+        <div style="padding:4px 10px;font-size:10px;color:var(--text-tertiary);font-weight:600;letter-spacing:0.05em;text-transform:uppercase;">PostgreSQL (5)</div>
+        <div class="conn-option" onclick="selectConn(this,'prod-db-1')"><span class="dot green"></span>prod-db-1 <span class="host">pg01</span></div>
+        <div style="padding:4px 10px;font-size:10px;color:var(--text-tertiary);font-weight:600;letter-spacing:0.05em;text-transform:uppercase;margin-top:2px;">MySQL (10)</div>
+        <div class="conn-option" onclick="selectConn(this,'prod-mysql-1')"><span class="dot green"></span>prod-mysql-1 <span class="host">mysql01</span></div>
+        <div style="padding:4px 10px;font-size:10px;color:var(--text-tertiary);font-weight:600;letter-spacing:0.05em;text-transform:uppercase;margin-top:2px;">MariaDB (10)</div>
+        <div class="conn-option" onclick="selectConn(this,'prod-maria-1')"><span class="dot green"></span>prod-maria-1 <span class="host">maria01</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Controls -->
+  <div class="section-card" style="padding:16px;">
+    <div class="historical-controls">
+      <div class="filter-pills">
+        <button class="filter-pill active">All Engines</button>
+        <button class="filter-pill">PostgreSQL</button>
+        <button class="filter-pill">MySQL</button>
+        <button class="filter-pill">MariaDB</button>
+      </div>
+      <div class="filter-pills">
+        <button class="filter-pill active">Health</button>
+        <button class="filter-pill">Metrics</button>
+        <button class="filter-pill">Slow Queries</button>
+        <button class="filter-pill">Locks</button>
+        <button class="filter-pill">Replication</button>
+      </div>
+      <input class="search-input" placeholder="Search by connection, database, or query..." style="max-width:300px;">
+      <button class="btn btn-primary btn-sm">Export</button>
+    </div>
+  </div>
+
+  <!-- Time Range + Pagination Info -->
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+    <div style="display:flex;gap:12px;align-items:center;">
+      <span style="font-size:12px;color:var(--text-tertiary);">From:</span>
+      <input type="text" value="2026-06-18 00:00" style="background:rgba(0,0,0,0.2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:4px 10px;color:var(--text-primary);font-family:var(--mono);font-size:12px;">
+      <span style="font-size:12px;color:var(--text-tertiary);">To:</span>
+      <input type="text" value="2026-06-19 12:00" style="background:rgba(0,0,0,0.2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:4px 10px;color:var(--text-primary);font-family:var(--mono);font-size:12px;">
+    </div>
+    <span style="font-size:12px;color:var(--text-tertiary);">Showing 1-15 of 2,847 results</span>
+  </div>
+
+  <!-- Data Table -->
+  <div class="section-card" style="padding:0;">
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th style="width:30px;"><input type="checkbox" style="accent-color:var(--accent);"></th>
+            <th>Time</th>
+            <th>Connection</th>
+            <th>Engine</th>
+            <th>Table</th>
+            <th>Metric</th>
+            <th>Value</th>
+            <th>Unit</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><input type="checkbox" style="accent-color:var(--accent);"></td>
+            <td style="font-size:11px;font-family:var(--mono);">2026-06-19 11:58:02</td>
+            <td>prod-db-01</td>
+            <td><span class="badge badge-pg">PG</span></td>
+            <td class="mono">health_checks</td>
+            <td>response_time_ms</td>
+            <td class="mono">1.2</td>
+            <td style="font-size:11px;color:var(--text-tertiary);">ms</td>
+            <td><button class="btn-icon btn-xs" title="View details">→</button></td>
+          </tr>
+          <tr>
+            <td><input type="checkbox" style="accent-color:var(--accent);"></td>
+            <td style="font-size:11px;font-family:var(--mono);">2026-06-19 11:57:01</td>
+            <td>prod-mysql-01</td>
+            <td><span class="badge badge-mysql">MY</span></td>
+            <td class="mono">db_metrics</td>
+            <td>db_size_bytes</td>
+            <td class="mono">4,194,304,000</td>
+            <td style="font-size:11px;color:var(--text-tertiary);">bytes</td>
+            <td><button class="btn-icon btn-xs" title="View details">→</button></td>
+          </tr>
+          <tr>
+            <td><input type="checkbox" style="accent-color:var(--accent);"></td>
+            <td style="font-size:11px;font-family:var(--mono);">2026-06-19 11:56:30</td>
+            <td>prod-maria-01</td>
+            <td><span class="badge badge-mariadb">MA</span></td>
+            <td class="mono">performance_metrics</td>
+            <td>cache_hit_ratio</td>
+            <td class="mono">98.3</td>
+            <td style="font-size:11px;color:var(--text-tertiary);">%</td>
+            <td><button class="btn-icon btn-xs" title="View details">→</button></td>
+          </tr>
+          <tr>
+            <td><input type="checkbox" style="accent-color:var(--accent);"></td>
+            <td style="font-size:11px;font-family:var(--mono);">2026-06-19 11:55:00</td>
+            <td>prod-db-02</td>
+            <td><span class="badge badge-pg">PG</span></td>
+            <td class="mono">pg_query_stats</td>
+            <td>mean_time</td>
+            <td class="mono">245.0</td>
+            <td style="font-size:11px;color:var(--text-tertiary);">ms</td>
+            <td><button class="btn-icon btn-xs" title="View details">→</button></td>
+          </tr>
+          <tr>
+            <td><input type="checkbox" style="accent-color:var(--accent);"></td>
+            <td style="font-size:11px;font-family:var(--mono);">2026-06-19 11:54:12</td>
+            <td>prod-mysql-02</td>
+            <td><span class="badge badge-mysql">MY</span></td>
+            <td class="mono">mysql_slow_queries</td>
+            <td>exec_count</td>
+            <td class="mono">245</td>
+            <td style="font-size:11px;color:var(--text-tertiary);">count</td>
+            <td><button class="btn-icon btn-xs" title="View details">→</button></td>
+          </tr>
+          <tr>
+            <td><input type="checkbox" style="accent-color:var(--accent);"></td>
+            <td style="font-size:11px;font-family:var(--mono);">2026-06-19 11:53:44</td>
+            <td>prod-db-01</td>
+            <td><span class="badge badge-pg">PG</span></td>
+            <td class="mono">pg_locks</td>
+            <td>duration_s</td>
+            <td class="mono" style="color:var(--yellow);">32</td>
+            <td style="font-size:11px;color:var(--text-tertiary);">s</td>
+            <td><button class="btn-icon btn-xs" title="View details">→</button></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Pagination -->
+  <div class="pagination">
+    <button class="page-btn" disabled>‹</button>
+    <button class="page-btn active">1</button>
+    <button class="page-btn">2</button>
+    <button class="page-btn">3</button>
+    <button class="page-btn">…</button>
+    <button class="page-btn">190</button>
+    <button class="page-btn">›</button>
+    <span style="font-size:12px;color:var(--text-tertiary);margin-left:8px;">Page 1 of 190</span>
+  </div>
+</div>
+
+</div><!-- /content -->
+</div><!-- /main -->
+
+<script>
+function switchPage(page) {
+  // Hide all pages
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  // Show target page
+  const target = document.getElementById('page-' + page);
+  if (target) target.classList.add('active');
+  // Update sidebar
+  document.querySelectorAll('.sidebar-item').forEach(item => {
+    const onclick = item.getAttribute('onclick') || '';
+    item.classList.toggle('active', onclick.includes("'" + page + "'"));
+  });
+  // Update topbar title
+  const titles = { overview:'Overview', postgresql:'PostgreSQL', mysql:'MySQL', mariadb:'MariaDB', analytics:'Analytics', reports:'Reports', historical:'Historical' };
+  const titleEl = document.querySelector('.topbar-title');
+  if (titleEl && titles[page]) titleEl.textContent = titles[page];
+}
+
+// Connection Selector
+function toggleConnDropdown(btn) {
+  const dd = btn.parentElement.querySelector('.conn-dropdown');
+  if (!dd) return;
+  const isOpen = dd.classList.toggle('open');
+  // Close other dropdowns
+  document.querySelectorAll('.conn-dropdown.open').forEach(d => {
+    if (d !== dd) d.classList.remove('open');
+  });
+}
+function selectConn(el, name) {
+  // Update active state in dropdown
+  el.parentElement.querySelectorAll('.conn-option').forEach(o => o.classList.remove('active'));
+  el.classList.add('active');
+  // Update button text
+  const selector = el.closest('.conn-selector');
+  const btn = selector.querySelector('.conn-selector-btn span');
+  if (btn) btn.textContent = name;
+  // Close dropdown
+  selector.querySelector('.conn-dropdown').classList.remove('open');
+}
+// Close dropdown on outside click
+document.addEventListener('click', function(e) {
+  if (!e.target.closest('.conn-selector')) {
+    document.querySelectorAll('.conn-dropdown.open').forEach(d => d.classList.remove('open'));
+  }
+});
+</script>
+
+</body>
+</html>

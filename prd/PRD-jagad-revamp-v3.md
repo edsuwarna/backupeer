@@ -2,8 +2,9 @@
 
 **Status:** Draft v3  
 **Author:** Hermes + Endang Suwarna  
-**Last Updated:** 2026-06-19  
-**Related:** PRD-monitoring.md, [Percona PMM](https://www.percona.com/monitoring/), [pgBadger](https://pgbadger.darold.net/)
+**Last Updated:** 2026-06-19  v3.2  \
+**Design System:** Stripe-inspired (dark navy canvas, purple accent, Source Sans 3 light weight)
+**Related:** PRD-monitoring.md, [Percona PMM](https://www.percona.com/monitoring/), [pgBadger](https://pgbadger.darold.net/), [Datadog DB Monitoring](https://www.datadoghq.com/product/database-monitoring/)
 
 ---
 
@@ -18,7 +19,7 @@ Jagad saat ini menggunakan satu schema (`public`) untuk menyimpan *semua* data �
 
 Selain itu, monitoring belum dipisah per-engine (PostgreSQL, MySQL, MariaDB punya metric yang berbeda fundamental), UI masih perlu di-improve dari sisi usability, dan reporting agregat (SLA, capacity planning) belum ada.
 
-Revamp ini mencakup **schema restructure** (database) + **UI overhaul** (frontend) + **per-engine monitoring** secara bersamaan.
+Revamp ini mencakup **schema restructure** (database) + **UI overhaul** (Stripe-inspired dark navy design system) + **per-engine monitoring** secara bersamaan.
 
 ---
 
@@ -37,6 +38,8 @@ Revamp ini mencakup **schema restructure** (database) + **UI overhaul** (fronten
 4. **Reporting agregat belum ada** — capacity planning, SLA uptime, slow query regression
 5. **Collector tanpa rate limiting** — semua metric dikumpulin tiap 60 detik, termasuk query berat (`pg_stat_statements`, `information_schema.TABLES`)
 6. **Partial failure tidak tertangani** — gagal 1 metric, seluruh collect cycle terpengaruh
+7. **Engine-specific gaps** — PG belum punya checkpoint & temp file tracking; MariaDB belum punya connections, locks, & binlog monitors; index usage cuma ada di PG (MySQL & MariaDB tidak)
+8. **3 new CAGG dibutuhkan** — bloat tracking (PG), lock contention trend harian, capacity forecast untuk growth projection
 
 ### 2.3 UI
 1. **Dashboard** — flat, cuma stat row + activity + recent backups table, kurang impactful sebagai landing page
@@ -59,10 +62,12 @@ Revamp ini mencakup **schema restructure** (database) + **UI overhaul** (fronten
 | Schema separation | Number of schemas | 1 (`public`) | 2 (`jagad`, `monitoring`) |
 | Data retention | Auto-drop metrics >90 days | Manual | Automatic via TimescaleDB policy |
 | Per-engine monitoring | Pages per engine | 0 (generic) | 3 (PG, MySQL, MariaDB) |
-| Engine-specific collector | Collector functions | 1 generic | 3 engine-specific |
+| Engine-specific collector | Collector functions | 1 generic | 3 engine-specific (8-10 metric per engine) |
 | KPI cards berbeda per engine | KPI relevance | Generic | Engine-specific metrics |
-| Continuous Aggregates | Reporting views | 0 | 5 CAGGs auto-refresh |
+| Continuous Aggregates | Reporting views | 0 | 8 CAGGs auto-refresh |
+| Engine metric completeness | Hypertables per engine | PG: 8, MySQL: 7, MariaDB: 5 | PG: 10, MySQL: 8, MariaDB: 9 |
 | UI clarity | User confusion on tab names | Medium | Zero |
+| Stripe design system | CSS tokens implemented | Linear-inspired #818cf8 | Stripe-inspired #635BFF, dark navy canvas |
 | Dashboard usefulness | Actions taken from dashboard | Low | High (KPI-driven) |
 | Connections UX | Time to find connection info | ~30s (page switch) | ~5s (inline expand) |
 | Collector rate limiting | Light/heavy query interval | All 60s | Light 60s, Medium 5m, Heavy 1h |
@@ -100,6 +105,8 @@ Schema: monitoring  — TimescaleDB hypertables + Continuous Aggregates
 │   ├── pg_tables                  ← pg_stat_user_tables
 │   ├── pg_index_usage             ← pg_stat_user_indexes
 │   ├── pg_wal_stats               ← pg_stat_wal
+│   ├── pg_checkpoints             ← pg_stat_checkpoints, WAL per checkpoint
+│   ├── pg_temp_files              ← pg_stat_database (temp_bytes, temp_files)
 │   └── pg_connections             ← pg_stat_activity
 │
 ├── MySQL-specific
@@ -109,6 +116,7 @@ Schema: monitoring  — TimescaleDB hypertables + Continuous Aggregates
 │   ├── mysql_locks                ← metadata locks + InnoDB locks
 │   ├── mysql_tables               ← information_schema.tables
 │   ├── mysql_binlog               ← binlog size, position
+│   ├── mysql_index_usage          ← index scan stats, unused indexes
 │   └── mysql_connections          ← SHOW PROCESSLIST
 │
 ├── MariaDB-specific
@@ -116,7 +124,11 @@ Schema: monitoring  — TimescaleDB hypertables + Continuous Aggregates
 │   ├── mariadb_aria_cache         ← Aria pagecache
 │   ├── mariadb_replication        ← SHOW SLAVE STATUS
 │   ├── mariadb_slow_queries       ← slow_log
-│   └── mariadb_tables             ← information_schema.tables
+│   ├── mariadb_tables             ← information_schema.tables
+│   ├── mariadb_locks              ← metadata locks + InnoDB locks
+│   ├── mariadb_binlog             ← binlog size, position
+│   ├── mariadb_index_usage        ← index scan stats, unused indexes
+│   └── mariadb_connections        ← SHOW PROCESSLIST
 │
 ├── Incidents
 │   └── incidents                  ← dari health_checks (down/degraded events)
@@ -126,7 +138,10 @@ Schema: monitoring  — TimescaleDB hypertables + Continuous Aggregates
     ├── cagg_daily_qps             ← 1yr retention
     ├── cagg_weekly_query_stats    ← 1yr retention
     ├── cagg_monthly_growth        ← 1yr retention
-    └── cagg_daily_backup_rate     ← 1yr retention
+    ├── cagg_daily_backup_rate     ← 1yr retention
+    ├── cagg_weekly_bloat_tracking ← 1yr retention (PG specific — dead tuple ratio per table)
+    ├── cagg_daily_lock_contention ← 1yr retention (blocked session duration per connection)
+    └── cagg_monthly_capacity      ← 1yr retention (growth projection — db_size trend)
 ```
 
 ### 4.2 Hubungan Generic vs Engine-Specific Tables
@@ -156,9 +171,9 @@ Engine-specific tables hanya untuk deep-dive metrics.
 ### 4.3 Migration Strategy
 
 1. **`CREATE SCHEMA monitoring;`**
-2. **Create hypertables** di `monitoring` schema (22 tabel)
+2. **Create hypertables** di `monitoring` schema (30 tabel)
 3. **Set retention + compression policies** per hypertable
-4. **Create continuous aggregates** (5 CAGG)
+4. **Create continuous aggregates** (8 CAGG)
 5. **Refactor kode** update query ke schema baru
 6. **Drop old P2 tables** dari `public`: `autovacuum_info`, `lock_info`, `replication_lag`, `table_metrics`
 
@@ -186,6 +201,8 @@ Migration SQL auto-run via `docker compose up`.
 | pg_index_usage | 7 days | 90 days | 14 days |
 | pg_wal_stats | 1 day | 7 days | 1 day |
 | pg_connections | 1 day | 7 days | 1 day |
+| pg_checkpoints | 1 day | 7 days | 1 day |
+| pg_temp_files | 1 day | 7 days | 1 day |
 | mysql_innodb_metrics | 1 day | 30 days | 7 days |
 | mysql_replication | 1 day | 7 days | 1 day |
 | mysql_slow_queries | 1 day | 30 days | 2 days |
@@ -193,11 +210,16 @@ Migration SQL auto-run via `docker compose up`.
 | mysql_tables | 7 days | 90 days | 14 days |
 | mysql_binlog | 1 day | 30 days | 7 days |
 | mysql_connections | 1 day | 7 days | 1 day |
+| mysql_index_usage | 7 days | 90 days | 14 days |
 | mariadb_thread_pool | 1 day | 30 days | 7 days |
 | mariadb_aria_cache | 1 day | 30 days | 7 days |
 | mariadb_replication | 1 day | 7 days | 1 day |
 | mariadb_slow_queries | 1 day | 30 days | 2 days |
 | mariadb_tables | 7 days | 90 days | 14 days |
+| mariadb_locks | 1 day | 7 days | 1 day |
+| mariadb_binlog | 1 day | 30 days | 7 days |
+| mariadb_index_usage | 7 days | 90 days | 14 days |
+| mariadb_connections | 1 day | 7 days | 1 day |
 | incidents | 1 day | 90 days | 7 days |
 | cagg_daily_* | — | 365 days | — |
 
@@ -205,12 +227,78 @@ Migration SQL auto-run via `docker compose up`.
 
 ## 6. UI Architecture — Pages & Components
 
-### 6.1 Global Design System
-- **Theme:** Dark Linear-inspired (`#08090a` canvas, `#0f1011` surface)
-- **Accent:** Jagad indigo/violet (`#818cf8`)
-- **Typography:** Inter UI, JetBrains Mono for code/monospace
-- **Border technique:** Vercel shadow-border (semi-transparent white)
-- **Status colors:** Green `#22d66a`, Yellow `#f5a623`, Red `#ef4444`, Blue `#3b82f6`
+### 6.1 Global Design System — Stripe-inspired
+
+Stripe's signature: **dark navy canvas, weight-300 typography, blue-tinted shadows, conservative border radius.**
+
+#### Color Palette
+
+| Token | Value | Usage |
+|---|---|---|
+| **Canvas** | `#0A2540` | Page background — Stripe's dark navy |
+| **Surface** | `#0F2B47` | Card backgrounds, sidebar |
+| **Elevated** | `#1a3a5c` | Hover states, modal surfaces |
+| **Accent** | `#635BFF` | Primary brand color, CTA, active states |
+| **Accent Hover** | `#5850EC` | Button hover, link hover |
+| **Accent Light** | `#7a73ff` | Subtle accent backgrounds, focus rings |
+| **Text Primary** | `rgba(255,255,255,0.95)` | Headings, labels |
+| **Text Secondary** | `rgba(255,255,255,0.65)` | Body text, descriptions |
+| **Text Tertiary** | `rgba(255,255,255,0.4)` | Metadata, timestamps |
+| **Text Sidebar** | `rgba(255,255,255,0.45)` | Sidebar navigation links |
+| **Border** | `rgba(255,255,255,0.08)` | Card borders, dividers |
+| **Border Hover** | `rgba(255,255,255,0.15)` | Card hover border |
+| **Border Accent** | `rgba(99,91,255,0.3)` | Active/selected state borders |
+
+#### Status Colors
+
+| Status | Color | Background | Border |
+|---|---|---|---|
+| **Healthy** | `#22d66a` | `rgba(34,214,106,0.1)` | `rgba(34,214,106,0.2)` |
+| **Degraded** | `#f5a623` | `rgba(245,166,35,0.1)` | `rgba(245,166,35,0.2)` |
+| **Down** | `#ef4444` | `rgba(239,68,68,0.1)` | `rgba(239,68,68,0.2)` |
+| **Info** | `#3b82f6` | `rgba(59,130,246,0.1)` | `rgba(59,130,246,0.2)` |
+
+#### Typography
+
+- **Primary:** `'Source Sans 3'` — Stripe-like light weight (300), `-apple-system`, `system-ui` fallback
+- **Monospace:** `'Source Code Pro'`, `'JetBrains Mono'`, `SF Mono`, `monospace`
+- **Signature weight:** **300** for KPI values and headings — lightweight, premium feel
+- **Weight 400** for UI elements (buttons, nav links, table cells)
+- **Letter-spacing:** Negative tracking at display sizes (KPI values: `-0.5px`, section headers: `-0.3px`)
+- **Font-feature-settings:** `"ss01"` on body text (Stripe signature), `"tnum"` on numeric data (tabular numbers)
+
+#### Shadow System
+
+Stripe's signature blue-tinted multi-layer shadows:
+
+| Level | Shadow | Usage |
+|---|---|---|
+| **Flat** | None | Page background, inline text |
+| **Card** | `rgba(50,50,93,0.25) 0px 30px 45px -30px, rgba(0,0,0,0.1) 0px 18px 36px -18px` | Standard cards, content panels |
+| **Elevated** | `rgba(3,3,39,0.25) 0px 14px 21px -14px, rgba(0,0,0,0.1) 0px 8px 17px -8px` | Modals, dropdowns |
+| **Hover** | Intensify card shadow on hover | Interactive cards |
+
+#### Border Radius
+
+- **4px** — buttons, inputs, badges, status pills (Stripe conservative)
+- **6px** — cards, sidebar items, nav buttons
+- **8px** — modals, dropdowns, larger containers
+- **12px** — featured cards, hero panels (rare)
+
+#### Card Style
+
+```
+┌──────────────────────────────────┐
+│  Card Title                      │  ← Source Sans 3 w300, -0.3px tracking
+│  ┌──────────────────────────────┐│
+│  │  Card content                ││  ← bg: #0F2B47
+│  │                              ││  ← border: 1px solid rgba(255,255,255,0.08)
+│  │                              ││  ← radius: 6px
+│  │                              ││  ← shadow: rgba(50,50,93,0.25) ...
+│  └──────────────────────────────┘│
+│  Card footer (optional)          │  ← text-tertiary, 12px
+└──────────────────────────────────┘
+```
 
 ### 6.2 Navigation (Sidebar)
 
@@ -280,7 +368,14 @@ SYSTEM
 - **Edit / Disable** buttons per card
 - **Add New Schedule** — dashed border card at bottom
 
-### 6.7 Monitoring Pages (NEW v3)
+### 6.7 Monitoring Pages (NEW v3) — Stripe Card Layout
+
+Semua monitoring pages menggunakan **Stripe card style**: dark navy surface cards (`#0F2B47`) dengan border `rgba(255,255,255,0.08)`, radius `6px`, dan blue-tinted shadow `rgba(50,50,93,0.25)`.
+
+Setiap section card memiliki:
+- **Header:** Source Sans 3 weight 300, `14px`, letter-spacing `-0.2px`, text-secondary
+- **Content:** Cards atau tables di dalamnya
+- **Stripe KPI cards:** `28px` weight 300 value, label `12px` weight 400 text-tertiary, delta arrow dengan warna status
 
 #### 6.7.1 Overview Page (`#monitoring`)
 
@@ -321,6 +416,8 @@ Sections:
 - **Largest Tables** — table, size, index, total, rows (dedup per connection)
 - **Index Usage** — unused indexes with scan count & size
 - **WAL Stats** — WAL size, write frequency
+- **Checkpoints** — checkpoint frequency, WAL per checkpoint, buffers written
+- **Temp Files** — temp file size per database, indicator work_mem tuning
 
 #### 6.7.3 MySQL Page (`#monitoring/mysql`)
 KPI Cards: QPS | Threads Connected | InnoDB BP Hit % | Aborted Conn % | Binlog Size
@@ -332,6 +429,8 @@ Sections:
 - **Metadata Locks** — thread, table, wait time
 - **Largest Tables** — table, engine, size, rows
 - **Binlog** — file name, size, position
+- **Index Usage** — unused indexes with scan count, index size, table
+- **Connections** — thread count, running, idle, aborted
 
 #### 6.7.4 MariaDB Page (`#monitoring/mariadb`)
 KPI Cards: QPS | Thread Pool Active | Aria Cache Hit % | Aborted Conn % | Binlog Size
@@ -342,25 +441,89 @@ Sections:
 - **Replication** — IO/SQL thread, seconds behind master
 - **Slow Queries** — fingerprint, exec count, mean time
 - **Largest Tables** — table, engine, size, rows
+- **Metadata Locks** — thread, table, wait time
+- **Binlog** — file name, size, position
+- **Index Usage** — unused indexes with scan count, index size, table
+- **Connections** — thread count, running, idle, aborted
 
 #### 6.7.5 Analytics Page (`#monitoring/analytics`)
 - Period comparison (current vs previous period)
 - QPS trend chart (zoomable)
 - Incident timeline
 - Uptime SLA chart (daily/weekly breakdown)
+- Lock contention trend — blocked session count & average duration per day
+- Bloat tracking (PG) — dead tuple ratio trend per table
 
 #### 6.7.6 Reports Page (`#monitoring/reports`)
 - Daily uptime SLA (from `cagg_daily_uptime`)
 - Weekly query performance (from `cagg_weekly_query_stats`)
 - Growth forecast (from `cagg_monthly_growth`)
 - Backup success rate (from `cagg_daily_backup_rate`)
+- Capacity forecast — db_size trend projection, estimated time-to-full (from `cagg_monthly_capacity`)
+- Lock contention report — per-connection blocked session duration, most-blocked queries (from `cagg_daily_lock_contention`)
+- Bloat report (PG) — dead tuple ratio growth per table, top-N bloated tables (from `cagg_weekly_bloat_tracking`)
 
 #### 6.7.7 Historical Page (`#monitoring/historical`)
 - Filterable hypertable browser per engine
 - Engine filter pills, date range, raw data table
 - Paginated results
 
-### 6.8 Filter Persistence UX
+### 6.8 Connection Selector & Filter Persistence UX
+
+#### Connection Selector
+
+Setiap monitoring page (kecuali Overview) punya **connection selector dropdown** di bagian atas halaman.
+
+| Page | Filter Scope | Default |
+|---|---|---|
+| **Overview** | ❌ No selector (aggregate all) | — |
+| **PostgreSQL** | ✅ Hanya koneksi PostgreSQL | "All Connections (N)" |
+| **MySQL** | ✅ Hanya koneksi MySQL | "All Connections (N)" |
+| **MariaDB** | ✅ Hanya koneksi MariaDB | "All Connections (N)" |
+| **Analytics** | ✅ Semua engine, grouped by type | "All Connections (N)" |
+| **Reports** | ✅ Semua engine, grouped by type | "All Connections (N)" |
+| **Historical** | ✅ Semua engine, grouped by type | "All Connections (N)" |
+
+**Design (Stripe-inspired):**
+```
+┌────────────────────────────────────────────────────┐
+│  ┌─ All Connections (5) ────────▼─┐               │
+│  │ 🗄️ All Connections (5)         │               │
+│  ├─────────────────────────────────┤               │
+│  │ ● prod-db-1     pg01.example.com│               │
+│  │ ● prod-db-2     pg02.example.com│               │
+│  │ ● staging-pg    stg.example.com│               │
+│  │ ● analytics-pg  etl.example.com│               │
+│  │ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ │               │
+│  │ 🔴 archive-pg   arc.example.com│               │
+│  └─────────────────────────────────┘               │
+└────────────────────────────────────────────────────┘
+```
+
+Setiap item di dropdown punya:
+- **Status dot** 🟢 sehat / 🟠 degraded / 🔴 down
+- **Nama koneksi** (bold)
+- **Host** (monospace, text-tertiary)
+- **Divider** untuk pisahin yang lagi down dari yang sehat
+
+Per-engine pages (PG/MySQL/MariaDB) — dropdown cuma nampilin koneksi sesuai engine.
+Cross-engine pages (Analytics/Reports/Historical) — dropdown grouped by engine label:
+
+```
+┌─ All Connections (25) ───────▼─┐
+│ ● All Connections 25 servers    │
+│ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─  │
+│ POSTGRESQL (5)                  │
+│ ● prod-db-1         pg01       │
+│ ● prod-db-2         pg02       │
+│ MYSQL (10)                      │
+│ ● prod-mysql-1      mysql01    │
+│ MARIADB (10)                    │
+│ ● prod-maria-1      maria01    │
+└─────────────────────────────────┘
+```
+
+#### Filter Persistence
 
 **Aturan:** Setiap pindah page engine, filter **reset ke default**.
 ```
@@ -396,6 +559,8 @@ Collector (cycle utama tiap 60 detik)
 │   ├── tables              → monitoring.pg_tables         ← 5 MENIT (berat)
 │   ├── index_usage         → monitoring.pg_index_usage    ← 1 JAM (sangat berat)
 │   ├── wal_stats           → monitoring.pg_wal_stats      ← 60 detik (ringan)
+│   ├── checkpoints         → monitoring.pg_checkpoints    ← 60 detik (ringan)
+│   ├── temp_files          → monitoring.pg_temp_files     ← 60 detik (ringan)
 │   └── connections         → monitoring.pg_connections    ← 60 detik (ringan)
 │
 ├── [jika MySQL] collectMySQL()
@@ -405,6 +570,7 @@ Collector (cycle utama tiap 60 detik)
 │   ├── locks               → monitoring.mysql_locks           ← 60 detik (ringan)
 │   ├── tables              → monitoring.mysql_tables          ← 5 MENIT (berat)
 │   ├── binlog              → monitoring.mysql_binlog          ← 60 detik (ringan)
+│   ├── index_usage         → monitoring.mysql_index_usage     ← 1 JAM (sangat berat)
 │   └── connections         → monitoring.mysql_connections     ← 60 detik (ringan)
 │
 └── [jika MariaDB] collectMariaDB()
@@ -412,7 +578,11 @@ Collector (cycle utama tiap 60 detik)
     ├── aria_cache          → monitoring.mariadb_aria_cache    ← 60 detik (ringan)
     ├── replication         → monitoring.mariadb_replication   ← 60 detik (ringan)
     ├── slow_queries        → monitoring.mariadb_slow_queries  ← 5 MENIT (berat)
-    └── tables              → monitoring.mariadb_tables        ← 5 MENIT (berat)
+    ├── tables              → monitoring.mariadb_tables        ← 5 MENIT (berat)
+    ├── locks               → monitoring.mariadb_locks         ← 60 detik (ringan)
+    ├── binlog              → monitoring.mariadb_binlog        ← 60 detik (ringan)
+    ├── index_usage         → monitoring.mariadb_index_usage   ← 1 JAM (sangat berat)
+    └── connections         → monitoring.mariadb_connections   ← 60 detik (ringan)
 ```
 
 ### 7.2 Error Handling Partial Failure
@@ -457,6 +627,8 @@ GET  /api/v2/monitoring/pg/locks?connection_id=
 GET  /api/v2/monitoring/pg/tables?connection_id=&limit=10
 GET  /api/v2/monitoring/pg/index-usage?connection_id=&unused_only=true
 GET  /api/v2/monitoring/pg/wal-stats?connection_id=
+GET  /api/v2/monitoring/pg/checkpoints?connection_id=
+GET  /api/v2/monitoring/pg/temp-files?connection_id=
 GET  /api/v2/monitoring/pg/connections?connection_id=
 
 # MySQL
@@ -466,19 +638,28 @@ GET  /api/v2/monitoring/mysql/slow-queries?connection_id=&since=&until=&limit=
 GET  /api/v2/monitoring/mysql/locks?connection_id=
 GET  /api/v2/monitoring/mysql/tables?connection_id=&limit=10
 GET  /api/v2/monitoring/mysql/binlog?connection_id=
+GET  /api/v2/monitoring/mysql/index-usage?connection_id=&unused_only=true
+GET  /api/v2/monitoring/mysql/connections?connection_id=
 
 # MariaDB
 GET  /api/v2/monitoring/mariadb/thread-pool?connection_id=
 GET  /api/v2/monitoring/mariadb/aria-cache?connection_id=
 GET  /api/v2/monitoring/mariadb/replication?connection_id=
 GET  /api/v2/monitoring/mariadb/slow-queries?connection_id=
-GET  /api/v2/monitoring/mariadb/tables?connection_id=
+GET  /api/v2/monitoring/mariadb/tables?connection_id=&limit=10
+GET  /api/v2/monitoring/mariadb/locks?connection_id=
+GET  /api/v2/monitoring/mariadb/binlog?connection_id=
+GET  /api/v2/monitoring/mariadb/index-usage?connection_id=&unused_only=true
+GET  /api/v2/monitoring/mariadb/connections?connection_id=
 
 # Reports (CAGG)
 GET  /api/v2/reports/daily-uptime?from=&to=&engine=
 GET  /api/v2/reports/weekly-perf?from=&to=
 GET  /api/v2/reports/growth-projection?connection_id=
 GET  /api/v2/reports/backup-rate?from=&to=
+GET  /api/v2/reports/bloat-tracking?connection_id=&from=&to=
+GET  /api/v2/reports/lock-contention?connection_id=&from=&to=
+GET  /api/v2/reports/capacity-forecast?connection_id=
 ```
 
 ### Backward Compatibility (v1)
@@ -498,9 +679,9 @@ GET  /api/v2/reports/backup-rate?from=&to=
 ### Phase 1: Schema Split (Database)
 
 - [ ] `CREATE SCHEMA monitoring;`
-- [ ] Create 22 hypertables di `monitoring` schema
+- [ ] Create 30 hypertables di `monitoring` schema
 - [ ] Set retention + compression policies
-- [ ] Create 5 continuous aggregates
+- [ ] Create 8 continuous aggregates
 - [ ] Update application DB queries
 - [ ] Drop old P2 tables dari `public`
 
@@ -509,7 +690,10 @@ GET  /api/v2/reports/backup-rate?from=&to=
 - [ ] Pisah `collector.go` jadi `collectPG()`, `collectMySQL()`, `collectMariaDB()`
 - [ ] Implement rate limiting (60s / 5m / 1h)
 - [ ] Implement partial failure handling (log + continue)
-- [ ] Register v2 API handlers
+- [ ] Implement PG new metrics: checkpoints (`pg_stat_checkpoints`), temp files (`pg_stat_database`)
+- [ ] Implement MySQL/MariaDB index usage collector (`information_schema` scan)
+- [ ] Add missing MariaDB collectors: connections, locks, binlog
+- [ ] Register v2 API handlers (30+ endpoints)
 - [ ] Create v2 response models
 
 ### Phase 3: UI Revamp — Core Pages
@@ -524,11 +708,11 @@ GET  /api/v2/reports/backup-rate?from=&to=
 
 - [ ] Split `app.js` monitoring → `js/monitoring/*.js` (per page)
 - [ ] Overview page — health KPI + per-engine summary
-- [ ] PostgreSQL page — query analytics, autovacuum, replication, locks, tables, WAL
-- [ ] MySQL page — InnoDB buffer pool, replication, slow queries, binlog
-- [ ] MariaDB page — thread pool, aria cache, replication, slow queries
-- [ ] Analytics page — period comparison, QPS trend, incidents
-- [ ] Reports page — CAGG-driven SLA & capacity
+- [ ] PostgreSQL page — query analytics, autovacuum, replication, locks, tables, index usage, WAL, checkpoints, temp files
+- [ ] MySQL page — InnoDB buffer pool, replication, slow queries, locks, tables, binlog, index usage, connections
+- [ ] MariaDB page — thread pool, aria cache, replication, slow queries, tables, locks, binlog, index usage, connections
+- [ ] Analytics page — period comparison, QPS trend, incidents, lock contention trend, bloat tracking (PG)
+- [ ] Reports page — CAGG-driven uptime SLA, weekly perf, growth, backup rate, capacity forecast, lock contention, bloat report
 - [ ] Historical page — hypertable browser
 - [ ] Integrasi `chartjs-plugin-zoom`
 
@@ -558,59 +742,56 @@ GET  /api/v2/reports/backup-rate?from=&to=
 ## 11. Timeline (Estimated)
 
 | Phase | Sessions | Deliverable |
-|---|---|---|
-| Phase 1: Schema Split | 1 | Migration SQL, schemas created |
-| Phase 2: Collector Refactor | 1-2 | Go refactor, API v2 endpoints |
-| Phase 3: UI Core Pages | 2 | Dashboard, Connections, Backups, Schedules |
-| Phase 4: UI Monitoring | 2-3 | 7 monitoring pages, charts, filters |
-| Phase 5: Bug Fixes & Validation | 1 | 3 bugs fixed, testing |
+|---|---|---|---|
+| Phase 1: Schema Split | 1 | Migration SQL, 30 hypertables + 8 CAGG created |
+| Phase 2: Collector Refactor | 1-2 | Go refactor, per-engine collectors (10 PG, 8 MySQL, 9 MariaDB metrics), 30+ API v2 endpoints |
+| Phase 3: UI Core Pages | 2 | Dashboard, Connections, Backups, Schedules revamp |
+| Phase 4: UI Monitoring | 2-3 | 7 monitoring pages: Overview + 3 engine deep-dives + Analytics + Reports + Historical |
+| Phase 5: Bug Fixes & Validation | 1 | 3 bugs fixed, full integration testing |
 | **Total** | **7-9 sessions** | Full Jagad revamp v3.0 |
 
 ---
 
 ## 12. Mockup References
 
-Berikut screenshot mockup Jagad revamp — bisa dijadikan referensi implementasi.
+Berikut screenshot mockup Jagad revamp v3 — Stripe-inspired design system (dark navy canvas, purple accent `#635BFF`).
 
-### Core Pages (UI Revamp)
-
-#### Dashboard
-![Dashboard](../sketches/mockup-dashboard.png)
-*KPI row, backup chart 30d, quick actions grid, activity feed*
-
-#### Connections
-![Connections](../sketches/mockup-connections.png)
-*Search bar, filter pills, status badges, expandable rows*
-
-#### Connections — Expanded
-![Connections Expanded](../sketches/mockup-connections-expanded.png)
-*Expandable row dengan connection string, version, total size, recent backups*
-
-#### Backups
-![Backups](../sketches/mockup-backups.png)
-*Stats row, timeline calendar, connection distribution, batch actions*
-
-#### Schedules
-![Schedules](../sketches/mockup-schedules.png)
-*Ring indicator, next run countdown, success ratio, edit/disable*
+**Mockup file:** [`mockup-stripe-v1.html`](../sketches/mockup-stripe-v1.html) — 1 HTML file, 7 pages via sidebar navigation.
 
 ### Monitoring Pages (v3)
 
 #### Overview
-![Monitoring Overview](../sketches/mockup-monitoring-overview.png)
-*Health KPI row (Connections/Healthy/Degraded/Down), 3 engine summary cards (PG/MySQL/MariaDB) dengan mini stats, recent incidents list, health timeline 24h stacked bar, quick stats footer*
+![Overview](../sketches/mockup-overview.png)
+*Health KPI row (Total/Healthy/Avg Resp/Cache Hit/QPS), 3 engine summary cards (PG/MySQL/MariaDB) dengan mini health dot & QPS, TimescaleDB panel (storage, data points, retention, compression), recent incidents list*
 
-#### Per-Engine Monitoring
-![Per-Engine Monitoring](../sketches/mockup-monitoring-engine.png)
-*Tabs PG/MySQL/MariaDB per engine, sub-tabs per metric kategori (Query Analytics, Autovacuum, Replication, Locks, Tables, WAL), top queries table, chart previews, connection selector*
+#### PostgreSQL — Deep Dive
+![PostgreSQL](../sketches/mockup-pg.png)
+*PG KPIs (QPS/Active Conn/Cache Hit/Dead Tuple/WAL Size), Query Analytics table (load-ranked), Autovacuum Status, Replication lag, Locks, Largest Tables, Checkpoints, WAL Stats, Index Usage, Temp Files*
 
-#### Analytics & Reports
-![Analytics & Reports](../sketches/mockup-monitoring-analytics.png)
-*CAGG-driven reporting: QPS trend 30d, SLA uptime per connection, storage growth forecast, slow query regression (week-over-week), incidents timeline, backup success rate, capacity planning table*
+#### MySQL — Deep Dive
+![MySQL](../sketches/mockup-mysql.png)
+*MySQL KPIs (QPS/Threads Connected/InnoDB BP Hit/Aborted Conn/Binlog Size), InnoDB Buffer Pool donut, Replication, Slow Queries, Metadata Locks, Largest Tables, Binlog, Index Usage, Connections*
 
-#### Historical Data Browser
-![Historical Data Browser](../sketches/mockup-monitoring-historical.png)
-*Hypertable explorer sidebar (all 23 hypertables + 5 CAGG grouped by engine), time range picker, raw data table with pagination, filter pills, status preview chart, CSV/JSON export*
+#### MariaDB — Deep Dive
+![MariaDB](../sketches/mockup-mariadb.png)
+*MariaDB KPIs (QPS/Thread Pool Active/Aria Cache Hit/Aborted Conn/Binlog Size), Thread Pool stats, Aria Page Cache, Replication, Slow Queries, Largest Tables, Locks, Binlog, Index Usage, Connections*
+
+#### Analytics
+![Analytics](../sketches/mockup-analytics.png)
+*SLA KPIs row (Uptime/Avg QPS/Total Incidents/Lock Contention), QPS Trend chart, Incident Timeline chart, Lock Contention trend, Bloat Tracking (PG), Uptime SLA daily breakdown*
+
+#### Reports
+![Reports](../sketches/mockup-reports.png)
+*Capacity Forecast growth chart, Bloat Report table (dead tuple ratio per table), Lock Contention Report (blocked sessions per connection), Backup Success Rate chart*
+
+#### Historical Data
+![Historical](../sketches/mockup-historical.png)
+*Engine filter pills (All/PG/MySQL/MariaDB), table type filters (Hypertable/Regular/CAGG), search, date range picker, paginated data table with status badges*
+
+### Mockup Note
+
+- **Dashboard, Connections, Backups, Schedules** — belum di-mockup di v1 ini. Fokus monitoring pages dulu.
+- **Approach:** 1 HTML file, tabs via sidebar (`#monitoring`, `#monitoring/pg`, `#monitoring/mysql`, `#monitoring/mariadb`, `#monitoring/analytics`, `#monitoring/reports`, `#monitoring/historical`)
 
 ---
 
