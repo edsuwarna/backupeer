@@ -2,6 +2,7 @@
 
 > **Backup Manager** — Web UI untuk PostgreSQL, MySQL, dan MariaDB backup dengan S3-compatible object storage.
 
+[![Build](https://github.com/edsuwarna/jagad/actions/workflows/build-push.yml/badge.svg)](https://github.com/edsuwarna/jagad/actions/workflows/build-push.yml)
 ![Version](https://img.shields.io/badge/version-0.1.0-blue)
 ![License](https://img.shields.io/badge/license-Apache%202.0-green)
 ![Go](https://img.shields.io/badge/Go-1.25-blue)
